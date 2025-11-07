@@ -246,7 +246,11 @@ public class Boxes
 
     public static void RPC_Ownership(Container container, long uid)
     {
-        if ((container.IsInUse() || container.m_wagon && container.m_wagon.InUse()) && uid != ZNet.GetUID())
+        if (!container.m_nview.IsOwner())
+        {
+            // Vanilla would log here, but, no need for us to.
+        }
+        else if ((container.IsInUse() || container.m_wagon && container.m_wagon.InUse()) && uid != ZNet.GetUID() || !container.CheckAccess(Game.instance.GetPlayerProfile().GetPlayerID()))
         {
             container.m_nview.InvokeRPC(uid, "Autostore OpenResponse", false);
         }

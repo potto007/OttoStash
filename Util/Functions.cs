@@ -92,6 +92,7 @@ public class Functions
             if (!itemDrop.CanPickup(false))
             {
                 itemDrop.RequestOwn();
+                continue;
             }
             else if (!itemDrop.m_nview!.HasOwner())
             {
@@ -256,7 +257,7 @@ public class Functions
 
     internal static void TryStoreThisItem(ItemDrop.ItemData itemData, Inventory m_inventory)
     {
-        if (Player.m_localPlayer == null) return;
+        if (!Player.m_localPlayer) return;
         if (m_inventory != Player.m_localPlayer.GetInventory())
         {
             return;
@@ -338,6 +339,7 @@ public class Functions
                         if (c is VanillaContainers container)
                         {
                             container.gameObject.GetComponent<Container>().SetInUse(false);
+                            InventoryGui.instance.m_moveItemEffects.Create(c.gameObject.transform.position, Quaternion.identity);
                         }
                     }
                 }

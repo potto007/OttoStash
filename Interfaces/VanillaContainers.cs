@@ -153,7 +153,7 @@ public class VanillaContainers(Container _container) : IContainer
         if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value == AzuAutoStorePlugin.Toggle.On && !nearbyContainer.GetInventory().HaveItem(item.m_shared.m_name))
             return false;
         if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.transform.root.name), item.m_dropPrefab.name)) return false;
-
+        if (nearbyContainer.GetInventory().CountItems(item.m_shared.m_name, item.m_quality, true) <= 0) return false;
         LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.name}");
         while (item.m_stack > 1 && nearbyContainer.GetInventory().CanAddItem(item, 1))
         {
