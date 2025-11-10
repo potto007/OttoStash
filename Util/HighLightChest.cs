@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace AzuAutoStore.Util;
+﻿namespace AzuAutoStore.Util;
 
 public class HighLightChest : MonoBehaviour
 {

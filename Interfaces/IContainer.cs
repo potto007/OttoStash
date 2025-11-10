@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace AzuAutoStore.Interfaces;
+﻿namespace AzuAutoStore.Interfaces;
 
 public interface IContainer
 {

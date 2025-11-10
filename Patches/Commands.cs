@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AzuAutoStore.Interfaces;
-using AzuAutoStore.Util;
-using HarmonyLib;
-using UnityEngine;
-
-namespace AzuAutoStore;
+﻿namespace AzuAutoStore;
 
 // Patch the Terminal.Init to add commands to the terminal
 [HarmonyPatch(typeof(Terminal), nameof(Terminal.InitTerminal))]

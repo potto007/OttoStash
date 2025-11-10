@@ -1,192 +1,189 @@
-﻿using HarmonyLib;
+﻿namespace AzuAutoStore.Patches.Favoriting;
 
-namespace AzuAutoStore.Patches.Favoriting
+[HarmonyPatch(typeof(InventoryGrid))]
+internal class InventoryGridButtonHandlingPatches
 {
-    [HarmonyPatch(typeof(InventoryGrid))]
-    internal class InventoryGridButtonHandlingPatches
+    [HarmonyPatch(nameof(InventoryGrid.OnRightClick)), HarmonyPrefix]
+    internal static bool OnRightClick(InventoryGrid __instance, UIInputHandler element)
     {
-        [HarmonyPatch(nameof(InventoryGrid.OnRightClick)), HarmonyPrefix]
-        internal static bool OnRightClick(InventoryGrid __instance, UIInputHandler element)
+        return HandleClick(__instance, element, false);
+    }
+
+    [HarmonyPatch(nameof(InventoryGrid.OnLeftClick)), HarmonyPrefix]
+    internal static bool OnLeftClick(InventoryGrid __instance, UIInputHandler clickHandler)
+    {
+        return HandleClick(__instance, clickHandler, true);
+    }
+
+    internal static bool HandleClick(InventoryGrid __instance, UIInputHandler clickHandler, bool isLeftClick)
+    {
+        Vector2i buttonPos = __instance.GetButtonPos(clickHandler.gameObject);
+
+        return HandleClick(__instance, buttonPos, isLeftClick, SearchModifierKeybind.Value.IsKeyHeld());
+    }
+
+    /*[HarmonyPatch(nameof(InventoryGrid.UpdateGamepad))]
+    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        try
         {
-            return HandleClick(__instance, element, false);
+            var list = instructions.ToList();
+
+            var info = typeof(InventoryGridButtonHandlingPatches).GetMethod(nameof(GetButtonDownWithConfig));
+
+            for (int i = 0; i < list.Count; ++i)
+            {
+                if (list[i].opcode == OpCodes.Call && list[i].operand.ToString().ToLower().Contains("getbuttondown"))
+                {
+                    list[i] = new CodeInstruction(OpCodes.Call, info);
+                }
+            }
+
+            return list;
+        }
+        catch (Exception e)
+        {
+            AzuAutoStorePlugin.AzuAutoStoreLogger.LogError($"There was an exception while transpiling {e}\n{e.StackTrace}");
+            return instructions;
+        }
+    }*/
+
+    [HarmonyPatch(nameof(InventoryGrid.UpdateGamepad))]
+    private static void Postfix(InventoryGrid __instance)
+    {
+        if (__instance != InventoryGui.instance.m_playerGrid)
+        {
+            return;
         }
 
-        [HarmonyPatch(nameof(InventoryGrid.OnLeftClick)), HarmonyPrefix]
-        internal static bool OnLeftClick(InventoryGrid __instance, UIInputHandler clickHandler)
+        if (!__instance.m_uiGroup.IsActive)
         {
-            return HandleClick(__instance, clickHandler, true);
+            return;
         }
 
-        internal static bool HandleClick(InventoryGrid __instance, UIInputHandler clickHandler, bool isLeftClick)
+        if (ZInput.GetButtonDown("JoyButtonA"))
         {
-            Vector2i buttonPos = __instance.GetButtonPos(clickHandler.gameObject);
-
-            return HandleClick(__instance, buttonPos, isLeftClick, AzuAutoStorePlugin.SearchModifierKeybind.Value.IsKeyHeld());
+            HandleClick(__instance, __instance.m_selected, true);
         }
-
-        /*[HarmonyPatch(nameof(InventoryGrid.UpdateGamepad))]
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        else if (ZInput.GetButtonDown("JoyButtonX"))
         {
-            try
-            {
-                var list = instructions.ToList();
-
-                var info = typeof(InventoryGridButtonHandlingPatches).GetMethod(nameof(GetButtonDownWithConfig));
-
-                for (int i = 0; i < list.Count; ++i)
-                {
-                    if (list[i].opcode == OpCodes.Call && list[i].operand.ToString().ToLower().Contains("getbuttondown"))
-                    {
-                        list[i] = new CodeInstruction(OpCodes.Call, info);
-                    }
-                }
-
-                return list;
-            }
-            catch (Exception e)
-            {
-                AzuAutoStorePlugin.AzuAutoStoreLogger.LogError($"There was an exception while transpiling {e}\n{e.StackTrace}");
-                return instructions;
-            }
-        }*/
-
-        [HarmonyPatch(nameof(InventoryGrid.UpdateGamepad))]
-        private static void Postfix(InventoryGrid __instance)
-        {
-            if (__instance != InventoryGui.instance.m_playerGrid)
-            {
-                return;
-            }
-
-            if (!__instance.m_uiGroup.IsActive)
-            {
-                return;
-            }
-
-            if (ZInput.GetButtonDown("JoyButtonA"))
-            {
-                HandleClick(__instance, __instance.m_selected, true);
-            }
-            else if (ZInput.GetButtonDown("JoyButtonX"))
-            {
-                HandleClick(__instance, __instance.m_selected, false);
-            }
+            HandleClick(__instance, __instance.m_selected, false);
         }
+    }
 
-        /*public static bool GetButtonDownWithConfig(string key)
+    /*public static bool GetButtonDownWithConfig(string key)
+    {
+        bool pressed = ZInput.GetButtonDown(key);
+
+        if (key == "JoyButtonA" || key == "JoyButtonX")
         {
-            bool pressed = ZInput.GetButtonDown(key);
+            // we don't know which grid we are right here, so make some educated guessed on
+            // whether we should dispose of this button press or not (based on HandleClick).
+            // afterwards the actual player grid can check for the key in postfix and handle it
+            var playerGrid = InventoryGui.instance.m_playerGrid;
 
-            if (key == "JoyButtonA" || key == "JoyButtonX")
-            {
-                // we don't know which grid we are right here, so make some educated guessed on
-                // whether we should dispose of this button press or not (based on HandleClick).
-                // afterwards the actual player grid can check for the key in postfix and handle it
-                var playerGrid = InventoryGui.instance.m_playerGrid;
-
-                if (!playerGrid.m_uiGroup.IsActive)
-                {
-                    return pressed;
-                }
-
-                if (Player.m_localPlayer.IsTeleporting())
-                {
-                    return pressed;
-                }
-
-                if (InventoryGui.instance.m_dragGo)
-                {
-                    return pressed;
-                }
-
-                if (!FavoritingMode.IsInFavoritingMode())
-                {
-                    return pressed;
-                }
-
-                return false;
-            }
-
-            if (!key.ToLower().Contains("dpad"))
+            if (!playerGrid.m_uiGroup.IsActive)
             {
                 return pressed;
             }
 
-            switch (ControllerConfig.ControllerDPadUsageInInventoryGrid.Value)
+            if (Player.m_localPlayer.IsTeleporting())
             {
-                case DPadUsage.InventorySlotMovement:
-                    return pressed;
-
-                case DPadUsage.KeybindsWhileHoldingModifierKey:
-                    return pressed && !KeybindChecker.IsKeyHeld(ControllerConfig.ControllerDPadUsageModifierKeybind.Value);
-
-                case DPadUsage.Keybinds:
-                default:
-                    return false;
-            }
-        }*/
-
-        internal static bool HandleClick(InventoryGrid __instance, Vector2i buttonPos, bool isLeftClick, bool searchBypass = false)
-        {
-            if (InventoryGui.instance.m_playerGrid != __instance)
-            {
-                return true;
-            }
-
-            Player localPlayer = Player.m_localPlayer;
-
-            if (localPlayer.IsTeleporting())
-            {
-                return true;
+                return pressed;
             }
 
             if (InventoryGui.instance.m_dragGo)
             {
-                return true;
+                return pressed;
             }
 
             if (!FavoritingMode.IsInFavoritingMode())
             {
-                return true;
-            }
-
-            if (buttonPos == new Vector2i(-1, -1))
-            {
-                return true;
-            }
-
-            switch (isLeftClick)
-            {
-                case false:
-                    UserConfig.GetPlayerConfig(localPlayer.GetPlayerID()).ToggleSlotFavoriting(buttonPos);
-                    break;
-                case true when searchBypass:
-                {
-                    ItemDrop.ItemData itemAt = __instance.m_inventory.GetItemAt(buttonPos.x, buttonPos.y);
-                    Chat.instance.TryRunCommand($"azuautostoresearch {itemAt.m_dropPrefab.name.ToLower()}", false, true);
-                    break;
-                }
-                default:
-                {
-                    ItemDrop.ItemData itemAt = __instance.m_inventory.GetItemAt(buttonPos.x, buttonPos.y);
-
-                    if (itemAt == null)
-                    {
-                        return true;
-                    }
-
-                    bool wasToggleSuccessful = UserConfig.GetPlayerConfig(localPlayer.GetPlayerID()).ToggleItemNameFavoriting(itemAt.m_shared);
-
-                    if (!wasToggleSuccessful)
-                    {
-                        //localPlayer.Message(MessageHud.MessageType.Center, LocalizationConfig.GetRelevantTranslation(LocalizationConfig.CantFavoriteTrashFlaggedItemWarning, nameof(LocalizationConfig.CantFavoriteTrashFlaggedItemWarning)), 0, null);
-                    }
-
-                    break;
-                }
+                return pressed;
             }
 
             return false;
         }
+
+        if (!key.ToLower().Contains("dpad"))
+        {
+            return pressed;
+        }
+
+        switch (ControllerConfig.ControllerDPadUsageInInventoryGrid.Value)
+        {
+            case DPadUsage.InventorySlotMovement:
+                return pressed;
+
+            case DPadUsage.KeybindsWhileHoldingModifierKey:
+                return pressed && !KeybindChecker.IsKeyHeld(ControllerConfig.ControllerDPadUsageModifierKeybind.Value);
+
+            case DPadUsage.Keybinds:
+            default:
+                return false;
+        }
+    }*/
+
+    internal static bool HandleClick(InventoryGrid __instance, Vector2i buttonPos, bool isLeftClick, bool searchBypass = false)
+    {
+        if (InventoryGui.instance.m_playerGrid != __instance)
+        {
+            return true;
+        }
+
+        Player localPlayer = Player.m_localPlayer;
+
+        if (localPlayer.IsTeleporting())
+        {
+            return true;
+        }
+
+        if (InventoryGui.instance.m_dragGo)
+        {
+            return true;
+        }
+
+        if (!FavoritingMode.IsInFavoritingMode())
+        {
+            return true;
+        }
+
+        if (buttonPos == new Vector2i(-1, -1))
+        {
+            return true;
+        }
+
+        switch (isLeftClick)
+        {
+            case false:
+                UserConfig.GetPlayerConfig(localPlayer.GetPlayerID()).ToggleSlotFavoriting(buttonPos);
+                break;
+            case true when searchBypass:
+            {
+                ItemDrop.ItemData itemAt = __instance.m_inventory.GetItemAt(buttonPos.x, buttonPos.y);
+                Chat.instance.TryRunCommand($"azuautostoresearch {itemAt.m_dropPrefab.name.ToLower()}", false, true);
+                break;
+            }
+            default:
+            {
+                ItemDrop.ItemData itemAt = __instance.m_inventory.GetItemAt(buttonPos.x, buttonPos.y);
+
+                if (itemAt == null)
+                {
+                    return true;
+                }
+
+                bool wasToggleSuccessful = UserConfig.GetPlayerConfig(localPlayer.GetPlayerID()).ToggleItemNameFavoriting(itemAt.m_shared);
+
+                if (!wasToggleSuccessful)
+                {
+                    //localPlayer.Message(MessageHud.MessageType.Center, LocalizationConfig.GetRelevantTranslation(LocalizationConfig.CantFavoriteTrashFlaggedItemWarning, nameof(LocalizationConfig.CantFavoriteTrashFlaggedItemWarning)), 0, null);
+                }
+
+                break;
+            }
+        }
+
+        return false;
     }
 }

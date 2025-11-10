@@ -1,7 +1,4 @@
-﻿using AzuAutoStore.Util;
-using HarmonyLib;
-
-namespace AzuAutoStore.Patches;
+﻿namespace AzuAutoStore.Patches;
 
 [HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.Awake))]
 static class PredefinedGroupGrab

@@ -1,16 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using UnityEngine;
-
-namespace AzuAutoStore.Util;
+﻿namespace AzuAutoStore.Util;
 
 public class MiscFunctions
 {
     private static void LogResourceInfo(int totalAmount, int totalRequirement, string reqName)
     {
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug($"(ConsumeResourcesPatch) Have {totalAmount}/{totalRequirement} {reqName} in player inventory");
+        AzuAutoStoreLogger.LogDebug($"(ConsumeResourcesPatch) Have {totalAmount}/{totalRequirement} {reqName} in player inventory");
     }
 
     public static string GetPrefabName(string name)
@@ -243,14 +237,14 @@ public class MiscFunctions
         // Check if the group exists, and if not, create it
         if (!GroupUtils.GroupExists(groupName))
         {
-            AzuAutoStorePlugin.groups[groupName] = [];
+            groups[groupName] = [];
         }
 
         // Add the item to the group
         string? prefabName = Utils.GetPrefabName(itemDrop.m_itemData.m_dropPrefab);
-        if (AzuAutoStorePlugin.groups[groupName].Contains(prefabName)) return;
-        AzuAutoStorePlugin.groups[groupName].Add(prefabName);
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug($"(CreatePredefinedGroups) Added {prefabName} to {groupName}");
+        if (groups[groupName].Contains(prefabName)) return;
+        groups[groupName].Add(prefabName);
+        AzuAutoStoreLogger.LogDebug($"(CreatePredefinedGroups) Added {prefabName} to {groupName}");
     }
 
     private static void SaveGroupsToFile()
@@ -260,15 +254,15 @@ public class MiscFunctions
             return;
         }
 
-        string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty, $"{AzuAutoStorePlugin.ModName}_PredefinedGroups.txt");
+        string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty, $"{ModName}_PredefinedGroups.txt");
         using StreamWriter file = new(path, false);
 
         // Before writing to the file, alphabetize the groups then the prefab names
-        foreach (string? group in AzuAutoStorePlugin.groups.Keys.OrderBy(x => x))
+        foreach (string? group in groups.Keys.OrderBy(x => x))
         {
             file.WriteLine(group);
             if (group != null)
-                foreach (string? prefab in AzuAutoStorePlugin.groups[group].OrderBy(x => x))
+                foreach (string? prefab in groups[group].OrderBy(x => x))
                 {
                     file.WriteLine($"\t{prefab}");
                 }

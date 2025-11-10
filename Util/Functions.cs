@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using AzuAutoStore.Interfaces;
+﻿using System.Collections;
 using AzuAutoStore.Patches;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace AzuAutoStore.Util;
@@ -18,9 +13,9 @@ public class Functions
 
     internal static float GetContainerRange(Container container)
     {
-        if (AzuAutoStorePlugin.yamlData == null)
+        if (yamlData == null)
         {
-            AzuAutoStorePlugin.AzuAutoStoreLogger.LogError("yamlData is null when trying to get the container range for a container. Make sure that your YAML file is not empty or to call DeserializeYamlFile() before using GetContainerRange.");
+            AzuAutoStoreLogger.LogError("yamlData is null when trying to get the container range for a container. Make sure that your YAML file is not empty or to call DeserializeYamlFile() before using GetContainerRange.");
             return -1f;
         }
 
@@ -29,7 +24,7 @@ public class Functions
 
         // Try to get container settings from YAML configuration
         string containerName = MiscFunctions.GetPrefabName(container.transform.root.name);
-        if (AzuAutoStorePlugin.yamlData.TryGetValue(containerName, out object containerData))
+        if (yamlData.TryGetValue(containerName, out object containerData))
         {
             if (containerData is Dictionary<object, object> containerInfo)
             {
@@ -40,13 +35,13 @@ public class Functions
             }
             else
             {
-                AzuAutoStorePlugin.AzuAutoStoreLogger.LogError($"Unable to cast containerData for container '{containerName}' to Dictionary<object, object>.");
+                AzuAutoStoreLogger.LogError($"Unable to cast containerData for container '{containerName}' to Dictionary<object, object>.");
                 return -1f;
             }
         }
 
 
-        return AzuAutoStorePlugin.FallbackRange.Value;
+        return FallbackRange.Value;
     }
 
     private static readonly Dictionary<ZDOID, float> LastOwnAttempt = new();
@@ -57,14 +52,14 @@ public class Functions
             return;
 
 
-        if (AzuAutoStorePlugin.ChestsPickupFromGround.Value.IsOff()) return;
+        if (ChestsPickupFromGround.Value.IsOff()) return;
         ZNetView? nview = itemDrop.m_nview;
         if (!nview || !nview.IsValid()) return;
         // Check if the itemdrop is a Fish and if it's not out of water before trying to store it.
         if (!itemDrop.m_itemData.m_dropPrefab) return;
         if (itemDrop.m_itemData.m_dropPrefab.TryGetComponent<Fish>(out Fish? fish))
         {
-            if (!fish.IsOutOfWater() && !AzuAutoStorePlugin.FishSuction.Value.IsOn())
+            if (!fish.IsOutOfWater() && !FishSuction.Value.IsOn())
             {
                 return;
             }
@@ -132,7 +127,7 @@ public class Functions
         LogIfBuildDebug($"Checking container {nearbyContainer.name}");
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
         LogIfBuildDebug($"{item.m_dropPrefab.name}, Passed item integrity check");
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.GetInventory().HaveItem(item.m_shared.m_name))
+        if (MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.GetInventory().HaveItem(item.m_shared.m_name))
         {
             if (singleItemData)
             {
@@ -213,7 +208,7 @@ public class Functions
         LogDebug("Trying to store items from player inventory");
         // Check all items in the player inventory where the items are not equipped
 
-        IContainer?[] uncheckedContainers = Boxes.GetNearbyContainers(Player.m_localPlayer, AzuAutoStorePlugin.PlayerRange.Value).ToArray();
+        IContainer?[] uncheckedContainers = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value).ToArray();
 
         int total = 0;
         for (int i = 0; i < uncheckedContainers.Length; ++i)
@@ -246,7 +241,7 @@ public class Functions
                 InProgressStores = 0;
             }
 
-            AzuAutoStorePlugin.self.StartCoroutine(End());
+            self.StartCoroutine(End());
 
             foreach (IContainer? nearbyContainer in uncheckedContainers)
             {
@@ -276,7 +271,7 @@ public class Functions
         LogDebug($"Trying to store {itemData.m_shared.m_name}");
         // Check all items in the player inventory where the items are not equipped
 
-        IContainer?[] uncheckedContainers = Boxes.GetNearbyContainers(Player.m_localPlayer, AzuAutoStorePlugin.PlayerRange.Value).ToArray();
+        IContainer?[] uncheckedContainers = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value).ToArray();
 
         int total = 0;
         for (int i = 0; i < uncheckedContainers.Length; ++i)
@@ -309,7 +304,7 @@ public class Functions
                 InProgressStores = 0;
             }
 
-            AzuAutoStorePlugin.self.StartCoroutine(End());
+            self.StartCoroutine(End());
 
             foreach (IContainer? nearbyContainer in uncheckedContainers)
             {
@@ -355,7 +350,7 @@ public class Functions
                 }
                 catch (Exception e)
                 {
-                    AzuAutoStorePlugin.AzuAutoStoreLogger.LogError($"Error while trying to reset ownership of container {c.gameObject.name}: {e}");
+                    AzuAutoStoreLogger.LogError($"Error while trying to reset ownership of container {c.gameObject.name}: {e}");
                 }
             }
 
@@ -367,17 +362,17 @@ public class Functions
     internal static void PingContainer(GameObject container)
     {
         if (container == null) return;
-        if (AzuAutoStorePlugin.PingContainers.Value.IsOn() && container.GetComponent<ChestPingEffect>() == null)
+        if (PingContainers.Value.IsOn() && container.GetComponent<ChestPingEffect>() == null)
             container.AddComponent<ChestPingEffect>();
 
-        if (AzuAutoStorePlugin.HighlightContainers.Value.IsOn() && container.GetComponent<HighLightChest>() == null)
+        if (HighlightContainers.Value.IsOn() && container.GetComponent<HighLightChest>() == null)
             container.AddComponent<HighLightChest>();
     }
 
 
     internal static void LogDebug(string data)
     {
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug(data);
+        AzuAutoStoreLogger.LogDebug(data);
     }
 
     internal static void LogIfBuildDebug(string data)
@@ -389,16 +384,16 @@ public class Functions
 
     internal static void LogError(string data)
     {
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogError(data);
+        AzuAutoStoreLogger.LogError(data);
     }
 
     internal static void LogInfo(string data)
     {
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogInfo(data);
+        AzuAutoStoreLogger.LogInfo(data);
     }
 
     internal static void LogWarning(string data)
     {
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogWarning(data);
+        AzuAutoStoreLogger.LogWarning(data);
     }
 }

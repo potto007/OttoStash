@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using AzuAutoStore.Interfaces;
-using AzuAutoStore.Patches;
+﻿using AzuAutoStore.Patches;
 using Backpacks;
 using ItemDataManager;
 
@@ -22,7 +18,7 @@ public class Boxes
         if (!Containers.Contains(container))
         {
             ContainersToAdd.Add(container);
-            AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug($"Added container {container.name} to list");
+            AzuAutoStoreLogger.LogDebug($"Added container {container.name} to list");
         }
 
         UpdateContainers();
@@ -34,7 +30,7 @@ public class Boxes
         {
             ContainersToRemove.Add(container);
             if (container)
-                AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug($"Removed container {container.name} from list");
+                AzuAutoStoreLogger.LogDebug($"Removed container {container.name} from list");
         }
 
         UpdateContainers();
@@ -62,18 +58,18 @@ public class Boxes
             float distance = Vector3.Distance(container.transform.position, gameObject.transform.position);
             if (!(distance <= rangeToUse)) continue;
             // log the distance and the range to use
-            AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug($"Distance to container {container.name} is {distance}m, within the range of {rangeToUse}m set to store items for this chest");
+            AzuAutoStoreLogger.LogDebug($"Distance to container {container.name} is {distance}m, within the range of {rangeToUse}m set to store items for this chest");
             nearbyContainers.Add(VanillaContainers.Create(container));
         }
 
         IEnumerable<IContainer> backpacksEnumerable = new List<IContainer>();
         List<IContainer> backpackList = [];
-        if (AzuAutoStorePlugin.BackpacksIsLoaded && AzuAutoStorePlugin.DontStoreToBackpacks.Value.IsOff())
+        if (BackpacksIsLoaded && DontStoreToBackpacks.Value.IsOff())
         {
             // Get all backpacks in the player inventory
-            foreach (ItemDrop.ItemData? allItem in Player.m_localPlayer.GetInventory().GetAllItems().Where(x => x?.Data(AzuAutoStorePlugin.BackpacksGuid)?.Get<ItemContainer>() != null))
+            foreach (ItemDrop.ItemData? allItem in Player.m_localPlayer.GetInventory().GetAllItems().Where(x => x?.Data(BackpacksGuid)?.Get<ItemContainer>() != null))
             {
-                BackpackContainer backpackContainer = BackpackContainer.Create(allItem?.Data(AzuAutoStorePlugin.BackpacksGuid)?.Get<ItemContainer>()!);
+                BackpackContainer backpackContainer = BackpackContainer.Create(allItem?.Data(BackpacksGuid)?.Get<ItemContainer>()!);
                 if (backpackList.Contains(backpackContainer)) continue;
                 backpackList.Add(backpackContainer);
             }
@@ -88,15 +84,15 @@ public class Boxes
 
     public static void AddContainerIfNotExists(string containerName)
     {
-        if (AzuAutoStorePlugin.yamlData != null && !AzuAutoStorePlugin.yamlData.ContainsKey(containerName))
+        if (yamlData != null && !yamlData.ContainsKey(containerName))
         {
-            AzuAutoStorePlugin.yamlData[containerName] = new Dictionary<string, object>
+            yamlData[containerName] = new Dictionary<string, object>
             {
                 { "exclude", new List<string>() },
                 { "includeOverride", new List<string>() },
             };
 
-            YamlUtils.WriteYaml(AzuAutoStorePlugin.yamlPath);
+            YamlUtils.WriteYaml(yamlPath);
         }
     }
 
@@ -117,28 +113,28 @@ public class Boxes
     // Get a list of all containers
     public static List<string>? GetAllContainers()
     {
-        return AzuAutoStorePlugin.yamlData?.Keys.Where(key => key != "groups").ToList();
+        return yamlData?.Keys.Where(key => key != "groups").ToList();
     }
 
     // Check if a prefab is excluded from a container
 
     public static bool CanItemBeStored(string container, string prefab)
     {
-        if (AzuAutoStorePlugin.yamlData == null)
+        if (yamlData == null)
         {
-            AzuAutoStorePlugin.AzuAutoStoreLogger.LogError("yamlData is null.");
+            AzuAutoStoreLogger.LogError("yamlData is null.");
             return false;
         }
 
-        if (!AzuAutoStorePlugin.yamlData.ContainsKey(container))
+        if (!yamlData.ContainsKey(container))
         {
             return true; // Allow storing by default if the container is not defined in yamlData
         }
 
-        Dictionary<object, object>? containerData = AzuAutoStorePlugin.yamlData[container] as Dictionary<object, object>;
+        Dictionary<object, object>? containerData = yamlData[container] as Dictionary<object, object>;
         if (containerData == null)
         {
-            AzuAutoStorePlugin.AzuAutoStoreLogger.LogError($"Unable to cast containerData for container '{container}' to Dictionary<object, object>.");
+            AzuAutoStoreLogger.LogError($"Unable to cast containerData for container '{container}' to Dictionary<object, object>.");
             return false;
         }
 
@@ -151,13 +147,13 @@ public class Boxes
 
         if (excludeList == null)
         {
-            AzuAutoStorePlugin.AzuAutoStoreLogger.LogError($"Unable to cast excludeList for container '{container}' to List<object>.");
+            AzuAutoStoreLogger.LogError($"Unable to cast excludeList for container '{container}' to List<object>.");
             return false;
         }
 
         if (includeOverrideList == null)
         {
-            AzuAutoStorePlugin.AzuAutoStoreLogger.LogError($"Unable to cast includeOverrideList for container '{container}' to List<object>.");
+            AzuAutoStoreLogger.LogError($"Unable to cast includeOverrideList for container '{container}' to List<object>.");
             return false;
         }
 
@@ -195,7 +191,7 @@ public class Boxes
             {
                 string? excludeItemName = excludeItem.ToString();
 
-                if (AzuAutoStorePlugin.groups.TryGetValue(excludeItemName, out HashSet<string?>? groupPrefabs))
+                if (groups.TryGetValue(excludeItemName, out HashSet<string?>? groupPrefabs))
                 {
                     if (groupPrefabs.Contains(prefab))
                     {
@@ -214,7 +210,7 @@ public class Boxes
 
     public static List<string?> GetExcludedPrefabs(string container)
     {
-        if (AzuAutoStorePlugin.yamlData != null && AzuAutoStorePlugin.yamlData.TryGetValue(container, out object containerData))
+        if (yamlData != null && yamlData.TryGetValue(container, out object containerData))
         {
             Dictionary<object, object>? containerInfo = containerData as Dictionary<object, object>;
             if (containerInfo != null && containerInfo.TryGetValue("exclude", out object excludeData))
@@ -226,7 +222,7 @@ public class Boxes
                     foreach (object? excludeItem in excludeList)
                     {
                         string? excludeItemName = excludeItem.ToString();
-                        if (AzuAutoStorePlugin.groups.TryGetValue(excludeItemName, out HashSet<string?>? groupPrefabs))
+                        if (groups.TryGetValue(excludeItemName, out HashSet<string?>? groupPrefabs))
                         {
                             excludedPrefabs.AddRange(groupPrefabs);
                         }

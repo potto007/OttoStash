@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using AzuAutoStore.Util;
-using HarmonyLib;
-using UnityEngine;
-using Object = UnityEngine.Object;
+﻿using Object = UnityEngine.Object;
 
 namespace AzuAutoStore.Managers;
 
@@ -21,13 +16,13 @@ public class AzuAutoStoreItemDropManager : MonoBehaviour
 {
     private void Awake()
     {
-        InvokeRepeating(nameof(ProcessItemDrops), AzuAutoStorePlugin.IntervalSeconds.Value, AzuAutoStorePlugin.IntervalSeconds.Value);
-        AzuAutoStorePlugin.IntervalSeconds.SettingChanged += OnIntervalSecondsChanged;
+        InvokeRepeating(nameof(ProcessItemDrops), IntervalSeconds.Value, IntervalSeconds.Value);
+        IntervalSeconds.SettingChanged += OnIntervalSecondsChanged;
     }
 
     private void OnDestroy()
     {
-        AzuAutoStorePlugin.IntervalSeconds.SettingChanged -= OnIntervalSecondsChanged;
+        IntervalSeconds.SettingChanged -= OnIntervalSecondsChanged;
     }
 
     private void ProcessItemDrops()
@@ -52,7 +47,7 @@ public class AzuAutoStoreItemDropManager : MonoBehaviour
     private void OnIntervalSecondsChanged(object sender, EventArgs e)
     {
         CancelInvoke(nameof(ProcessItemDrops));
-        InvokeRepeating(nameof(ProcessItemDrops), AzuAutoStorePlugin.IntervalSeconds.Value, AzuAutoStorePlugin.IntervalSeconds.Value);
+        InvokeRepeating(nameof(ProcessItemDrops), IntervalSeconds.Value, IntervalSeconds.Value);
     }
 
     private static bool ShouldPause()

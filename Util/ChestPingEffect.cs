@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Object = UnityEngine.Object;
 
 namespace AzuAutoStore.Util;
 
@@ -8,9 +8,9 @@ public class ChestPingEffect : MonoBehaviour
 
     private void Awake()
     {
-        if (!string.IsNullOrWhiteSpace(AzuAutoStorePlugin.PingVfxString.Value))
+        if (!string.IsNullOrWhiteSpace(PingVfxString.Value))
         {
-            pingObject = Object.Instantiate(ZNetScene.instance.GetPrefab(AzuAutoStorePlugin.PingVfxString.Value), transform.position, Quaternion.identity);
+            pingObject = Instantiate(ZNetScene.instance.GetPrefab(PingVfxString.Value), transform.position, Quaternion.identity);
             Trigger();
         }
     }

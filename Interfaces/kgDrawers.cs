@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AzuAutoStore.APIs;
-using AzuAutoStore.Patches.Favoriting;
-using AzuAutoStore.Util;
-using UnityEngine;
+﻿using AzuAutoStore.APIs;
 
 namespace AzuAutoStore.Interfaces;
 
@@ -16,7 +11,7 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
 
     internal static void LogDebug(string data)
     {
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug(data);
+        AzuAutoStoreLogger.LogDebug(data);
     }
 
     public bool ContainsItem(string prefab, int amount, out int result)
@@ -55,7 +50,7 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
             }
 
             // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
+            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && PlayerIgnoreHotbar.Value.IsOn())
             {
                 LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
                 continue;
@@ -122,7 +117,7 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
         }
 
         // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-        if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
+        if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && PlayerIgnoreHotbar.Value.IsOn())
         {
             LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
             return 0;
@@ -177,7 +172,7 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
         LogDebug($"Checking container {_drawer.gameObject.name}");
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
 
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && nearbyContainer.Prefab != item.m_dropPrefab.name)
+        if (MustHaveExistingItemToPull.Value.IsOn() && nearbyContainer.Prefab != item.m_dropPrefab.name)
         {
             if (singleItemData)
             {

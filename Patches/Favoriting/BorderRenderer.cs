@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace AzuAutoStore.Patches.Favoriting;
 
@@ -34,7 +32,7 @@ static class BorderRenderer
                     ? Utils.FindChild(___m_elements[index].m_queued.transform, BorderName).GetComponent<Image>()
                     : CreateBorderImage(___m_elements[index].m_queued);
 
-                img.color = AzuAutoStorePlugin.BorderColorFavoritedSlot.Value;
+                img.color = BorderColorFavoritedSlot.Value;
                 img.enabled = playerConfig.IsSlotFavorited(new Vector2i(x, y));
             }
         }
@@ -51,7 +49,7 @@ static class BorderRenderer
             if (isItemFavorited)
             {
                 // enabled -> slot is favorited
-                img.color = img.enabled ? AzuAutoStorePlugin.BorderColorFavoritedItemOnFavoritedSlot.Value : AzuAutoStorePlugin.BorderColorFavoritedItem.Value;
+                img.color = img.enabled ? BorderColorFavoritedItemOnFavoritedSlot.Value : BorderColorFavoritedItem.Value;
 
                 // do this at the end of the if statement, so we can use img.enabled to deduce the slot favoriting
                 img.enabled |= isItemFavorited;

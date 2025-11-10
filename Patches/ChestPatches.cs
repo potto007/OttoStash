@@ -1,13 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
+﻿using System.Reflection.Emit;
 using AzuAutoStore.APIs.Compatibility.WardIsLove;
-using AzuAutoStore.Interfaces;
-using AzuAutoStore.Patches.Favoriting;
-using AzuAutoStore.Util;
-using HarmonyLib;
-using UnityEngine;
 
 namespace AzuAutoStore.Patches;
 
@@ -159,7 +151,7 @@ public static class Inventory_StackAll_Patch
 
         if (getAllItemsIndex == -1)
         {
-            throw new System.Exception("Could not find GetAllItems call");
+            throw new Exception("Could not find GetAllItems call");
         }
 
         List<CodeInstruction> newInstructions =

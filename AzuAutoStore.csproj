@@ -124,6 +124,7 @@
         <Compile Include="APIs\Compatibility\WardIsLove\WardMonoscript.cs" />
         <Compile Include="APIs\Compatibility\WILCompat.cs" />
         <Compile Include="APIs\kg_ItemDrawersAPI.cs" />
+        <Compile Include="GlobalUsings.cs" />
         <Compile Include="Interfaces\BackpackContainer.cs" />
         <Compile Include="Interfaces\IContainer.cs" />
         <Compile Include="Interfaces\kgDrawers.cs" />

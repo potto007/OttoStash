@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AzuAutoStore.Patches.Favoriting;
-using AzuAutoStore.Util;
-using UnityEngine;
-
-namespace AzuAutoStore.Interfaces;
+﻿namespace AzuAutoStore.Interfaces;
 
 public class VanillaContainers(Container _container) : IContainer
 {
@@ -18,7 +12,7 @@ public class VanillaContainers(Container _container) : IContainer
 
     internal static void LogDebug(string data)
     {
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug(data);
+        AzuAutoStoreLogger.LogDebug(data);
     }
 
     public int TryStore()
@@ -39,7 +33,7 @@ public class VanillaContainers(Container _container) : IContainer
             }
 
             // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
+            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && PlayerIgnoreHotbar.Value.IsOn())
             {
                 LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
                 continue;
@@ -107,7 +101,7 @@ public class VanillaContainers(Container _container) : IContainer
         }
 
         // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-        if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
+        if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && PlayerIgnoreHotbar.Value.IsOn())
         {
             LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
             return 0;
@@ -165,7 +159,7 @@ public class VanillaContainers(Container _container) : IContainer
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
         Inventory? inv = nearbyContainer.GetInventory();
         if (inv == null) return false;
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && !inv.HaveItem(item.m_shared.m_name))
+        if (MustHaveExistingItemToPull.Value.IsOn() && !inv.HaveItem(item.m_shared.m_name))
             return false;
         if (!item.m_dropPrefab) return false;
         if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.transform.root.name), item.m_dropPrefab.name)) return false;

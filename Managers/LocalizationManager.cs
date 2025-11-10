@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using BepInEx;
-using BepInEx.Configuration;
-using HarmonyLib;
+﻿using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using YamlDotNet.Serialization;
 
@@ -41,7 +33,7 @@ public class Localizer
                     types = e.Types.Where(t => t != null).Select(t => t.GetTypeInfo());
                 }
 
-                _plugin = (BaseUnityPlugin)BepInEx.Bootstrap.Chainloader.ManagerObject.GetComponent(types.First(t => t.IsClass && typeof(BaseUnityPlugin).IsAssignableFrom(t)));
+                _plugin = (BaseUnityPlugin)Chainloader.ManagerObject.GetComponent(types.First(t => t.IsClass && typeof(BaseUnityPlugin).IsAssignableFrom(t)));
             }
 
             return _plugin;
@@ -127,7 +119,7 @@ public class Localizer
             if (localizationFiles.ContainsKey(key))
             {
                 // Handle duplicate key
-                UnityEngine.Debug.LogWarning($"Duplicate key {key} found for {plugin.Info.Metadata.Name}. The duplicate file found at {file} will be skipped.");
+                Debug.LogWarning($"Duplicate key {key} found for {plugin.Info.Metadata.Name}. The duplicate file found at {file} will be skipped.");
             }
             else
             {

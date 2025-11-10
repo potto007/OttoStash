@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AzuAutoStore.Patches.Favoriting;
-using AzuAutoStore.Util;
-using Backpacks;
-using UnityEngine;
+﻿using Backpacks;
 
 namespace AzuAutoStore.Interfaces;
 
@@ -16,7 +11,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
 
     internal static void LogDebug(string data)
     {
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug(data);
+        AzuAutoStoreLogger.LogDebug(data);
     }
 
     public int TryStore()
@@ -37,7 +32,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
             }
 
             // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
+            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && PlayerIgnoreHotbar.Value.IsOn())
             {
                 LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
                 continue;
@@ -105,7 +100,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
 
         // hotbar skip
         if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 &&
-            AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
+            PlayerIgnoreHotbar.Value.IsOn())
         {
             LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
             return 0;
@@ -159,7 +154,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
         LogDebug($"Checking container {nearbyContainer.Item.m_dropPrefab.name}");
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
 
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.Inventory.HaveItem(item.m_shared.m_name))
+        if (MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.Inventory.HaveItem(item.m_shared.m_name))
             return false;
 
         if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.Item.m_dropPrefab.name), item.m_dropPrefab.name))
@@ -170,7 +165,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
             ItemDrop.ItemData? one = item.Clone();
             one.m_stack = 1;
 
-            Backpacks.API.AddItemToBackpack(_container.Item, one);
+            API.AddItemToBackpack(_container.Item, one);
 
             item.m_stack--;
             changed = true;
@@ -195,7 +190,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
         LogDebug($"Checking container {nearbyContainer.Item.m_dropPrefab.name}");
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
 
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.Inventory.HaveItem(item.m_shared.m_name))
+        if (MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.Inventory.HaveItem(item.m_shared.m_name))
         {
             if (singleItemData)
             {
@@ -214,7 +209,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
             ItemDrop.ItemData? one = item.Clone();
             one.m_stack = 1;
 
-            Backpacks.API.AddItemToBackpack(nearbyContainer.Item, one);
+            API.AddItemToBackpack(nearbyContainer.Item, one);
             item.m_stack--;
             changed = true;
             LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.Item.m_dropPrefab.name}");
@@ -224,7 +219,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
         {
             ItemDrop.ItemData newItem = item.Clone();
             item.m_stack = 0;
-            Backpacks.API.AddItemToBackpack(nearbyContainer.Item, newItem);
+            API.AddItemToBackpack(nearbyContainer.Item, newItem);
             changed = true;
         }
 

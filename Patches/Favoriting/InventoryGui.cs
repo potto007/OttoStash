@@ -1,6 +1,4 @@
-﻿using HarmonyLib;
-
-namespace AzuAutoStore.Patches.Favoriting;
+﻿namespace AzuAutoStore.Patches.Favoriting;
 
 [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.Show))]
 static class InventoryGuiShowPatch

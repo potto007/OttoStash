@@ -1,8 +1,4 @@
-﻿using System;
-using BepInEx.Bootstrap;
-using BepInEx.Configuration;
-
-namespace AzuAutoStore.APIs.Compatibility.WardIsLove;
+﻿namespace AzuAutoStore.APIs.Compatibility.WardIsLove;
 
 
 public class WardIsLovePlugin : WILCompat {
