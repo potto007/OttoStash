@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AzuAutoStore.Interfaces;
 using AzuAutoStore.Patches;
-using BepInEx.Configuration;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -12,7 +11,6 @@ namespace AzuAutoStore.Util;
 
 public class Functions
 {
-
     public static void LogContainerStatus(Container container)
     {
         LogIfBuildDebug($"Container {container.name} at {container.transform.position} is {(container.m_nview.IsOwner() ? "owned" : "not owned")} and has {(container.GetInventory()?.NrOfItems() ?? 0)} items.");
@@ -51,70 +49,81 @@ public class Functions
         return AzuAutoStorePlugin.FallbackRange.Value;
     }
 
+    private static readonly Dictionary<ZDOID, float> LastOwnAttempt = new();
+
     internal static void CheckItemDropInstanceAndStore(ItemDrop itemDrop)
     {
         if (Boxes.Containers == null || itemDrop == null || itemDrop.transform == null)
+            return;
+
+
+        if (AzuAutoStorePlugin.ChestsPickupFromGround.Value.IsOff()) return;
+        ZNetView? nview = itemDrop.m_nview;
+        if (!nview || !nview.IsValid()) return;
+        // Check if the itemdrop is a Fish and if it's not out of water before trying to store it.
+        if (!itemDrop.m_itemData.m_dropPrefab) return;
+        if (itemDrop.m_itemData.m_dropPrefab.TryGetComponent<Fish>(out Fish? fish))
         {
+            if (!fish.IsOutOfWater() && !AzuAutoStorePlugin.FishSuction.Value.IsOn())
+            {
+                return;
+            }
+        }
+
+        ZDO? zdo = nview.GetZDO();
+        if (zdo == null) return;
+
+        if (!nview.IsOwner())
+        {
+            // Only attempt to claim if nobody owns it
+            if (nview.HasOwner()) return;
+            float now = Time.time;
+            if (LastOwnAttempt.TryGetValue(zdo.m_uid, out float last) && !((now - last) >= 0.25f)) return;
+            LastOwnAttempt[zdo.m_uid] = now;
+            try
+            {
+                nview.ClaimOwnership();
+            }
+            catch
+            {
+                /* ignore */
+            }
+
             return;
         }
 
-        if (AzuAutoStorePlugin.ChestsPickupFromGround.Value == AzuAutoStorePlugin.Toggle.Off) return;
-        if (itemDrop.m_nview == null || !itemDrop.m_nview.IsValid()) return;
-        // Check if the itemdrop is a Fish and if it's not out of water before trying to store it.
-        if (itemDrop.m_itemData.m_dropPrefab == null) return;
-        if (itemDrop.m_itemData.m_dropPrefab.TryGetComponent<Fish>(out var fish))
+        bool anyChanged = false;
+        for (int i = 0; i < Boxes.Containers.Count; ++i)
         {
-            if (!fish.IsOutOfWater() && AzuAutoStorePlugin.ShipSuction.Value == AzuAutoStorePlugin.Toggle.Off)
-                return;
-        }
-
-        for (int index = 0; index < Boxes.Containers.Count; ++index)
-        {
-            Container? container = Boxes.Containers[index];
-            if (container == null || container.transform == null || container.GetInventory() == null)
-            {
-                continue;
-            }
+            Container container = Boxes.Containers[i];
+            if (!container || !container.transform || container.GetInventory() == null) continue;
 
             float distance = Vector3.Distance(container.transform.position, itemDrop.transform.position);
-            if (distance > Functions.GetContainerRange(container)) continue;
-            // Check if storing is paused for this container
-            bool isPaused = container.m_nview.GetZDO().GetBool(ContainerAwakePatch.storingPausedHash, false);
-            if (isPaused)
-                continue;
-            if (!itemDrop.CanPickup(false))
-            {
-                itemDrop.RequestOwn();
-                continue;
-            }
-            else if (!itemDrop.m_nview!.HasOwner())
-            {
-                if (itemDrop.m_nview.m_zdo != null)
-                {
-                    try
-                    {
-                        itemDrop.m_nview.ClaimOwnership();
-                    }
-                    catch
-                    {
-                        // Not happy about this, but whatever. Fix later.
-                    }
-                }
-            }
+            if (distance > GetContainerRange(container)) continue;
 
-            if (!itemDrop.m_nview.IsOwner()) continue;
-            Functions.LogDebug($"Nearby item name: {itemDrop.m_itemData.m_dropPrefab.name}");
-            if (!Functions.TryStore(container, ref itemDrop.m_itemData))
+            // Pause flag
+            bool isPaused = container.m_nview.GetZDO().GetBool(ContainerAwakePatch.storingPausedHash, false);
+            if (isPaused) continue;
+
+            LogDebug($"Nearby item name: {itemDrop.m_itemData.m_dropPrefab.name}");
+
+            if (!TryStore(container, ref itemDrop.m_itemData))
                 continue;
-            itemDrop.Save();
+
+            anyChanged = true;
+
             if (itemDrop.m_itemData.m_stack <= 0)
-            {
-                if (itemDrop.m_nview == null)
-                    Object.DestroyImmediate(itemDrop.gameObject);
-                else
-                    ZNetScene.instance.Destroy(itemDrop.gameObject);
-            }
+                break;
         }
+
+        if (!anyChanged) return;
+        itemDrop.Save();
+
+        if (itemDrop.m_itemData.m_stack > 0) return;
+        if (!itemDrop.m_nview)
+            Object.DestroyImmediate(itemDrop.gameObject);
+        else
+            ZNetScene.instance.Destroy(itemDrop.gameObject);
     }
 
     internal static bool TryStore(Container nearbyContainer, ref ItemDrop.ItemData item, bool fromPlayer = false, bool singleItemData = false)
@@ -123,7 +132,7 @@ public class Functions
         LogIfBuildDebug($"Checking container {nearbyContainer.name}");
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
         LogIfBuildDebug($"{item.m_dropPrefab.name}, Passed item integrity check");
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value == AzuAutoStorePlugin.Toggle.On && !nearbyContainer.GetInventory().HaveItem(item.m_shared.m_name))
+        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.GetInventory().HaveItem(item.m_shared.m_name))
         {
             if (singleItemData)
             {
@@ -159,21 +168,29 @@ public class Functions
 
         while (item.m_stack > 1 && nearbyContainer.GetInventory().CanAddItem(item, 1))
         {
-            changed = true;
-            item.m_stack--;
             ItemDrop.ItemData newItem = item.Clone();
             newItem.m_stack = 1;
+
+            if (!nearbyContainer.GetInventory().AddItem(newItem))
+            {
+                LogIfBuildDebug($"CanAddItem=true but AddItem=false for {item.m_dropPrefab.name} in {nearbyContainer.name} (quality mismatch or full). Aborting loop.");
+                break;
+            }
+
             LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.name}");
-            nearbyContainer.GetInventory().AddItem(newItem);
+            changed = true;
+            item.m_stack--;
         }
 
         if (item.m_stack == 1 && nearbyContainer.GetInventory().CanAddItem(item, 1))
         {
             ItemDrop.ItemData newItem = item.Clone();
-            item.m_stack = 0;
-            LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.name}");
-            nearbyContainer.GetInventory().AddItem(newItem);
-            changed = true;
+            if (nearbyContainer.GetInventory().AddItem(newItem))
+            {
+                item.m_stack = 0;
+                LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.name}");
+                changed = true;
+            }
         }
 
         if (!changed) return changed;
@@ -192,7 +209,7 @@ public class Functions
 
     internal static void TryStore()
     {
-        if (Player.m_localPlayer == null) return;
+        if (!Player.m_localPlayer) return;
         LogDebug("Trying to store items from player inventory");
         // Check all items in the player inventory where the items are not equipped
 
@@ -350,10 +367,10 @@ public class Functions
     internal static void PingContainer(GameObject container)
     {
         if (container == null) return;
-        if (AzuAutoStorePlugin.PingContainers.Value == AzuAutoStorePlugin.Toggle.On && container.GetComponent<ChestPingEffect>() == null)
+        if (AzuAutoStorePlugin.PingContainers.Value.IsOn() && container.GetComponent<ChestPingEffect>() == null)
             container.AddComponent<ChestPingEffect>();
 
-        if (AzuAutoStorePlugin.HighlightContainers.Value == AzuAutoStorePlugin.Toggle.On && container.GetComponent<HighLightChest>() == null)
+        if (AzuAutoStorePlugin.HighlightContainers.Value.IsOn() && container.GetComponent<HighLightChest>() == null)
             container.AddComponent<HighLightChest>();
     }
 

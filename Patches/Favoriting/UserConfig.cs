@@ -33,7 +33,7 @@ namespace AzuAutoStore.Patches.Favoriting
         /// </summary>
         public UserConfig(long uid)
         {
-            _configPath = Chainloader.PluginInfos.TryGetValue("goldenrevolver.quick_stack_store", out var qsstr) 
+            _configPath = Chainloader.PluginInfos.TryGetValue("goldenrevolver.quick_stack_store", out PluginInfo? qsstr) 
                 ? Path.Combine(Paths.ConfigPath, qsstr != null 
                     ? $"QuickStackStore_player_{uid}.dat" 
                     : $"{AzuAutoStorePlugin.ModName}_player_{uid}.dat") 

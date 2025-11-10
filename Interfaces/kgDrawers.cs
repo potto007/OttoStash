@@ -35,10 +35,12 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
 
     public int TryStore()
     {
-        if (Player.m_localPlayer == null) return 0;
+        if (!Player.m_localPlayer) return 0;
 
         int total = 0;
-        List<ItemDrop.ItemData>? items = Player.m_localPlayer.GetInventory().GetAllItems();
+        Inventory? inv = Player.m_localPlayer.GetInventory();
+        List<ItemDrop.ItemData>? items = inv.GetAllItems();
+
         for (int j = items.Count - 1; j >= 0; --j)
         {
             ItemDrop.ItemData? item = items[j];
@@ -53,8 +55,7 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
             }
 
             // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 &&
-                AzuAutoStorePlugin.PlayerIgnoreHotbar.Value == AzuAutoStorePlugin.Toggle.On)
+            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
             {
                 LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
                 continue;
@@ -80,13 +81,24 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
                 continue;
             }
 
-            int stack = item.m_stack;
-            total += stack;
-            Player.m_localPlayer.GetInventory().RemoveItem(item);
-            _drawer.Add(stack);
-            LogDebug($"Stored {stack} {item.m_dropPrefab.name} into {_drawer.gameObject.name}");
-            if (Boxes.ContainersToPing.Contains(this)) continue;
-            Boxes.ContainersToPing.Add(this);
+            int originalAmount = item.m_stack;
+            if (!TryStoreToKG(_drawer, ref item, fromPlayer: true, singleItemData: false))
+                continue;
+
+            int moved = originalAmount - item.m_stack;
+            if (moved <= 0) continue;
+
+            total += moved;
+
+            if (item.m_stack == 0)
+                inv.RemoveItem(item);
+            else
+                inv.Changed();
+
+            LogDebug($"Stored {moved} {item.m_dropPrefab.name} into {_drawer.gameObject.name}");
+
+            if (!Boxes.ContainersToPing.Contains(this))
+                Boxes.ContainersToPing.Add(this);
         }
 
         return total;
@@ -94,74 +106,78 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
 
     public int TryStoreThisItem(ItemDrop.ItemData? singleItemData = null, Inventory? playerInventory = null)
     {
-        if (Player.m_localPlayer == null) return 0;
-        Inventory? inventory = playerInventory ?? Player.m_localPlayer.GetInventory();
-        int total = 0;
-        //List<ItemDrop.ItemData>? items = singleItemData == null ? inventory.GetAllItems() : [singleItemData];
-        List<ItemDrop.ItemData>? items = singleItemData == null ? null : [singleItemData];
-        if (items == null)
+        if (!Player.m_localPlayer) return 0;
+
+        Inventory inv = playerInventory ?? Player.m_localPlayer.GetInventory();
+        if (singleItemData == null) return 0;
+
+        ItemDrop.ItemData item = singleItemData;
+
+        if (item.m_dropPrefab.name != _drawer.Prefab) return 0;
+
+        if (item.m_equipped)
         {
+            LogDebug($"Skipping equipped item {item.m_dropPrefab.name}");
             return 0;
         }
 
-        if (items.Count == 0)
+        // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
+        if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
         {
+            LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
             return 0;
         }
-        for (int j = items.Count - 1; j >= 0; --j)
+
+        if (AzuExtendedPlayerInventory.API.IsLoaded())
         {
-            ItemDrop.ItemData? item = items[j];
-            if (item.m_equipped)
+            // Get quick slot positions
+            List<ItemDrop.ItemData> quickSlotsItems = AzuExtendedPlayerInventory.API.GetQuickSlotsItems();
+
+
+            // Check if the item is in the quick slots
+            if (quickSlotsItems.Any(quickSlotItem => quickSlotItem.m_gridPos == item.m_gridPos))
             {
-                LogDebug($"Skipping equipped item {item.m_dropPrefab.name}");
-                continue;
+                LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in your quick slots");
+                return 0;
             }
+        }
 
-            // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value == AzuAutoStorePlugin.Toggle.On)
-            {
-                LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
-                continue;
-            }
+        if (CantStoreFavorite(item, UserConfig.GetPlayerConfig(Player.m_localPlayer.GetPlayerID())))
+        {
+            LogDebug($"Skipping favorited item/slot {item.m_dropPrefab.name}");
+            return 0;
+        }
 
-            if (AzuExtendedPlayerInventory.API.IsLoaded())
-            {
-                // Get quick slot positions
-                List<ItemDrop.ItemData> quickSlotsItems = AzuExtendedPlayerInventory.API.GetQuickSlotsItems();
+        LogDebug($"Checking item {item.m_dropPrefab.name}");
+        int originalAmount = item.m_stack;
 
+        if (!TryStoreToKG(_drawer, ref item, fromPlayer: true, singleItemData: true))
+            return 0;
 
-                // Check if the item is in the quick slots
-                if (quickSlotsItems.Any(quickSlotItem => quickSlotItem.m_gridPos == item.m_gridPos))
-                {
-                    LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in your quick slots");
-                    continue;
-                }
-            }
+        int moved = originalAmount - item.m_stack;
+        if (moved <= 0) return 0;
 
-            if (CantStoreFavorite(item, UserConfig.GetPlayerConfig(Player.m_localPlayer.GetPlayerID())))
-            {
-                LogDebug($"Skipping favorited item/slot {item.m_dropPrefab.name}");
-                continue;
-            }
+        if (item.m_stack == 0)
+            inv.RemoveItem(item);
+        else
+            inv.Changed();
 
-            LogDebug($"Checking item {item.m_dropPrefab.name}");
-            if (!TryStoreToKG(_drawer, ref item, true, singleItemData != null)) continue;
-            total += item.m_stack;
-            inventory.RemoveItem(item);
-            LogDebug($"Stored {item.m_stack} {item.m_dropPrefab.name} into {_drawer.gameObject.name}");
-            if (Boxes.ContainersToPing.Contains(this)) continue;
+        LogDebug($"Stored {moved} {item.m_dropPrefab.name} into {_drawer.gameObject.name}");
+
+        if (!Boxes.ContainersToPing.Contains(this))
             Boxes.ContainersToPing.Add(this);
-        }
 
-        return total;
+        return moved;
     }
+
 
     internal bool TryStoreToKG(ItemDrawers_API.Drawer nearbyContainer, ref ItemDrop.ItemData item, bool fromPlayer = false, bool singleItemData = false)
     {
         bool changed = false;
         LogDebug($"Checking container {_drawer.gameObject.name}");
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value == AzuAutoStorePlugin.Toggle.On && nearbyContainer.Prefab != item.m_dropPrefab.name)
+
+        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && nearbyContainer.Prefab != item.m_dropPrefab.name)
         {
             if (singleItemData)
             {
@@ -174,14 +190,16 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
 
         if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(_drawer.gameObject.name), item.m_dropPrefab.name)) return false;
 
-        LogDebug($"Auto storing {item.m_dropPrefab.name} in {_drawer.gameObject.name}");
+        // Drawer takes raw counts, no quality merge; treat as always-success for 1 unit each tick
         while (item.m_stack > 1 && nearbyContainer.Prefab == item.m_dropPrefab.name)
         {
-            changed = true;
+            ItemDrop.ItemData? one = item.Clone();
+            one.m_stack = 1;
+
+            _drawer.Add(1);
             item.m_stack--;
-            ItemDrop.ItemData newItem = item.Clone();
-            newItem.m_stack = 1;
-            _drawer.Add(newItem.m_stack);
+            changed = true;
+            LogDebug($"Auto storing {item.m_dropPrefab.name} in {_drawer.gameObject.name}");
         }
 
         if (item.m_stack == 1 && nearbyContainer.Prefab == item.m_dropPrefab.name)
@@ -192,12 +210,10 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
             changed = true;
         }
 
-        if (!changed) return changed;
-        if (!fromPlayer)
-        {
-            if (!Boxes.ContainersToPing.Contains(this))
-                Boxes.ContainersToPing.Add(this);
-        }
+        if (!changed || fromPlayer) return changed;
+
+        if (!Boxes.ContainersToPing.Contains(this))
+            Boxes.ContainersToPing.Add(this);
 
         return changed;
     }

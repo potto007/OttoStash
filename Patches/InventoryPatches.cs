@@ -9,7 +9,7 @@ static class InventoryGridGetHoveredElementPatch
 {
     static void Prefix(InventoryGrid __instance)
     {
-        var flag = __instance.m_uiGroup.IsActive && ZInput.IsGamepadActive();
+        bool flag = __instance.m_uiGroup.IsActive && ZInput.IsGamepadActive();
         InventoryGrid.Element element = flag
             ? __instance.GetElement(__instance.m_selected.x, __instance.m_selected.y, __instance.m_inventory.GetWidth())
             : __instance.GetHoveredElement();

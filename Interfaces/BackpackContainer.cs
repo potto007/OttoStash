@@ -21,10 +21,12 @@ public class BackpackContainer(ItemContainer _container) : IContainer
 
     public int TryStore()
     {
-        if (Player.m_localPlayer == null) return 0;
+        if (!Player.m_localPlayer) return 0;
 
         int total = 0;
-        List<ItemDrop.ItemData>? items = Player.m_localPlayer.GetInventory().GetAllItems();
+        Inventory? inv = Player.m_localPlayer.GetInventory();
+        List<ItemDrop.ItemData>? items = inv.GetAllItems();
+
         for (int j = items.Count - 1; j >= 0; --j)
         {
             ItemDrop.ItemData? item = items[j];
@@ -35,8 +37,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
             }
 
             // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 &&
-                AzuAutoStorePlugin.PlayerIgnoreHotbar.Value == AzuAutoStorePlugin.Toggle.On)
+            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
             {
                 LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
                 continue;
@@ -64,13 +65,24 @@ public class BackpackContainer(ItemContainer _container) : IContainer
 
             LogDebug($"Checking item {item.m_dropPrefab.name}");
             int originalAmount = item.m_stack;
-            if (!TryStore(_container, ref item, true)) continue;
-            if (item.m_stack >= originalAmount) continue;
-            total += originalAmount - item.m_stack;
-            Player.m_localPlayer.GetInventory().RemoveItem(item, originalAmount - item.m_stack);
-            LogDebug($"Stored {originalAmount - item.m_stack} {item.m_dropPrefab.name} into {_container.Item.m_dropPrefab.name}");
-            if (Boxes.ContainersToPing.Contains(this)) continue;
-            Boxes.ContainersToPing.Add(this);
+
+            if (!TryStore(_container, ref item, fromPlayer: true))
+                continue;
+
+            int moved = originalAmount - item.m_stack;
+            if (moved <= 0) continue;
+
+            total += moved;
+
+            if (item.m_stack == 0)
+                inv.RemoveItem(item);
+            else
+                inv.Changed();
+
+            LogDebug($"Stored {moved} {item.m_dropPrefab.name} into {_container.Item.m_dropPrefab.name}");
+
+            if (!Boxes.ContainersToPing.Contains(this))
+                Boxes.ContainersToPing.Add(this);
         }
 
         return total;
@@ -78,68 +90,67 @@ public class BackpackContainer(ItemContainer _container) : IContainer
 
     public int TryStoreThisItem(ItemDrop.ItemData? singleItemData = null, Inventory? playerInventory = null)
     {
-        if (Player.m_localPlayer == null) return 0;
-        Inventory? inventory = playerInventory ?? Player.m_localPlayer.GetInventory();
-        int total = 0;
-        //List<ItemDrop.ItemData>? items = singleItemData == null ? inventory.GetAllItems() : [singleItemData];
-        List<ItemDrop.ItemData>? items = singleItemData == null ? null : [singleItemData];
-        if (items == null)
+        if (!Player.m_localPlayer) return 0;
+
+        Inventory inv = playerInventory ?? Player.m_localPlayer.GetInventory();
+        if (singleItemData == null) return 0;
+
+        ItemDrop.ItemData item = singleItemData;
+
+        if (item.m_equipped)
         {
+            LogDebug($"Skipping equipped item {item.m_dropPrefab.name}");
             return 0;
         }
 
-        if (items.Count == 0)
+        // hotbar skip
+        if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 &&
+            AzuAutoStorePlugin.PlayerIgnoreHotbar.Value.IsOn())
         {
+            LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
             return 0;
         }
-        for (int j = items.Count - 1; j >= 0; --j)
+
+        if (AzuExtendedPlayerInventory.API.IsLoaded())
         {
-            ItemDrop.ItemData? item = items[j];
-            if (item.m_equipped)
+            // Get quick slot positions
+            List<ItemDrop.ItemData> quickSlotsItems = AzuExtendedPlayerInventory.API.GetQuickSlotsItems();
+
+
+            // Check if the item is in the quick slots
+            if (quickSlotsItems.Any(quickSlotItem => quickSlotItem.m_gridPos == item.m_gridPos))
             {
-                LogDebug($"Skipping equipped item {item.m_dropPrefab.name}");
-                continue;
+                LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in your quick slots");
+                return 0;
             }
+        }
 
-            // If the item.m_gridPos.x is 1-8 and item.m_gridPos.y is 0 (the first row), then do not store the item if _playerIgnoreHotbar is true
-            if (item.m_gridPos.x is >= 0 and <= 8 && item.m_gridPos.y == 0 && AzuAutoStorePlugin.PlayerIgnoreHotbar.Value == AzuAutoStorePlugin.Toggle.On)
-            {
-                LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in the hotbar");
-                continue;
-            }
+        if (CantStoreFavorite(item, UserConfig.GetPlayerConfig(Player.m_localPlayer.GetPlayerID())))
+        {
+            LogDebug($"Skipping favorited item/slot {item.m_dropPrefab.name}");
+            return 0;
+        }
 
-            if (AzuExtendedPlayerInventory.API.IsLoaded())
-            {
-                // Get quick slot positions
-                List<ItemDrop.ItemData> quickSlotsItems = AzuExtendedPlayerInventory.API.GetQuickSlotsItems();
+        LogDebug($"Checking item {item.m_dropPrefab.name}");
+        int originalAmount = item.m_stack;
 
+        if (!TryStore(_container, ref item, fromPlayer: true, singleItemData: true))
+            return 0;
 
-                // Check if the item is in the quick slots
-                if (quickSlotsItems.Any(quickSlotItem => quickSlotItem.m_gridPos == item.m_gridPos))
-                {
-                    LogDebug($"Skipping item {item.m_dropPrefab.name} because it is in your quick slots");
-                    continue;
-                }
-            }
+        int moved = originalAmount - item.m_stack;
+        if (moved <= 0) return 0;
 
-            if (CantStoreFavorite(item, UserConfig.GetPlayerConfig(Player.m_localPlayer.GetPlayerID())))
-            {
-                LogDebug($"Skipping favorited item/slot {item.m_dropPrefab.name}");
-                continue;
-            }
+        if (item.m_stack == 0)
+            inv.RemoveItem(item);
+        else
+            inv.Changed();
 
-            LogDebug($"Checking item {item.m_dropPrefab.name}");
-            int originalAmount = item.m_stack;
-            if (!TryStore(_container, ref item, true, singleItemData != null)) continue;
-            if (item.m_stack >= originalAmount) continue;
-            total += originalAmount - item.m_stack;
-            inventory.RemoveItem(item, originalAmount - item.m_stack);
-            LogDebug($"Stored {originalAmount - item.m_stack} {item.m_dropPrefab.name} into {_container.Item.m_dropPrefab.name}");
-            if (Boxes.ContainersToPing.Contains(this)) continue;
+        LogDebug($"Stored {moved} {item.m_dropPrefab.name} into {_container.Item.m_dropPrefab.name}");
+
+        if (!Boxes.ContainersToPing.Contains(this))
             Boxes.ContainersToPing.Add(this);
-        }
 
-        return total;
+        return moved;
     }
 
     internal bool TryStore(ItemContainer nearbyContainer, ref ItemDrop.ItemData item, bool fromPlayer = false)
@@ -147,29 +158,27 @@ public class BackpackContainer(ItemContainer _container) : IContainer
         bool changed = false;
         LogDebug($"Checking container {nearbyContainer.Item.m_dropPrefab.name}");
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value == AzuAutoStorePlugin.Toggle.On && !nearbyContainer.Inventory.HaveItem(item.m_shared.m_name))
-            return false;
-        if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.Item.m_dropPrefab.name), item.m_dropPrefab.name)) return false;
 
-        LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.Item.m_dropPrefab.name}");
+        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.Inventory.HaveItem(item.m_shared.m_name))
+            return false;
+
+        if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.Item.m_dropPrefab.name), item.m_dropPrefab.name))
+            return false;
+
         while (item.m_stack > 1 && nearbyContainer.CanAddItem(item))
         {
-            changed = true;
-            item.m_stack--;
-            ItemDrop.ItemData newItem = item.Clone();
-            newItem.m_stack = 1;
-            Backpacks.API.AddItemToBackpack(_container.Item, newItem);
-        }
+            ItemDrop.ItemData? one = item.Clone();
+            one.m_stack = 1;
 
-        if (item.m_stack == 1 && nearbyContainer.CanAddItem(item))
-        {
-            ItemDrop.ItemData newItem = item.Clone();
-            item.m_stack = 0;
-            Backpacks.API.AddItemToBackpack(_container.Item, newItem);
+            Backpacks.API.AddItemToBackpack(_container.Item, one);
+
+            item.m_stack--;
             changed = true;
+            LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.Item.m_dropPrefab.name}");
         }
 
         if (!changed) return changed;
+
         if (!fromPlayer)
         {
             Functions.PingContainer(Player.m_localPlayer.gameObject);
@@ -185,7 +194,8 @@ public class BackpackContainer(ItemContainer _container) : IContainer
         bool changed = false;
         LogDebug($"Checking container {nearbyContainer.Item.m_dropPrefab.name}");
         if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
-        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value == AzuAutoStorePlugin.Toggle.On && !nearbyContainer.Inventory.HaveItem(item.m_shared.m_name))
+
+        if (AzuAutoStorePlugin.MustHaveExistingItemToPull.Value.IsOn() && !nearbyContainer.Inventory.HaveItem(item.m_shared.m_name))
         {
             if (singleItemData)
             {
@@ -196,16 +206,18 @@ public class BackpackContainer(ItemContainer _container) : IContainer
             return false;
         }
 
-        if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.Item.m_dropPrefab.name), item.m_dropPrefab.name)) return false;
+        if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.Item.m_dropPrefab.name), item.m_dropPrefab.name))
+            return false;
 
-        LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.Item.m_dropPrefab.name}");
         while (item.m_stack > 1 && nearbyContainer.Inventory.CanAddItem(item, 1))
         {
-            changed = true;
+            ItemDrop.ItemData? one = item.Clone();
+            one.m_stack = 1;
+
+            Backpacks.API.AddItemToBackpack(nearbyContainer.Item, one);
             item.m_stack--;
-            ItemDrop.ItemData newItem = item.Clone();
-            newItem.m_stack = 1;
-            Backpacks.API.AddItemToBackpack(nearbyContainer.Item, newItem);
+            changed = true;
+            LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.Item.m_dropPrefab.name}");
         }
 
         if (item.m_stack == 1 && nearbyContainer.Inventory.CanAddItem(item, 1))
@@ -217,15 +229,24 @@ public class BackpackContainer(ItemContainer _container) : IContainer
         }
 
         if (!changed) return changed;
+
         if (!fromPlayer)
         {
             Functions.PingContainer(Player.m_localPlayer.gameObject);
         }
 
-        try {nearbyContainer.Save();} catch {}
+        try
+        {
+            nearbyContainer.Save();
+        }
+        catch
+        {
+            /* no-op */
+        }
 
         return changed;
     }
+
 
     public bool IsOwner()
     {
