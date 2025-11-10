@@ -12,13 +12,6 @@ namespace AzuAutoStore.Util;
 
 public class Functions
 {
-    internal static void TextAreaDrawer(ConfigEntryBase entry)
-    {
-        GUILayout.ExpandHeight(true);
-        GUILayout.ExpandWidth(true);
-        entry.BoxedValue = GUILayout.TextArea((string)entry.BoxedValue, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-    }
-
 
     public static void LogContainerStatus(Container container)
     {
@@ -71,7 +64,7 @@ public class Functions
         if (itemDrop.m_itemData.m_dropPrefab == null) return;
         if (itemDrop.m_itemData.m_dropPrefab.TryGetComponent<Fish>(out var fish))
         {
-            if (!fish.IsOutOfWater())
+            if (!fish.IsOutOfWater() && AzuAutoStorePlugin.ShipSuction.Value == AzuAutoStorePlugin.Toggle.Off)
                 return;
         }
 

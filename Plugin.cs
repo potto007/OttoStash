@@ -27,7 +27,7 @@ namespace AzuAutoStore
     public class AzuAutoStorePlugin : BaseUnityPlugin
     {
         internal const string ModName = "AzuAutoStore";
-        internal const string ModVersion = "3.0.9";
+        internal const string ModVersion = "3.0.10";
         internal const string Author = "Azumatt";
         internal const string ModGUID = $"{Author}.{ModName}";
         internal const string KgGuid = "kg.ItemDrawers";
@@ -74,10 +74,11 @@ namespace AzuAutoStore
             PingContainers = config("1 - General", "Ping Containers", Toggle.On, new ConfigDescription("If on, the containers will be pinged with the Ping VFX when something is stored in them. If off, the containers will not be pinged if something is stored in them.", null, new ConfigurationManagerAttributes() { Order = 0 }), false);
             SecondsToWaitBeforeStoring = config("1 - General", "Seconds To Wait Before Storing", 10, new ConfigDescription("The number of seconds to wait before storing items into chests nearby automatically after you have pressed your hotkey to pause.", new AcceptableValueRange<int>(0, 60)));
             IntervalSeconds = config("1 - General", nameof(IntervalSeconds), 10.0f, new ConfigDescription("The number of seconds that must pass before the chest will do an automatic check for items nearby, WARNING: Reducing this will decrease performance!"));
-            SingleItemShortcut = config("2 - Shortcuts", "Store Single Item Shortcut", new KeyboardShortcut(KeyCode.Mouse2), new ConfigDescription("Keyboard shortcut/Hotkey to store a single item that you click from your inventory into nearby containers.", null, new ConfigurationManagerAttributes() { Order = 2 }), false);
-            _storeShortcut = config("2 - Shortcuts", "Store Shortcut", new KeyboardShortcut(KeyCode.Period), new ConfigDescription("Keyboard shortcut/Hotkey to store your inventory into nearby containers.", null, new ConfigurationManagerAttributes() { Order = 1 }), false);
-            _pauseShortcut = config("2 - Shortcuts", "Pause Shortcut", new KeyboardShortcut(KeyCode.Period, KeyCode.LeftShift), "Keyboard shortcut/Hotkey to temporarily stop storing items into chests nearby automatically. Does not override the player hotkey store.", false);
-            SearchModifierKeybind = config("2 - Shortcuts", nameof(SearchModifierKeybind), new KeyboardShortcut(KeyCode.Y), $"While holding this, you can search nearby chests for the prefab you clicked in your inventory.", false);
+            ShipSuction = config("1.5 - Fish", "Ship Suction", Toggle.Off, new ConfigDescription("Should the ship chest suck up nearby fish that are out of water?"));
+            SingleItemShortcut = config("2 - Shortcuts", "Store Single Item Shortcut", new KeyboardShortcut(KeyCode.Mouse2), new ConfigDescription("Keyboard shortcut/Hotkey to store a single item that you click from your inventory into nearby containers.", new AcceptableShortcuts(), new ConfigurationManagerAttributes() { Order = 2 }), false);
+            _storeShortcut = config("2 - Shortcuts", "Store Shortcut", new KeyboardShortcut(KeyCode.Period), new ConfigDescription("Keyboard shortcut/Hotkey to store your inventory into nearby containers.", new AcceptableShortcuts(), new ConfigurationManagerAttributes() { Order = 1 }), false);
+            _pauseShortcut = config("2 - Shortcuts", "Pause Shortcut", new KeyboardShortcut(KeyCode.Period, KeyCode.LeftShift), new ConfigDescription("Keyboard shortcut/Hotkey to temporarily stop storing items into chests nearby automatically. Does not override the player hotkey store.", new AcceptableShortcuts()), false);
+            SearchModifierKeybind = config("2 - Shortcuts", nameof(SearchModifierKeybind), new KeyboardShortcut(KeyCode.Y), new ConfigDescription("While holding this, you can search nearby chests for the prefab you clicked in your inventory.", new AcceptableShortcuts()), false);
 
             var sectionName = "3 - Favoriting";
             string favoritingKey = $"While holding this, left clicking on items or right clicking on slots favorites them, disallowing storing";
@@ -298,6 +299,7 @@ namespace AzuAutoStore
         private static ConfigEntry<KeyboardShortcut> _pauseShortcut = null!;
         internal static ConfigEntry<int> SecondsToWaitBeforeStoring = null!;
         internal static ConfigEntry<float> IntervalSeconds = null!;
+        internal static ConfigEntry<Toggle> ShipSuction = null!;
         internal static ConfigEntry<float> PlayerRange = null!;
         internal static ConfigEntry<float> FallbackRange = null!;
         internal static ConfigEntry<Toggle> PlayerIgnoreHotbar = null!;
@@ -365,7 +367,7 @@ namespace AzuAutoStore
         {
             ConfigurationManagerAttributes attributes = new()
             {
-                CustomDrawer = Functions.TextAreaDrawer
+                CustomDrawer = ConfigExtensions.TextAreaDrawer
             };
             return TextEntryConfig(group, name, value, new ConfigDescription(desc, null, attributes), synchronizedSetting);
         }
@@ -404,6 +406,16 @@ namespace AzuAutoStore
         public static bool IsKeyHeld(this KeyboardShortcut shortcut)
         {
             return shortcut.MainKey != KeyCode.None && Input.GetKey(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
+        }
+    }
+
+    public static class ConfigExtensions
+    {
+        internal static void TextAreaDrawer(ConfigEntryBase entry)
+        {
+            GUILayout.ExpandHeight(true);
+            GUILayout.ExpandWidth(true);
+            entry.BoxedValue = GUILayout.TextArea((string)entry.BoxedValue, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
         }
     }
 }
