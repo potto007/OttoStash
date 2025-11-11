@@ -59,10 +59,7 @@ public class Functions
         if (!itemDrop.m_itemData.m_dropPrefab) return;
         if (itemDrop.m_itemData.m_dropPrefab.TryGetComponent<Fish>(out Fish? fish))
         {
-            if (!fish.IsOutOfWater() && !FishSuction.Value.IsOn())
-            {
-                return;
-            }
+            if (!fish.IsOutOfWater() && !FishSuction.Value.IsOn()) return;
         }
 
         ZDO? zdo = nview.GetZDO();

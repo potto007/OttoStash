@@ -104,6 +104,12 @@ IntervalSeconds [Synced with Server]
   this will decrease performance!
     * Default Value: 10
 
+`1.5 - Fish`
+
+Fish Suction [Synced with Server]
+* Should a chest suck up nearby fish that are out of water?
+  * Default Value: Off
+
 `2 - Shortcuts`
 
 Store Single Item Shortcut [Not Synced with Server]
@@ -277,6 +283,8 @@ ItemOnFavoritedSlotTooltip [Not Synced with Server]
 #     - itemType: Helmet
 #   Utility:
 #     - itemType: Utility
+#   Trinket:
+#     - itemType: Trinket
 #   Ammo:
 #     - itemType: Ammo
 #   Arrows:

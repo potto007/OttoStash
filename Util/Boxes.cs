@@ -78,7 +78,8 @@ public class Boxes
         }
 
         IEnumerable<IContainer> drawers = APIs.ItemDrawers_API.AllDrawersInRange(gameObject.transform.position, rangeToUse).Select(kgDrawer.Create);
-        return nearbyContainers.Concat(drawers).Concat(backpacksEnumerable).ToList();
+        IEnumerable<IContainer> drawersMkz = APIs.MkzItemDrawers_API.AllDrawersInRange(gameObject.transform.position, rangeToUse).Select(mkzDrawer.Create);
+        return nearbyContainers.Concat(drawers).Concat(drawersMkz).Concat(backpacksEnumerable).ToList();
     }
 
 

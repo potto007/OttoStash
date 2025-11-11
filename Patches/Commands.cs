@@ -63,9 +63,10 @@ static class TerminalInitTerminalPatch
 
                     GetAllPiecesInRadius(Player.m_localPlayer.transform.position, SearchRadius, pieces);
                     IEnumerable<IContainer> drawersCheck = APIs.ItemDrawers_API.AllDrawers.Where(x => string.Equals(x.Prefab, query, StringComparison.CurrentCultureIgnoreCase)).Select(kgDrawer.Create);
+                    IEnumerable<IContainer> drawersCheckMkz = APIs.MkzItemDrawers_API.AllDrawers.Where(x => string.Equals(x.Prefab, query, StringComparison.CurrentCultureIgnoreCase)).Select(mkzDrawer.Create);
                     return pieces
                         .Where(p => p.GetComponent<Container>())
-                        .Where(p => ContainerContainsMatchingItem(p, query.ToLower(), ref itemCount)).Select(p => VanillaContainers.Create(p.GetComponent<Container>())).Concat(drawersCheck);
+                        .Where(p => ContainerContainsMatchingItem(p, query.ToLower(), ref itemCount)).Select(p => VanillaContainers.Create(p.GetComponent<Container>())).Concat(drawersCheck).Concat(drawersCheckMkz);
                 }
 
                 static bool ContainerContainsMatchingItem(Component container, string query, ref int count)

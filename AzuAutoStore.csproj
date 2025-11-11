@@ -124,10 +124,12 @@
         <Compile Include="APIs\Compatibility\WardIsLove\WardMonoscript.cs" />
         <Compile Include="APIs\Compatibility\WILCompat.cs" />
         <Compile Include="APIs\kg_ItemDrawersAPI.cs" />
+        <Compile Include="APIs\MkzItemDrawers_API.cs" />
         <Compile Include="GlobalUsings.cs" />
         <Compile Include="Interfaces\BackpackContainer.cs" />
         <Compile Include="Interfaces\IContainer.cs" />
         <Compile Include="Interfaces\kgDrawers.cs" />
+        <Compile Include="Interfaces\mkzDrawer.cs" />
         <Compile Include="Interfaces\VanillaContainers.cs" />
         <Compile Include="Managers\AzuAutoStoreItemDropManager.cs" />
         <Compile Include="Managers\ItemDataManager.cs" />

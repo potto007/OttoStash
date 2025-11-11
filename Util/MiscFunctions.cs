@@ -136,6 +136,9 @@ public class MiscFunctions
                     case ItemDrop.ItemData.ItemType.Utility:
                         groupNames.AddRange(["Utility"]);
                         break;
+                    case ItemDrop.ItemData.ItemType.Trinket:
+                        groupNames.AddRange(["Trinket"]);
+                        break;
                     case ItemDrop.ItemData.ItemType.Ammo:
                         string ammoType = sharedData.m_ammoType;
                         if (ammoType != "$ammo_bolts")

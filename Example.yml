@@ -57,6 +57,8 @@
 #     - itemType: Helmet
 #   Utility:
 #     - itemType: Utility
+#   Trinket:
+#     - itemType: Trinket
 #   Ammo:
 #     - itemType: Ammo
 #   Arrows:

@@ -1,6 +1,4 @@
-﻿using Object = UnityEngine.Object;
-
-namespace AzuAutoStore.Util;
+﻿namespace AzuAutoStore.Util;
 
 public class ChestPingEffect : MonoBehaviour
 {
