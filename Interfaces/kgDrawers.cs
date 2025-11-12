@@ -185,13 +185,19 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
 
         if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(_drawer.gameObject.name), item.m_dropPrefab.name)) return false;
 
+        if (nearbyContainer.Quality != item.m_quality)
+        {
+            LogDebug($"Container {_drawer.gameObject.name} has {nearbyContainer.Prefab} that is different quality than what you're trying to store. Container Quality: {nearbyContainer.Quality} | Item Quality: {item.m_quality}");
+            return false;
+        }
+
         // Drawer takes raw counts, no quality merge; treat as always-success for 1 unit each tick
         while (item.m_stack > 1 && nearbyContainer.Prefab == item.m_dropPrefab.name)
         {
             ItemDrop.ItemData? one = item.Clone();
             one.m_stack = 1;
 
-            _drawer.Add(1);
+            _drawer.Add(1, one.m_quality);
             item.m_stack--;
             changed = true;
             LogDebug($"Auto storing {item.m_dropPrefab.name} in {_drawer.gameObject.name}");
@@ -201,7 +207,7 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
         {
             ItemDrop.ItemData newItem = item.Clone();
             item.m_stack = 0;
-            _drawer.Add(newItem.m_stack);
+            _drawer.Add(newItem.m_stack, newItem.m_quality);
             changed = true;
         }
 

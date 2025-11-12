@@ -9,15 +9,11 @@ public static class ItemDrawers_API
     {
         public string Prefab = znv.m_zdo.GetString("Prefab");
         public int Amount = znv.m_zdo.GetInt("Amount");
+        public int Quality = znv.m_zdo.GetInt("Quality", 1);
 
-        public void Remove(int amount)
-        {
-            znv.ClaimOwnership();
-            znv.InvokeRPC("ForceRemove", amount);
-        }
-
+        public void Remove(int amount) { znv.ClaimOwnership(); znv.InvokeRPC("ForceRemove", amount); }
         public void Withdraw(int amount) => znv.InvokeRPC("WithdrawItem_Request", amount);
-        public void Add(int amount) => znv.InvokeRPC("AddItem_Request", Prefab, amount);
+        public void Add(int amount, int quality) => znv.InvokeRPC("AddItem_Request", Prefab, amount, quality);
         public Vector3 Position => znv.transform.position;
         public GameObject gameObject => znv.gameObject;
         public string ZNVName => znv.gameObject.name;
