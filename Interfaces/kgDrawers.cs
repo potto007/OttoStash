@@ -191,7 +191,6 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
             return false;
         }
 
-        // Drawer takes raw counts, no quality merge; treat as always-success for 1 unit each tick
         while (item.m_stack > 1 && nearbyContainer.Prefab == item.m_dropPrefab.name)
         {
             ItemDrop.ItemData? one = item.Clone();

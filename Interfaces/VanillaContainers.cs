@@ -1,4 +1,6 @@
-﻿namespace AzuAutoStore.Interfaces;
+﻿using AzuAutoStore.APIs.MUC;
+
+namespace AzuAutoStore.Interfaces;
 
 public class VanillaContainers(Container _container) : IContainer
 {
@@ -154,48 +156,40 @@ public class VanillaContainers(Container _container) : IContainer
     internal bool TryStore(Container nearbyContainer, ref ItemDrop.ItemData item, bool fromPlayer = false)
     {
         if (!nearbyContainer) return false;
-        bool changed = false;
-        LogDebug($"Checking container {nearbyContainer.name}");
-        if (!MiscFunctions.CheckItemSharedIntegrity(item)) return changed;
-        Inventory? inv = nearbyContainer.GetInventory();
+        if (!MiscFunctions.CheckItemSharedIntegrity(item)) return false;
+
+        var inv = nearbyContainer.GetInventory();
         if (inv == null) return false;
+
         if (MustHaveExistingItemToPull.Value.IsOn() && !inv.HaveItem(item.m_shared.m_name))
             return false;
+
         if (!item.m_dropPrefab) return false;
-        if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.transform.root.name), item.m_dropPrefab.name)) return false;
 
-        while (item.m_stack > 1 && inv.CanAddItem(item, 1))
+        if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.transform.root.name),
+                item.m_dropPrefab.name))
+            return false;
+
+        if (!nearbyContainer.CheckAccess(Game.instance.GetPlayerProfile().GetPlayerID()))
+            return false;
+
+        if (!MUCCompat.MultiUserChestActive && !nearbyContainer.m_nview.IsOwner())
+            return false;
+
+        int moved = InventoryMove.MoveStackChunked(inv, item);
+        bool changed = moved > 0;
+
+        if (changed)
         {
-            ItemDrop.ItemData? one = item.Clone();
-            one.m_stack = 1;
-            if (!inv.AddItem(one))
-                break;
+            if (!fromPlayer)
+                Functions.PingContainer(nearbyContainer.gameObject);
 
-            item.m_stack--;
-            changed = true;
-            LogDebug($"Auto storing {item.m_dropPrefab.name} in {nearbyContainer.name}");
+            nearbyContainer.Save();
         }
-
-        if (item.m_stack == 1 && inv.CanAddItem(item, 1))
-        {
-            ItemDrop.ItemData newItem = item.Clone();
-            if (inv.AddItem(newItem))
-            {
-                item.m_stack = 0;
-                changed = true;
-            }
-        }
-
-        if (!changed) return changed;
-        if (!fromPlayer)
-        {
-            Functions.PingContainer(_container.gameObject);
-        }
-
-        nearbyContainer.Save();
 
         return changed;
     }
+
 
     public bool IsOwner() => _container.m_nview.IsOwner();
 

@@ -12,24 +12,18 @@ internal static class ContainerAwakePatch
     private static void Postfix(Container __instance)
     {
         Functions.LogContainerStatus(__instance);
-        
+
         if (__instance.m_nview.GetZDO() == null)
             return;
 
         if (__instance.m_nview)
         {
             __instance.m_nview.Register<bool>("RequestPause", (sender, pause) => Boxes.RPC_RequestPause(sender, pause, __instance));
-            __instance.m_nview.Register("Autostore Ownership", uid => Boxes.RPC_Ownership(__instance, uid));
-            __instance.m_nview.Register<bool>("Autostore OpenResponse", (_, response) => Boxes.RPC_OpenResponse(__instance, response));
         }
 
         if (__instance.m_nview.GetZDO().GetLong(ZDOVars.s_creator) == 0L || __instance.GetInventory() == null || !__instance.m_nview.IsValid())
             return;
-        
-        if (!__instance.m_nview.HasOwner())
-        {
-            __instance.m_nview.ClaimOwnership();
-        }
+
 
         try
         {

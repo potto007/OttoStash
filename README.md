@@ -12,12 +12,36 @@ ignored (`if turned on in the configuration!`).
 
 `This mod uses a file watcher. If the configuration file is not changed with BepInEx Configuration manager, but changed in the file directly on the server, upon file save, it will sync the changes to all clients.`
 
+## TL;DR
+
+1. Drop this mod in, start a world.
+2. Nearby dropped items are pulled into containers according to the YAML rules.
+3. Press `.` to dump your inventory into nearby containers (respecting favorites and YAML rules).
+4. Middle-click an item to store just that one.
+5. Hold `Y` and click an item (or use `azuautostoresearch`) to find where you put something.
+6. Edit `Azumatt.AzuAutoStore.yml` to define per-container ranges and allowed/excluded items.
+7. All configuration files are found in the `BepInEx/config` folder. Examples are found in the yml file. 
+
+## Compatibility
+
+- **WardIsLove** – fully compatible; wards can protect containers as usual.
+- **Quick Stack / sorting mods** (e.g. QuickStackStore) – UI integration is ordered to avoid grabbing each other’s
+  elements and double buttons.
+- **Backpack mods** (Smoothbrain’s Backpacks, AdventureBackpack, etc.) – supports storing *into* backpacks and has
+  options to globally disable storing to any backpack containers.
+- **ItemDrawers** – supports both KG’s fork and the original Makail version for storing and searching.
+
 ## Features
 
 - Automatically store dropped resources into nearby containers within a configurable range
 - Restrict specific items from being stored into containers by defining rules in the configuration file in
   the `BepInEx/config` folder called `Azumatt.AzuAzuStore.yml`
 - Toggle the storing of items via a keyboard shortcut for a configurable amount of seconds
+- Store a *single* hovered item into nearby containers with a dedicated hotkey (Default: Mouse2 / Middle Click)
+- Find where your items ended up: hold the Search key (Default: Y) and click an item, or use the `azuautostoresearch`
+  command to ping the nearest container holding it and see how many exist. You can use `/azuautostoresearch` in the chat
+  window. Auto complete for the command is possible so you can type `/azuauto` and press tab to complete if you don't
+  want to type it all out :D
 - `Favoriting from GoldenRevolver` By holding the Favoriting Key (default: Alt) or by using a new button, you can left
   click on an item to favorite it,
   or
@@ -25,6 +49,12 @@ ignored (`if turned on in the configuration!`).
   affect that item. No accidental
   storing something you didn't want. The favoriting state is shown with a custom colored border around the slot. If
   GoldenRevolver's mod is present, it will read his favoriting file and use that instead.
+
+Designed to be server-friendly: runs on configurable intervals, chunks bulk transfers, and throttles ownership requests
+to avoid lag and race conditions.
+
+Includes multiple protections against item loss and duplication, especially when teleporting, dying, or interacting with
+many containers.
 
 ## FAQ
 
@@ -219,7 +249,17 @@ ItemOnFavoritedSlotTooltip [Not Synced with Server]
 
 </details>
 
+Example: make a chest that only ever pulls Food & Potions:
 
+```yaml
+piece_chest:
+  range: 10
+  exclude:
+    - All
+  includeOverride:
+    - Food
+    - Potion
+```
 
 <details><summary><b>Example YAML</b></summary>
 

@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 #endif
+using AzuAutoStore.APIs.MUC;
 using BepInEx.Logging;
 using JetBrains.Annotations;
 using ServerSync;
@@ -108,6 +109,11 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
         if (Chainloader.PluginInfos.ContainsKey(BackpacksGuid))
         {
             BackpacksIsLoaded = true;
+        }
+        
+        if (!MUCCompat.MUCLoaded)
+        {
+            MUCCompat.ForceEnableMUC(true);
         }
     }
 

@@ -241,36 +241,6 @@ public class Boxes
         return new List<string?>();
     }
 
-    public static void RPC_Ownership(Container container, long uid)
-    {
-        if (!container.m_nview.IsOwner())
-        {
-            // Vanilla would log here, but, no need for us to.
-        }
-        else if ((container.IsInUse() || container.m_wagon && container.m_wagon.InUse()) && uid != ZNet.GetUID() || !container.CheckAccess(Game.instance.GetPlayerProfile().GetPlayerID()))
-        {
-            container.m_nview.InvokeRPC(uid, "Autostore OpenResponse", false);
-        }
-        else
-        {
-            ZDOMan.instance.ForceSendZDO(uid, container.m_nview.GetZDO().m_uid);
-            container.m_nview.GetZDO().SetOwner(uid);
-            container.m_nview.InvokeRPC(uid, "Autostore OpenResponse", true);
-        }
-    }
-
-    public static void RPC_OpenResponse(Container container, bool response)
-    {
-        if (response)
-        {
-            Functions.InProgressTotal += VanillaContainers.Create(container).TryStore();
-        }
-
-        if (--Functions.InProgressStores == 0)
-        {
-            Functions.StoreSuccess(Functions.InProgressTotal);
-        }
-    }
 
     internal static void RPC_RequestPause(long sender, bool pause, Container container)
     {
