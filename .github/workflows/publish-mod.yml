@@ -2,7 +2,7 @@ name: Publish Mod
 
 # Publishing runs on a version tag only. The Valheim assemblies are not
 # redistributable, so CI cannot compile the mod. Build the Release
-# configuration locally first: it writes Thunderstore/OttoStash_v<version>.zip.
+# configuration locally first: it writes Thunderstore/potto007-OttoStash-<version>.zip.
 # Commit that zip, then push the tag.
 on:
   push:
@@ -50,7 +50,7 @@ jobs:
             exit 1
           fi
 
-          zip_file="Thunderstore/${mod_name}_v${mod_version}.zip"
+          zip_file="Thunderstore/potto007-${mod_name}-${mod_version}.zip"
           if [ ! -f "${zip_file}" ]; then
             echo "::error::${zip_file} is missing. Build Release locally and commit the zip." >&2
             exit 1

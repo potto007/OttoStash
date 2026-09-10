@@ -22,6 +22,8 @@
 
     <Reference Include="0Harmony" HintPath="$(BepInExPath)/core/0Harmony.dll" Private="false" />
     <Reference Include="BepInEx" HintPath="$(BepInExPath)/core/BepInEx.dll" Private="false" />
+    <!-- Shipped by the Ottomation_ModLib package at runtime, so never copied here. -->
+    <Reference Include="Ottomation.ModLib" HintPath="Libs/Ottomation.ModLib.dll" Private="false" />
 
     <Reference Include="AzuExtendedPlayerInventory" HintPath="Libs/AzuExtendedPlayerInventoryAPI.dll" Private="true" />
     <Reference Include="Backpacks" HintPath="Libs/BackpacksAPI.dll" Private="true" />
@@ -81,8 +83,8 @@
       <PluginSource>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/Plugin.cs'))</PluginSource>
       <ModVersionFromSource>$([System.Text.RegularExpressions.Regex]::Match($(PluginSource), 'ModVersion\s*=\s*"([^"]+)"').Groups[1].Value)</ModVersionFromSource>
       <PackageVersion>$([System.Text.RegularExpressions.Regex]::Match($(ManifestJson), '"version_number"\s*:\s*"([^"]+)"').Groups[1].Value)</PackageVersion>
-      <PackageStageDir>$(MSBuildProjectDirectory)/obj/thunderstore/$(AssemblyName)_v$(PackageVersion)</PackageStageDir>
-      <PackageZip>$(MSBuildProjectDirectory)/Thunderstore/$(AssemblyName)_v$(PackageVersion).zip</PackageZip>
+      <PackageStageDir>$(MSBuildProjectDirectory)/obj/thunderstore/potto007-$(AssemblyName)-$(PackageVersion)</PackageStageDir>
+      <PackageZip>$(MSBuildProjectDirectory)/Thunderstore/potto007-$(AssemblyName)-$(PackageVersion).zip</PackageZip>
     </PropertyGroup>
     <Error Condition="'$(PackageVersion)' == ''" Text="Could not read version_number from Thunderstore/manifest.json." />
     <Error Condition="'$(PackageVersion)' != '$(ModVersionFromSource)' AND '$(ModVersionFromSource)' != ''" Text="Version drift: Thunderstore/manifest.json says $(PackageVersion), Plugin.cs ModVersion says $(ModVersionFromSource). Bump both." />
@@ -116,6 +118,8 @@
     <Error Condition="'$(AllowRepackPublished)' != 'true' AND (Exists('$(_TagRefFile)') OR '$(_TagIsPacked)' == 'True')" Text="Version $(PackageVersion) is already tagged as v$(PackageVersion), so it is published and frozen. Bump the version in Plugin.cs and Thunderstore/manifest.json, or pass -p:AllowRepackPublished=true." />
     <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageStageDir)" />
     <ZipDirectory SourceDirectory="$(PackageStageDir)" DestinationFile="$(PackageZip)" Overwrite="true" />
+    <!-- A zip that fails the package check is not shippable, so the build fails with it. -->
+    <Exec Command="python3 &quot;$(MSBuildProjectDirectory)/../Ottomation_ModLib/tools/verify_package.py&quot; &quot;$(PackageZip)&quot;" Condition="Exists('$(MSBuildProjectDirectory)/../Ottomation_ModLib/tools/verify_package.py')" />
     <Message Importance="high" Text="Thunderstore package: $(PackageZip)" />
   </Target>
 
