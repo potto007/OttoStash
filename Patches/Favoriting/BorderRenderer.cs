@@ -12,7 +12,7 @@ static class BorderRenderer
     [HarmonyPostfix]
     [HarmonyAfter("goldenrevolver.quick_stack_store")]
     [HarmonyPriority(Priority.LowerThanNormal)]
-    static void UpdateGui(InventoryGrid __instance, Player player, Inventory ___m_inventory, List<InventoryGrid.Element> ___m_elements)
+    static void UpdateGui(InventoryGrid __instance, Player player, Inventory ___m_inventory, List<InventoryElement> ___m_elements)
     {
         if (player == null || player.m_inventory != ___m_inventory)
         {

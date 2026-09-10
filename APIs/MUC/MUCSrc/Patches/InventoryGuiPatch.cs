@@ -1,4 +1,4 @@
-using System.Reflection.Emit;
+﻿using System.Reflection.Emit;
 using AzuAutoStore.APIs.MUC.MUCSrc.Data;
 using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
 using AzuAutoStore.APIs.MUC.MUCSrc.Patches.Compatibility;
@@ -133,8 +133,8 @@ public static class InventoryGuiPatch {
             return;
         }
 
-        foreach (InventoryGrid.Element element in __instance.m_elements) {
-            if (!preview.GetSlot(element.m_pos, out ItemDrop.ItemData item)) {
+        foreach (InventoryElement element in __instance.m_elements) {
+            if (!preview.GetSlot(__instance.GetElementPos(element), out ItemDrop.ItemData item)) {
                 continue;
             }
 
@@ -146,7 +146,7 @@ public static class InventoryGuiPatch {
         }
     }
 
-    private static void ShowItem(InventoryGrid inventoryGrid, InventoryGrid.Element element, ItemDrop.ItemData item) {
+    private static void ShowItem(InventoryGrid inventoryGrid, InventoryElement element, ItemDrop.ItemData item) {
         if (item?.m_shared == null) {
             return;
         }
@@ -199,7 +199,7 @@ public static class InventoryGuiPatch {
         }
     }
 
-    private static void ShowNoItem(InventoryGrid.Element element) {
+    private static void ShowNoItem(InventoryElement element) {
         element.m_durability.gameObject.SetActive(false);
         element.m_icon.enabled = false;
         element.m_amount.enabled = false;

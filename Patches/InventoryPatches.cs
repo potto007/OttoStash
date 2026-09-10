@@ -6,7 +6,7 @@ static class InventoryGridGetHoveredElementPatch
     static void Prefix(InventoryGrid __instance)
     {
         bool flag = __instance.m_uiGroup.IsActive && ZInput.IsGamepadActive();
-        InventoryGrid.Element element = flag
+        InventoryElement element = flag
             ? __instance.GetElement(__instance.m_selected.x, __instance.m_selected.y, __instance.m_inventory.GetWidth())
             : __instance.GetHoveredElement();
         if (element == null) return;
@@ -14,7 +14,8 @@ static class InventoryGridGetHoveredElementPatch
 
         if (SingleItemShortcut.Value.IsKeyDown())
         {
-            ItemDrop.ItemData? item = __instance.m_inventory.GetItemAt(element.m_pos.x, element.m_pos.y);
+            Vector2i elementPos = __instance.GetElementPos(element);
+            ItemDrop.ItemData? item = __instance.m_inventory.GetItemAt(elementPos.x, elementPos.y);
             if (item == null) return;
             if (__instance.m_inventory == null) return;
             Functions.TryStoreThisItem(item, __instance.m_inventory);
