@@ -1,4 +1,4 @@
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Patches.Compatibility;
+namespace OttoStash.APIs.MUC.MUCSrc.Patches.Compatibility;
 
 public static class InventoryIgnore {
     public static bool IgnoreInventory(this InventoryOwner owner) {

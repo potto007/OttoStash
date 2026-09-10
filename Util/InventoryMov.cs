@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Util;
+﻿namespace OttoStash.Util;
 
 internal static class InventoryMove
 {

@@ -1,6 +1,6 @@
-using AzuAutoStore.APIs.MUC.MUCSrc.Data;
+using OttoStash.APIs.MUC.MUCSrc.Data;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public static class PackageHandler
 {

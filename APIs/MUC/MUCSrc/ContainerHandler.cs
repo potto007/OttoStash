@@ -1,8 +1,8 @@
-using AzuAutoStore.APIs.MUC.MUCSrc.Data;
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
-using AzuAutoStore.APIs.MUC.MUCSrc.Patches;
+using OttoStash.APIs.MUC.MUCSrc.Data;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Patches;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public static class ContainerHandler {
     public static RequestChestAdd AddItemToChest(this Container container, ItemDrop.ItemData item, Inventory sourceInventory, Vector2i to, ZDOID sender, int dragAmount = -1) {

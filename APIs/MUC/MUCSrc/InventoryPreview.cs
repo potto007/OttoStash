@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
-using AzuAutoStore.APIs.MUC.MUCSrc.Data;
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Data;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public static class InventoryPreview {
     public static readonly ConditionalWeakTable<Inventory, List<IRequest>> PackageChanges = new ConditionalWeakTable<Inventory, List<IRequest>>();

@@ -1,12 +1,12 @@
-﻿using AzuAutoStore.APIs;
+﻿using OttoStash.APIs;
 
-namespace AzuAutoStore.Interfaces;
+namespace OttoStash.Interfaces;
 
 public sealed class mkzDrawer(MkzItemDrawers_API.Drawer _drawer) : IContainer
 {
     private static bool CantStoreFavorite(ItemDrop.ItemData item, UserConfig playerConfig) => playerConfig.IsItemNameOrSlotFavorited(item);
 
-    internal static void LogDebug(string s) => AzuAutoStoreLogger.LogDebug(s);
+    internal static void LogDebug(string s) => OttoStashLogger.LogDebug(s);
 
     public GameObject gameObject => _drawer.gameObject;
     public ZNetView m_nview => _drawer.m_nview;

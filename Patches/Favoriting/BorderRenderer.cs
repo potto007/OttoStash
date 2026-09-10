@@ -1,13 +1,13 @@
 ﻿using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-namespace AzuAutoStore.Patches.Favoriting;
+namespace OttoStash.Patches.Favoriting;
 
 [HarmonyPatch(typeof(InventoryGrid), nameof(InventoryGrid.UpdateGui))]
 static class BorderRenderer
 {
     public static Sprite Border = null!;
-    public const string BorderName = "AzuAutoStoreFavoritingBorder";
+    public const string BorderName = "OttoStashFavoritingBorder";
 
     [HarmonyPostfix]
     [HarmonyAfter("goldenrevolver.quick_stack_store")]

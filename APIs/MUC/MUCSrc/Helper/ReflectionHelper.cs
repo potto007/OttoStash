@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+﻿namespace OttoStash.APIs.MUC.MUCSrc.Helper;
 
 public static class ReflectionHelper {
     private const BindingFlags allFlags = (BindingFlags)(-1);

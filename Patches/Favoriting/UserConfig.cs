@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace AzuAutoStore.Patches.Favoriting;
+namespace OttoStash.Patches.Favoriting;
 
 public class UserConfig
 {
@@ -37,7 +37,7 @@ public class UserConfig
 
     internal void ResetAllFavoriting()
     {
-        AzuAutoStoreLogger.LogWarning("Resetting all favoriting data!");
+        OttoStashLogger.LogWarning("Resetting all favoriting data!");
 
         _favoritedSlots = [];
         _favoritedItems = [];

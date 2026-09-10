@@ -1,7 +1,7 @@
 ﻿using System.Reflection.Emit;
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Patches.Compatibility;
+namespace OttoStash.APIs.MUC.MUCSrc.Patches.Compatibility;
 
 public static class ItemDrawerCompat
 {

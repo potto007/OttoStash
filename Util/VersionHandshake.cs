@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore;
+﻿namespace OttoStash;
 
 [HarmonyPatch(typeof(ZNet), nameof(ZNet.OnNewConnection))]
 public static class RegisterAndCheckVersion
@@ -6,11 +6,11 @@ public static class RegisterAndCheckVersion
     private static void Prefix(ZNetPeer peer, ref ZNet __instance)
     {
         // Register version check call
-        AzuAutoStoreLogger.LogDebug("Registering version RPC handler");
-        peer.m_rpc.Register($"{ModName}_VersionCheck", new Action<ZRpc, ZPackage>(RpcHandlers.RPC_AzuAutoStore_Version));
+        OttoStashLogger.LogDebug("Registering version RPC handler");
+        peer.m_rpc.Register($"{ModName}_VersionCheck", new Action<ZRpc, ZPackage>(RpcHandlers.RPC_OttoStash_Version));
 
         // Make calls to check versions
-        AzuAutoStoreLogger.LogInfo("Invoking version check");
+        OttoStashLogger.LogInfo("Invoking version check");
         ZPackage zpackage = new();
         zpackage.Write(ModVersion);
         peer.m_rpc.Invoke($"{ModName}_VersionCheck", zpackage);
@@ -24,7 +24,7 @@ public static class VerifyClient
     {
         if (!__instance.IsServer() || RpcHandlers.ValidatedPeers.Contains(rpc)) return true;
         // Disconnect peer if they didn't send mod version at all
-        AzuAutoStoreLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
+        OttoStashLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
         rpc.Invoke("Error", 3);
         return false; // Prevent calling underlying method
     }
@@ -56,7 +56,7 @@ public static class RemoveDisconnectedPeerFromVerified
     {
         if (!__instance.IsServer()) return;
         // Remove peer from validated list
-        AzuAutoStoreLogger.LogInfo($"Peer ({peer.m_rpc.m_socket.GetHostName()}) disconnected, removing from validated list");
+        OttoStashLogger.LogInfo($"Peer ({peer.m_rpc.m_socket.GetHostName()}) disconnected, removing from validated list");
         _ = RpcHandlers.ValidatedPeers.Remove(peer.m_rpc);
     }
 }
@@ -65,16 +65,16 @@ public static class RpcHandlers
 {
     public static readonly List<ZRpc> ValidatedPeers = [];
 
-    public static void RPC_AzuAutoStore_Version(ZRpc rpc, ZPackage pkg)
+    public static void RPC_OttoStash_Version(ZRpc rpc, ZPackage pkg)
     {
         string? version = pkg.ReadString();
-        AzuAutoStoreLogger.LogInfo($"Version check, local: {ModVersion},  remote: {version}");
+        OttoStashLogger.LogInfo($"Version check, local: {ModVersion},  remote: {version}");
         if (version != ModVersion)
         {
             ConnectionError = $"{ModName} Installed: {ModVersion}\n Needed: {version}";
             if (!ZNet.instance.IsServer()) return;
             // Different versions - force disconnect client from server
-            AzuAutoStoreLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting...");
+            OttoStashLogger.LogWarning($"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting...");
             rpc.Invoke("Error", 3);
         }
         else
@@ -82,12 +82,12 @@ public static class RpcHandlers
             if (!ZNet.instance.IsServer())
             {
                 // Enable mod on client if versions match
-                AzuAutoStoreLogger.LogInfo("Received same version from server!");
+                OttoStashLogger.LogInfo("Received same version from server!");
             }
             else
             {
                 // Add client to validated list
-                AzuAutoStoreLogger.LogInfo($"Adding peer ({rpc.m_socket.GetHostName()}) to validated list");
+                OttoStashLogger.LogInfo($"Adding peer ({rpc.m_socket.GetHostName()}) to validated list");
                 ValidatedPeers.Add(rpc);
             }
         }

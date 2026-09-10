@@ -1,9 +1,9 @@
-﻿using AzuAutoStore.APIs.Compatibility;
-using AzuAutoStore.APIs.MUC;
-using AzuAutoStore.Patches;
+﻿using OttoStash.APIs.Compatibility;
+using OttoStash.APIs.MUC;
+using OttoStash.Patches;
 using Object = UnityEngine.Object;
 
-namespace AzuAutoStore.Util;
+namespace OttoStash.Util;
 
 public class Functions
 {
@@ -23,7 +23,7 @@ public class Functions
     {
         if (yamlData == null)
         {
-            AzuAutoStoreLogger.LogError("yamlData is null when trying to get the container range for a container. Make sure that your YAML file is not empty or to call DeserializeYamlFile() before using GetContainerRange.");
+            OttoStashLogger.LogError("yamlData is null when trying to get the container range for a container. Make sure that your YAML file is not empty or to call DeserializeYamlFile() before using GetContainerRange.");
             return -1f;
         }
 
@@ -43,7 +43,7 @@ public class Functions
             }
             else
             {
-                AzuAutoStoreLogger.LogError($"Unable to cast containerData for container '{containerName}' to Dictionary<object, object>.");
+                OttoStashLogger.LogError($"Unable to cast containerData for container '{containerName}' to Dictionary<object, object>.");
                 return -1f;
             }
         }
@@ -325,7 +325,7 @@ public class Functions
                     }
                     catch (Exception e)
                     {
-                        AzuAutoStoreLogger.LogError($"Error while playing move effect for container {c.gameObject.name}: {e}");
+                        OttoStashLogger.LogError($"Error while playing move effect for container {c.gameObject.name}: {e}");
                     }
                 }
             }
@@ -350,28 +350,28 @@ public class Functions
 
     internal static void LogDebug(string data)
     {
-        AzuAutoStoreLogger.LogDebug(data);
+        OttoStashLogger.LogDebug(data);
     }
 
     internal static void LogIfBuildDebug(string data)
     {
 #if DEBUG
-        AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug(data);
+        OttoStashPlugin.OttoStashLogger.LogDebug(data);
 #endif
     }
 
     internal static void LogError(string data)
     {
-        AzuAutoStoreLogger.LogError(data);
+        OttoStashLogger.LogError(data);
     }
 
     internal static void LogInfo(string data)
     {
-        AzuAutoStoreLogger.LogInfo(data);
+        OttoStashLogger.LogInfo(data);
     }
 
     internal static void LogWarning(string data)
     {
-        AzuAutoStoreLogger.LogWarning(data);
+        OttoStashLogger.LogWarning(data);
     }
 }

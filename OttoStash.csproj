@@ -3,8 +3,8 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <AssemblyName>AzuAutoStore</AssemblyName>
-    <RootNamespace>AzuAutoStore</RootNamespace>
+    <AssemblyName>OttoStash</AssemblyName>
+    <RootNamespace>OttoStash</RootNamespace>
     <LangVersion>12</LangVersion>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

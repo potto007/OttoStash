@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public class ContainerExtend : MonoBehaviour {
     private static readonly ConditionalWeakTable<Inventory, ContainerInventoryOwner> Containers = new ConditionalWeakTable<Inventory, ContainerInventoryOwner>();

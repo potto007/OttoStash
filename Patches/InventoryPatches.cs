@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Patches;
+﻿namespace OttoStash.Patches;
 
 [HarmonyPatch(typeof(InventoryGrid), nameof(InventoryGrid.UpdateGui))]
 static class InventoryGridGetHoveredElementPatch

@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.APIs.Compatibility;
+﻿namespace OttoStash.APIs.Compatibility;
 
 public class WILCompat
 {

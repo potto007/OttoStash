@@ -1,3 +1,25 @@
+![OttoStash - Everything In Its Place](https://raw.githubusercontent.com/potto007/OttoStash/master/docs/images/ottostash-title.png)
+
+# OttoStash
+
+### Updated for Valheim 1.0
+
+**Maintainer:** Paul Otto
+
+--------------------
+
+**Coming from AzuAutoStore?** Your settings carry over. On first run OttoStash looks
+for `Azumatt.AzuAutoStore.cfg` and `Azumatt.AzuAutoStore.yml` and copies them into its
+own `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`. It never touches an
+OttoStash file that already exists.
+
+Two names changed with the rename:
+
+- The console command is now `ottostashsearch`, not `azuautostoresearch`.
+- The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
+
+--------------------
+
 # Description
 
 This mod pulls nearby items from the ground into containers. Optionally, use a hotkey to store items in your inventory
@@ -18,8 +40,8 @@ ignored (`if turned on in the configuration!`).
 2. Nearby dropped items are pulled into containers according to the YAML rules.
 3. Press `.` to dump your inventory into nearby containers (respecting favorites and YAML rules).
 4. Middle-click an item to store just that one.
-5. Hold `Y` and click an item (or use `azuautostoresearch`) to find where you put something.
-6. Edit `Azumatt.AzuAutoStore.yml` to define per-container ranges and allowed/excluded items.
+5. Hold `Y` and click an item (or use `ottostashsearch`) to find where you put something.
+6. Edit `potto007.OttoStash.yml` to define per-container ranges and allowed/excluded items.
 7. All configuration files are found in the `BepInEx/config` folder. Examples are found in the yml file. 
 
 ## Compatibility
@@ -35,11 +57,11 @@ ignored (`if turned on in the configuration!`).
 
 - Automatically store dropped resources into nearby containers within a configurable range
 - Restrict specific items from being stored into containers by defining rules in the configuration file in
-  the `BepInEx/config` folder called `Azumatt.AzuAzuStore.yml`
+  the `BepInEx/config` folder called `potto007.OttoStash.yml`
 - Toggle the storing of items via a keyboard shortcut for a configurable amount of seconds
 - Store a *single* hovered item into nearby containers with a dedicated hotkey (Default: Mouse2 / Middle Click)
-- Find where your items ended up: hold the Search key (Default: Y) and click an item, or use the `azuautostoresearch`
-  command to ping the nearest container holding it and see how many exist. You can use `/azuautostoresearch` in the chat
+- Find where your items ended up: hold the Search key (Default: Y) and click an item, or use the `ottostashsearch`
+  command to ping the nearest container holding it and see how many exist. You can use `/ottostashsearch` in the chat
   window. Auto complete for the command is possible so you can type `/azuauto` and press tab to complete if you don't
   want to type it all out :D
 - `Favoriting from GoldenRevolver` By holding the Favoriting Key (default: Alt) or by using a new button, you can left
@@ -60,7 +82,7 @@ many containers.
 
 - Frequently asked questions will be added to the wiki tab of this mod as they are asked. Wiki tab is located at the top
   of this page (or you can be lazy and click this here linky
-  link: https://valheim.thunderstore.io/package/Azumatt/AzuAutoStore/wiki/).
+  link: https://valheim.thunderstore.io/package/Azumatt/OttoStash/wiki/).
 
 ## 2. Configuration (Collapsed due to length. Click to expand)
 
@@ -224,7 +246,7 @@ ItemOnFavoritedSlotTooltip [Not Synced with Server]
 
 1. **Download the latest release of BepInEx.**
 2. **Extract the contents of the zip file to your game's root folder.**
-3. **Download the latest release of AzuAutoStore from Thunderstore.io.**
+3. **Download the latest release of OttoStash from Thunderstore.io.**
 4. **Extract the contents of the zip file to the `BepInEx/plugins` folder.**
 5. **Launch the game.**
 
@@ -238,9 +260,9 @@ ItemOnFavoritedSlotTooltip [Not Synced with Server]
 
    > For Thunderstore Mod Manager, you can also install it through the Overwolf app store
    ![](https://i.imgur.com/HQLZFp4.png "Thunderstore Mod Manager Download")
-2. **Open the Mod Manager and search for "AzuAutoStore" under the Online
+2. **Open the Mod Manager and search for "OttoStash" under the Online
    tab. `Note: You can also search for "Azumatt" to find all my mods.`**
-   The image below shows VikingShip as an example, but it was easier to reuse the image. Type AzuAutoStore.
+   The image below shows VikingShip as an example, but it was easier to reuse the image. Type OttoStash.
 
 ![](https://i.imgur.com/5CR5XKu.png)
 
@@ -501,3 +523,26 @@ For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
 
 [![https://i.imgur.com/XXP6HCU.png](https://i.imgur.com/XXP6HCU.png)](https://discord.gg/Pb6bVMnFb2)
 <a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
+
+--------------------
+
+## Version Information
+
+The full release history lives in [CHANGELOG.md](Thunderstore/CHANGELOG.md), and it
+renders on the Changelog tab of the Thunderstore package page.
+
+## Credits
+
+OttoStash is maintained by **Paul Otto**.
+
+It continues [AzuAutoStore](https://thunderstore.io/c/valheim/p/Azumatt/AzuAutoStore/)
+by **Azumatt**, who wrote every line of the mod this fork carries forward. Credit for
+the mod belongs to him. AzuAutoStore stopped at 3.0.14 and does not load on Valheim
+1.0; OttoStash carries the work forward under the same licence.
+
+Please support the original author. He maintains many other Valheim mods:
+
+> * [AzuExtendedPlayerInventory](https://thunderstore.io/c/valheim/p/Azumatt/AzuExtendedPlayerInventory/)
+> * [AzuCraftyBoxes](https://thunderstore.io/c/valheim/p/Azumatt/AzuCraftyBoxes/)
+> * [AzuWorkbenchInventoryRepair](https://thunderstore.io/c/valheim/p/Azumatt/AzuWorkbenchInventoryRepair/)
+> * [Recycle_N_Reclaim](https://thunderstore.io/c/valheim/p/Azumatt/Recycle_N_Reclaim/)

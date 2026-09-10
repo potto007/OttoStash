@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Patches.Favoriting;
+﻿namespace OttoStash.Patches.Favoriting;
 
 [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.Show))]
 static class InventoryGuiShowPatch

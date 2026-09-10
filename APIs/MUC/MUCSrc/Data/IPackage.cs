@@ -1,4 +1,4 @@
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Data;
+namespace OttoStash.APIs.MUC.MUCSrc.Data;
 
 public interface IPackage {
     ZPackage WriteToPackage();

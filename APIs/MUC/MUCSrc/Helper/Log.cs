@@ -1,6 +1,6 @@
 ﻿using BepInEx.Logging;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+namespace OttoStash.APIs.MUC.MUCSrc.Helper;
 
 /// <summary>
 /// Helper class for properly logging from static contexts.

@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.APIs.MUC;
+﻿namespace OttoStash.APIs.MUC;
 
 internal static class MUCCompat
 {

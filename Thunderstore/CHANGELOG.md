@@ -1,3 +1,33 @@
+# Changelog
+
+OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.14 and below are his
+release history, kept below unchanged.
+
+## v3.1.0
+
+- Renamed to OttoStash. Forked from AzuAutoStore 3.0.14 by Azumatt.
+- Ported to the Valheim 1.0 API. AzuAutoStore did not load at all on 1.0:
+  `ZRoutedRpc.Everybody` became a constant, so the bundled ServerSync threw
+  `MissingFieldException` in the plugin's static constructor.
+  - Rebuilt ServerSync against the 1.0 assemblies.
+  - `InventoryGrid.Element` is now the top-level `InventoryElement`, and it no
+    longer carries `m_pos`.
+  - `InventoryGrid.OnRightClick` and `OnLeftClick` became `OnRightDown` and
+    `OnLeftDown`.
+  - The private `Inventory.AddItem` overload gained a `cheated` parameter.
+  - `ImageConversion.LoadImage` now takes a `ReadOnlySpan<byte>`.
+- The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
+  Your AzuAutoStore files are copied across on first run. An OttoStash file that
+  already exists is never touched.
+- The console command is now `ottostashsearch`, not `azuautostoresearch`.
+- Rebuilt the project SDK-style, with a version-drift guard and a guard against
+  repacking a version that is already tagged as published.
+- New title banner and package icon.
+
+--------------------
+
+# AzuAutoStore release history, by Azumatt
+
 | `Version` | `Update Notes`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 |-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 3.0.14    | - Fix all nearby chests lighting up / glowing when you quickstack even if nothing was actually stored into them (multiplayer regression from 3.0.12).<br/> - Fix other players being disrupted when someone nearby quickstacks (ownership was being claimed before checking if a chest was already in use, could cause it to be stuck open).<br/> - Fix chests occasionally getting stuck open and becoming uninteractable when the ground auto-pickup (suction) tried to store into a chest another player had open at that moment.<br/> - Stacking is now fully synchronous, all containers are processed in one frame instead of spread across multiple frames, eliminating a class of race conditions.<br/> - When MultiUserChest (MUC) is installed, ownership is no longer claimed at all during stacking it falls back to MUC's own concurrency system, preventing conflicts.<br/> - During a hotkey store, the container is briefly marked as in-use and broadcast to other clients, so two players stacking simultaneously can no longer write to the same chest at the same time.                                                                                                                                  |

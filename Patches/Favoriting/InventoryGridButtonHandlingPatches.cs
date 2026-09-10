@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Patches.Favoriting;
+﻿namespace OttoStash.Patches.Favoriting;
 
 [HarmonyPatch(typeof(InventoryGrid))]
 internal class InventoryGridButtonHandlingPatches
@@ -43,7 +43,7 @@ internal class InventoryGridButtonHandlingPatches
         }
         catch (Exception e)
         {
-            AzuAutoStorePlugin.AzuAutoStoreLogger.LogError($"There was an exception while transpiling {e}\n{e.StackTrace}");
+            OttoStashPlugin.OttoStashLogger.LogError($"There was an exception while transpiling {e}\n{e.StackTrace}");
             return instructions;
         }
     }*/
@@ -161,7 +161,7 @@ internal class InventoryGridButtonHandlingPatches
             case true when searchBypass:
             {
                 ItemDrop.ItemData itemAt = __instance.m_inventory.GetItemAt(buttonPos.x, buttonPos.y);
-                Chat.instance.TryRunCommand($"azuautostoresearch {itemAt.m_dropPrefab.name.ToLower()}", false, true);
+                Chat.instance.TryRunCommand($"ottostashsearch {itemAt.m_dropPrefab.name.ToLower()}", false, true);
                 break;
             }
             default:

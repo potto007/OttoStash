@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using AzuAutoStore.APIs.MUC.MUCSrc.Data;
+using OttoStash.APIs.MUC.MUCSrc.Data;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+namespace OttoStash.APIs.MUC.MUCSrc.Helper;
 #if DEBUG
     public class Timer {
         private static readonly Stopwatch stopwatch = new Stopwatch();

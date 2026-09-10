@@ -1,6 +1,6 @@
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Data;
+namespace OttoStash.APIs.MUC.MUCSrc.Data;
 
 public class RequestChestRemoveResponse : IPackage, IResponse {
     public int SourceID { get; set; }

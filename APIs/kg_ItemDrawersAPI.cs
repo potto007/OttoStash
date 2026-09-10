@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.APIs;
+﻿namespace OttoStash.APIs;
 
 public static class ItemDrawers_API
 {

@@ -1,10 +1,10 @@
 ﻿using System.Reflection.Emit;
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
 
 // Credits to ASharpPen!
 // https://github.com/ASharpPen/Valheim.SpawnThat/blob/a753ccc0776b87f9d9721915f5ff57a5f1503873/src/SpawnThat/Utilities/Extensions/CodeMatcherExtensions.cs
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public static class CodeMatcherExtensions {
     public static CodeMatcher GetPosition(this CodeMatcher codeMatcher, out int position) {

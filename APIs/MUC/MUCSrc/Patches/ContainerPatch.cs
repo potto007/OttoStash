@@ -1,6 +1,6 @@
-using AzuAutoStore.APIs.MUC.MUCSrc.Patches.Compatibility;
+using OttoStash.APIs.MUC.MUCSrc.Patches.Compatibility;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Patches;
+namespace OttoStash.APIs.MUC.MUCSrc.Patches;
 
 [HarmonyPatch]
 public static class ContainerPatch {

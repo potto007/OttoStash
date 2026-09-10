@@ -1,6 +1,6 @@
-﻿using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+﻿using OttoStash.APIs.MUC.MUCSrc.Helper;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public static class Compatibility {
     private static bool IsExtendedInventory(this Inventory inventory, out List<Inventory> inventories) {

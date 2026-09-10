@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.APIs.MUC.MUCSrc;
+﻿namespace OttoStash.APIs.MUC.MUCSrc;
 
 public class InventoryBlock {
     private static readonly Dictionary<Inventory, InventoryBlock> Inventories = new Dictionary<Inventory, InventoryBlock>();

@@ -2,22 +2,22 @@
 using System.Text;
 using System.Text.RegularExpressions;
 #endif
-using AzuAutoStore.APIs.MUC;
+using OttoStash.APIs.MUC;
 using BepInEx.Logging;
 using JetBrains.Annotations;
 using ServerSync;
 
-namespace AzuAutoStore;
+namespace OttoStash;
 
 [BepInPlugin(ModGUID, ModName, ModVersion)]
 [BepInDependency("Azumatt.AzuExtendedPlayerInventory", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(KgGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(BackpacksGuid, BepInDependency.DependencyFlags.SoftDependency)]
-public class AzuAutoStorePlugin : BaseUnityPlugin
+public class OttoStashPlugin : BaseUnityPlugin
 {
-    internal const string ModName = "AzuAutoStore";
-    internal const string ModVersion = "3.0.14";
-    internal const string Author = "Azumatt";
+    internal const string ModName = "OttoStash";
+    internal const string ModVersion = "3.1.0";
+    internal const string Author = "potto007";
     internal const string ModGUID = $"{Author}.{ModName}";
     internal const string KgGuid = "kg.ItemDrawers";
     internal const string BackpacksGuid = "org.bepinex.plugins.backpacks";
@@ -25,18 +25,18 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
     private static readonly string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
     internal static string ConnectionError = "";
     private readonly Harmony _harmony = new(ModGUID);
-    public static readonly ManualLogSource AzuAutoStoreLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
+    public static readonly ManualLogSource OttoStashLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
     private static readonly ConfigSync ConfigSync = new(ModGUID) { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
     internal static bool BackpacksIsLoaded = false;
     internal static readonly string yamlFileName = $"{ModGUID}.yml";
     internal static readonly string yamlPath = Paths.ConfigPath + Path.DirectorySeparatorChar + yamlFileName;
-    internal static readonly CustomSyncedValue<string> AzuAutoStoreContainerData = new(ConfigSync, "azuautostoreData", "");
-    internal static readonly CustomSyncedValue<string> CraftyContainerGroupsData = new(ConfigSync, "azuautostoreGroupsData", "");
+    internal static readonly CustomSyncedValue<string> OttoStashContainerData = new(ConfigSync, "ottostashData", "");
+    internal static readonly CustomSyncedValue<string> CraftyContainerGroupsData = new(ConfigSync, "ottostashGroupsData", "");
 
     //
     internal static Dictionary<string, object>? yamlData;
     internal static Dictionary<string?, HashSet<string?>> groups = null!;
-    internal static AzuAutoStorePlugin self = null!;
+    internal static OttoStashPlugin self = null!;
 
     public enum Toggle
     {
@@ -44,9 +44,41 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
         On
     }
 
+    /// <summary>
+    /// Copy the AzuAutoStore config and container rules across on first run, so a
+    /// player who upgrades keeps the settings and the per-chest YAML they had.
+    /// Never touches an OttoStash file that already exists.
+    /// </summary>
+    private static void CarryOverAzuAutoStoreConfig()
+    {
+        try
+        {
+            string oldConfig = Paths.ConfigPath + Path.DirectorySeparatorChar + "Azumatt.AzuAutoStore.cfg";
+            if (File.Exists(oldConfig) && !File.Exists(ConfigFileFullPath))
+            {
+                File.Copy(oldConfig, ConfigFileFullPath);
+                OttoStashLogger.LogInfo($"Carried your AzuAutoStore settings over to {ConfigFileName}.");
+            }
+
+            string oldYaml = Paths.ConfigPath + Path.DirectorySeparatorChar + "Azumatt.AzuAutoStore.yml";
+            if (File.Exists(oldYaml) && !File.Exists(yamlPath))
+            {
+                File.Copy(oldYaml, yamlPath);
+                OttoStashLogger.LogInfo($"Carried your AzuAutoStore container rules over to {yamlFileName}.");
+            }
+        }
+        catch (Exception e)
+        {
+            // A failure here must not stop the mod from loading.
+            OttoStashLogger.LogWarning($"Could not carry the AzuAutoStore configuration over: {e.Message}");
+        }
+    }
+
     public void Awake()
     {
         self = this;
+
+        CarryOverAzuAutoStoreConfig();
 
         _serverConfigLocked = config("1 - General", "Lock Configuration", Toggle.On, new ConfigDescription("If on, the configuration is locked and can be changed by server admins only.", null, new ConfigurationManagerAttributes() { Order = 10 }));
         ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
@@ -94,8 +126,8 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
             WriteConfigFileFromResource(yamlPath);
         }
 
-        AzuAutoStoreContainerData.ValueChanged += OnValChangedUpdate; // check for file changes
-        AzuAutoStoreContainerData.AssignLocalValue(File.ReadAllText(yamlPath));
+        OttoStashContainerData.ValueChanged += OnValChangedUpdate; // check for file changes
+        OttoStashContainerData.AssignLocalValue(File.ReadAllText(yamlPath));
 
         AutoDoc();
         Assembly assembly = Assembly.GetExecutingAssembly();
@@ -148,7 +180,7 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
     private static void WriteConfigFileFromResource(string configFilePath)
     {
         Assembly assembly = Assembly.GetExecutingAssembly();
-        string resourceName = "AzuAutoStore.Example.yml";
+        string resourceName = "OttoStash.Example.yml";
 
         using Stream resourceStream = assembly.GetManifestResourceStream(resourceName);
         if (resourceStream == null)
@@ -168,7 +200,7 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
         if (_storeShortcut.Value.IsDown() && Player.m_localPlayer.TakeInput())
         {
 #if DEBUG
-                AzuAutoStoreLogger.LogError("Taking input");
+                OttoStashLogger.LogError("Taking input");
 #endif
             Functions.TryStore();
         }
@@ -228,27 +260,27 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
         if (!File.Exists(yamlPath)) return;
         try
         {
-            AzuAutoStoreLogger.LogDebug("ReadConfigValues called");
-            AzuAutoStoreContainerData.AssignLocalValue(File.ReadAllText(yamlPath));
+            OttoStashLogger.LogDebug("ReadConfigValues called");
+            OttoStashContainerData.AssignLocalValue(File.ReadAllText(yamlPath));
         }
         catch
         {
-            AzuAutoStoreLogger.LogError($"There was an issue loading your {yamlFileName}");
-            AzuAutoStoreLogger.LogError("Please check your entries for spelling and format!");
+            OttoStashLogger.LogError($"There was an issue loading your {yamlFileName}");
+            OttoStashLogger.LogError("Please check your entries for spelling and format!");
         }
     }
 
     private static void OnValChangedUpdate()
     {
-        AzuAutoStoreLogger.LogDebug("OnValChanged called");
+        OttoStashLogger.LogDebug("OnValChanged called");
         try
         {
-            YamlUtils.ReadYaml(AzuAutoStoreContainerData.Value);
+            YamlUtils.ReadYaml(OttoStashContainerData.Value);
             YamlUtils.ParseGroups();
         }
         catch (Exception e)
         {
-            AzuAutoStoreLogger.LogError($"Failed to deserialize {yamlFileName}: {e}");
+            OttoStashLogger.LogError($"Failed to deserialize {yamlFileName}: {e}");
         }
     }
 
@@ -272,7 +304,7 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
 
         if (LoadImageMethod == null)
         {
-            AzuAutoStoreLogger.LogError("UnityEngine.ImageConversion.LoadImage was not found. Textures will not load.");
+            OttoStashLogger.LogError("UnityEngine.ImageConversion.LoadImage was not found. Textures will not load.");
             return texture;
         }
 

@@ -1,8 +1,8 @@
-﻿using AzuAutoStore.Patches;
+﻿using OttoStash.Patches;
 using Backpacks;
 using ItemDataManager;
 
-namespace AzuAutoStore.Util;
+namespace OttoStash.Util;
 
 public class Boxes
 {
@@ -18,7 +18,7 @@ public class Boxes
         if (!Containers.Contains(container))
         {
             ContainersToAdd.Add(container);
-            AzuAutoStoreLogger.LogDebug($"Added container {container.name} to list");
+            OttoStashLogger.LogDebug($"Added container {container.name} to list");
         }
 
         UpdateContainers();
@@ -30,7 +30,7 @@ public class Boxes
         {
             ContainersToRemove.Add(container);
             if (container)
-                AzuAutoStoreLogger.LogDebug($"Removed container {container.name} from list");
+                OttoStashLogger.LogDebug($"Removed container {container.name} from list");
         }
 
         UpdateContainers();
@@ -58,7 +58,7 @@ public class Boxes
             float distance = Vector3.Distance(container.transform.position, gameObject.transform.position);
             if (!(distance <= rangeToUse)) continue;
             // log the distance and the range to use
-            AzuAutoStoreLogger.LogDebug($"Distance to container {container.name} is {distance}m, within the range of {rangeToUse}m set to store items for this chest");
+            OttoStashLogger.LogDebug($"Distance to container {container.name} is {distance}m, within the range of {rangeToUse}m set to store items for this chest");
             nearbyContainers.Add(VanillaContainers.Create(container));
         }
 
@@ -123,7 +123,7 @@ public class Boxes
     {
         if (yamlData == null)
         {
-            AzuAutoStoreLogger.LogError("yamlData is null.");
+            OttoStashLogger.LogError("yamlData is null.");
             return false;
         }
 
@@ -135,7 +135,7 @@ public class Boxes
         Dictionary<object, object>? containerData = yamlData[container] as Dictionary<object, object>;
         if (containerData == null)
         {
-            AzuAutoStoreLogger.LogError($"Unable to cast containerData for container '{container}' to Dictionary<object, object>.");
+            OttoStashLogger.LogError($"Unable to cast containerData for container '{container}' to Dictionary<object, object>.");
             return false;
         }
 
@@ -148,13 +148,13 @@ public class Boxes
 
         if (excludeList == null)
         {
-            AzuAutoStoreLogger.LogError($"Unable to cast excludeList for container '{container}' to List<object>.");
+            OttoStashLogger.LogError($"Unable to cast excludeList for container '{container}' to List<object>.");
             return false;
         }
 
         if (includeOverrideList == null)
         {
-            AzuAutoStoreLogger.LogError($"Unable to cast includeOverrideList for container '{container}' to List<object>.");
+            OttoStashLogger.LogError($"Unable to cast includeOverrideList for container '{container}' to List<object>.");
             return false;
         }
 

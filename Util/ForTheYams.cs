@@ -1,6 +1,6 @@
 ﻿using YamlDotNet.Serialization;
 
-namespace AzuAutoStore.Util;
+namespace OttoStash.Util;
 
 public static class YamlUtils
 {
@@ -8,7 +8,7 @@ public static class YamlUtils
     {
         IDeserializer? deserializer = new DeserializerBuilder().Build();
         yamlData = deserializer.Deserialize<Dictionary<string, object>>(yamlInput);
-        AzuAutoStoreLogger.LogDebug($"yamlData:\n{yamlInput}");
+        OttoStashLogger.LogDebug($"yamlData:\n{yamlInput}");
     }
 
     internal static void ParseGroups()
@@ -19,7 +19,7 @@ public static class YamlUtils
         // Validate yamlData before trying to use it
         if (yamlData == null)
         {
-            AzuAutoStoreLogger.LogError("yamlData is null.");
+            OttoStashLogger.LogError("yamlData is null.");
             return;
         }
 
@@ -53,12 +53,12 @@ public static class YamlUtils
             }
             else
             {
-                AzuAutoStoreLogger.LogError("groupData is not of type Dictionary<object, object>.");
+                OttoStashLogger.LogError("groupData is not of type Dictionary<object, object>.");
             }
         }
         else
         {
-            AzuAutoStoreLogger.LogError("No 'groups' key found in yamlData.");
+            OttoStashLogger.LogError("No 'groups' key found in yamlData.");
         }
     }
 

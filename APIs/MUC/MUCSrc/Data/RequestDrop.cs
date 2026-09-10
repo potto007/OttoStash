@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.APIs.MUC.MUCSrc.Data;
+﻿namespace OttoStash.APIs.MUC.MUCSrc.Data;
 
 public class RequestDrop : IPackage {
     public readonly Vector2i targetContainerSlot;
