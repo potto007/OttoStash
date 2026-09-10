@@ -81,7 +81,11 @@
   </Target>
 
   <!-- Build the Thunderstore zip that the publish workflow uploads. -->
-  <Target Name="MakeThunderstorePackage" AfterTargets="ReadManifestVersion" Condition="'$(Configuration)' == 'Release'">
+  <!-- DependsOnTargets, not just AfterTargets: the profile copy must succeed before
+       a shippable zip exists. Both used to hang off ILRepacker independently, so a
+       DLL locked by a running game failed the copy while packaging carried on and
+       printed a success line over the error. -->
+  <Target Name="MakeThunderstorePackage" AfterTargets="ReadManifestVersion" DependsOnTargets="CopyOutputDLL" Condition="'$(Configuration)' == 'Release'">
     <RemoveDir Directories="$(PackageStageDir)" />
     <MakeDir Directories="$(PackageStageDir)" />
     <ItemGroup>
