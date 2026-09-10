@@ -22,8 +22,6 @@
 
     <Reference Include="0Harmony" HintPath="$(BepInExPath)/core/0Harmony.dll" Private="false" />
     <Reference Include="BepInEx" HintPath="$(BepInExPath)/core/BepInEx.dll" Private="false" />
-    <!-- Shipped by the Ottomation_ModLib package at runtime, so never copied here. -->
-    <Reference Include="Ottomation.ModLib" HintPath="Libs/Ottomation.ModLib.dll" Private="false" />
 
     <Reference Include="AzuExtendedPlayerInventory" HintPath="Libs/AzuExtendedPlayerInventoryAPI.dll" Private="true" />
     <Reference Include="Backpacks" HintPath="Libs/BackpacksAPI.dll" Private="true" />

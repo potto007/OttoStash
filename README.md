@@ -88,77 +88,74 @@ many containers.
 
 <details> <summary><b>Available Configuration Options</b></summary>
 
-The names follow the Ottomation series spelling. A config from an earlier OttoStash, or one
-carried over from AzuAutoStore, is renamed in place on first load, so your values carry over.
 
 
 
+`1 - General`
 
-`General`
-
-LockConfiguration [Synced with Server]
+Lock Configuration [Synced with Server]
 
 * If on, the configuration is locked and can be changed by server admins only.
     * Default Value: On
 
-DontStoreToBackpacks [Synced with Server]
+Dont Store to Backpacks [Synced with Server]
 
 * If on, items will not be stored in backpacks.
     * Default Value: Off
 
-ChestsPickupFromGround [Synced with Server]
+Chests Pickup From Ground [Synced with Server]
 
 * If on, chests will pick up items from the ground if they are in range. If off, chests will not begin their periodic
   checks for items nearby. Reloading zone or logging out might be required.
     * Default Value: On
 
-MustHaveExistingItemToPull [Synced with Server]
+Must Have Existing Item To Pull [Synced with Server]
 
 * If on, the chest must already have the item in its inventory to pull it from the world or player into the chest.
     * Default Value: On
 
-PlayerRange [Synced with Server]
+Player Range [Synced with Server]
 
 * The maximum distance from the player to store items in chests when the Store Shortcut is pressed. Follows storage
   rules for allowed items.
     * Default Value: 5
 
-FallbackRange [Synced with Server]
+Fallback Range [Synced with Server]
 
 * The range to use if the container has no range set in the yml file. This will be the fallback range for all
   containers.
     * Default Value: 10
 
-PlayerIgnoreHotbar [Not Synced with Server]
+Player Ignore Hotbar [Not Synced with Server]
 
 * If on, the player's hotbar will not be stored when the Store Shortcut is pressed.
     * Default Value: On
 
-PlayerIgnoreQuickSlots [Not Synced with Server]
+Player Ignore Quick Slots [Not Synced with Server]
 
 * If on, the player's quick slots will not be stored when the Store Shortcut is pressed. (Requires Quick Slots mod, turn
   on only if you need it!)
     * Default Value: Off
 
-PingVFX [Synced with Server]
+Ping VFX [Synced with Server]
 
 * The VFX to play when a chest is pinged. Leave blank to disable and only highlight the chest. (Full prefab
   list: https://valheim-modding.github.io/Jotunn/data/prefabs/prefab-list.html)
     * Default Value: vfx_Potion_health_medium
 
-HighlightContainers [Not Synced with Server]
+Highlight Containers [Not Synced with Server]
 
 * If on, the containers will be highlighted when something is stored in them. If off, the containers will not be
   highlighted if something is stored in them.
     * Default Value: On
 
-PingContainers [Not Synced with Server]
+Ping Containers [Not Synced with Server]
 
 * If on, the containers will be pinged with the Ping VFX when something is stored in them. If off, the containers will
   not be pinged if something is stored in them.
     * Default Value: On
 
-SecondsToWaitBeforeStoring [Synced with Server]
+Seconds To Wait Before Storing [Synced with Server]
 
 * The number of seconds to wait before storing items into chests nearby automatically after you have pressed your hotkey
   to pause.
@@ -170,27 +167,27 @@ IntervalSeconds [Synced with Server]
   this will decrease performance!
     * Default Value: 10
 
-`Fish`
+`1.5 - Fish`
 
-FishSuction [Synced with Server]
+Fish Suction [Synced with Server]
 
 * Allow auto-storing fish that are still in water, as in boat netting. Off requires fish to be out of the water. On
   skips that check.
     * Default Value: Off
 
-`Shortcuts`
+`2 - Shortcuts`
 
-StoreSingleItemShortcut [Not Synced with Server]
+Store Single Item Shortcut [Not Synced with Server]
 
 * Keyboard shortcut/Hotkey to store a single item that you click from your inventory into nearby containers.
     * Default Value: Mouse2
 
-StoreShortcut [Not Synced with Server]
+Store Shortcut [Not Synced with Server]
 
 * Keyboard shortcut/Hotkey to store your inventory into nearby containers.
     * Default Value: Period
 
-PauseShortcut [Not Synced with Server]
+Pause Shortcut [Not Synced with Server]
 
 * Keyboard shortcut/Hotkey to temporarily stop storing items into chests nearby automatically. Does not override the
   player hotkey store.
@@ -201,7 +198,7 @@ SearchModifierKeybind [Not Synced with Server]
 * While holding this, you can search nearby chests for the prefab you clicked in your inventory.
     * Default Value: Y
 
-`Favoriting`
+`3 - Favoriting`
 
 BorderColorFavoritedItem [Not Synced with Server]
 
@@ -264,9 +261,7 @@ ItemOnFavoritedSlotTooltip [Not Synced with Server]
 2. **Extract the contents of the zip file to your game's root folder.**
 3. **Download the latest release of OttoStash from Thunderstore.io.**
 4. **Extract the contents of the zip file to the `BepInEx/plugins` folder.**
-5. **Install Ottomation_ModLib and Jotunn the same way.** OttoStash uses the library for its
-   config handling, and the library needs Jotunn.
-6. **Launch the game.**
+5. **Launch the game.**
 
 ### Installation through r2modman or Thunderstore Mod Manager
 
