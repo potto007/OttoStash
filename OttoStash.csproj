@@ -117,7 +117,7 @@
     <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PackageStageDir)" />
     <ZipDirectory SourceDirectory="$(PackageStageDir)" DestinationFile="$(PackageZip)" Overwrite="true" />
     <!-- A zip that fails the package check is not shippable, so the build fails with it. -->
-    <Exec Command="python3 &quot;$(MSBuildProjectDirectory)/../Ottomation_ModLib/tools/verify_package.py&quot; &quot;$(PackageZip)&quot;" Condition="Exists('$(MSBuildProjectDirectory)/../Ottomation_ModLib/tools/verify_package.py')" />
+    <Exec Command="python3 &quot;$(MSBuildProjectDirectory)/../OttoModTools/tools/verify_package.py&quot; &quot;$(PackageZip)&quot;" Condition="Exists('$(MSBuildProjectDirectory)/../OttoModTools/tools/verify_package.py')" />
     <Message Importance="high" Text="Thunderstore package: $(PackageZip)" />
   </Target>
 
