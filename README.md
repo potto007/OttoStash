@@ -238,17 +238,17 @@ FavoritingModifierKeybind2 [Not Synced with Server]
 FavoritedItemTooltip [Not Synced with Server]
 
 *
-    * Default Value: Item is favorited and won't be stored
+    * Default Value: Item is favorited and will not be stored
 
 FavoritedSlotTooltip [Not Synced with Server]
 
 *
-    * Default Value: Slot is favorited and won't be stored
+    * Default Value: Slot is favorited and will not be stored
 
 ItemOnFavoritedSlotTooltip [Not Synced with Server]
 
 *
-    * Default Value: Item & Slot are favorited and won't be stored
+    * Default Value: Item & Slot are favorited and will not be stored
 
 </details>
 

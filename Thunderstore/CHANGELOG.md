@@ -19,6 +19,12 @@ release history, kept below unchanged.
 - The README config list now matches the file. It gains `DontStoreToBackpacks` and
   `ChestsPickupFromGround`, which it never listed, and `FishSuction` now describes what the
   setting actually does.
+- The config file starts with an `_Author` section, the same as the rest of the
+  Ottomation series.
+- The three favoriting tooltips now say "will not be stored" in place of "won't be
+  stored". BepInEx saved the apostrophe as `\'`, and that broke TOML formatters and
+  syntax colors. A tooltip still on the old default changes to the new text. A tooltip
+  you wrote yourself stays as it is.
 
 ## v3.1.3
 
