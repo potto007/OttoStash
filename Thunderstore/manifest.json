@@ -1,11 +1,9 @@
 {
   "name": "OttoStash",
   "description": "Chests pull nearby items off the ground and out of your inventory. Per-chest rules, groups and favouriting.",
-  "version_number": "3.2.0",
+  "version_number": "3.2.1",
   "website_url": "https://github.com/potto007/OttoStash",
   "dependencies": [
-    "denikson-BepInExPack_Valheim-5.4.2350",
-    "ValheimModding-Jotunn-2.30.0",
-    "potto007-Ottomation_ModLib-1.16.0"
+    "denikson-BepInExPack_Valheim-5.4.2350"
   ]
 }

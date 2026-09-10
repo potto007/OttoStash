@@ -3,6 +3,16 @@
 OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.14 and below are his
 release history, kept below unchanged.
 
+## v3.2.1
+
+- Drops the Ottomation_ModLib and Jotunn dependencies that 3.2.0 added. OttoStash needs
+  only BepInEx again.
+- Setting names go back to the 3.1.3 spelling, such as `1 - General` and `Player Range`,
+  so a config from 3.1.3 or earlier loads with its values. If you ran 3.2.0, check your
+  settings, because a value you changed under 3.2.0 is back at its default.
+- Keeps the favoriting tooltip text from 3.2.0, which has no apostrophe, and the README
+  corrections.
+
 ## v3.2.0
 
 - Depends on Ottomation_ModLib 1.16.0, which brings Jotunn with it. OttoStash uses the
