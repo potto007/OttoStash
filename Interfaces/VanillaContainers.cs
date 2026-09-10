@@ -176,6 +176,9 @@ public class VanillaContainers(Container _container) : IContainer
         if (!MUCCompat.MultiUserChestActive && !nearbyContainer.m_nview.IsOwner())
             return false;
 
+        if (!MUCCompat.MultiUserChestActive && Functions.IsContainerBeingUsed(nearbyContainer))
+            return false;
+
         int moved = InventoryMove.MoveStackChunked(inv, item);
         bool changed = moved > 0;
 

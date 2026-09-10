@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using AzuAutoStore.APIs.Compatibility;
+﻿using AzuAutoStore.APIs.Compatibility;
 using AzuAutoStore.APIs.MUC;
 using AzuAutoStore.Patches;
 using Object = UnityEngine.Object;
@@ -19,56 +18,6 @@ public class Functions
             // Literally don't give a fuck if this fails. But try anyways.
         }
     }
-
-    internal static IEnumerator WaitForOwnershipAndStore(VanillaContainers vc, float timeoutSeconds = 1f)
-    {
-        if (vc == null || vc.m_nview == null || !vc.m_nview.IsValid())
-        {
-            if (--InProgressStores == 0) StoreSuccess(InProgressTotal);
-            yield break;
-        }
-
-        if (!MUCCompat.MultiUserChestActive)
-        {
-            if (!vc.m_nview.IsOwner())
-                vc.m_nview.ClaimOwnership();
-
-            float t = 0f;
-            while (!vc.m_nview.IsOwner() && t < timeoutSeconds)
-            {
-                t += Time.deltaTime;
-                yield return null;
-            }
-
-            if (!vc.m_nview.IsOwner())
-            {
-                LogDebug($"Ownership claim timed out for {vc.gameObject.name}.");
-                if (--InProgressStores == 0) StoreSuccess(InProgressTotal);
-                yield break;
-            }
-        }
-
-        try
-        {
-            int moved = vc.TryStore();
-            InProgressTotal += moved;
-
-            Container? c = vc.gameObject.GetComponent<Container>();
-            if (!c) yield break;
-            c.Save();
-            PingContainer(c.gameObject);
-        }
-        catch (Exception e)
-        {
-            LogError($"Error while storing to {vc.gameObject.name}: {e}");
-        }
-        finally
-        {
-            if (--InProgressStores == 0)
-                StoreSuccess(InProgressTotal);
-        }
-    }
-
 
     internal static float GetContainerRange(Container container)
     {
@@ -156,6 +105,16 @@ public class Functions
             bool isPaused = container.m_nview.GetZDO().GetBool(ContainerAwakePatch.storingPausedHash, false);
             if (isPaused) continue;
 
+            if (!container.m_nview.IsOwner())
+            {
+                // Take ownership for the next pass, but never off a player who has it open.
+                if (!IsContainerBeingUsed(container))
+                    container.m_nview.ClaimOwnership();
+                continue;
+            }
+
+            if (container.IsInUse() || container.m_nview.GetZDO().GetInt(ZDOVars.s_inUse) != 0) continue;
+
             LogDebug($"Nearby item name: {itemDrop.m_itemData.m_dropPrefab.name}");
 
             if (!TryStore(container, ref itemDrop.m_itemData))
@@ -222,6 +181,12 @@ public class Functions
             return false;
         }
 
+        if (!MUCCompat.MultiUserChestActive && IsContainerBeingUsed(nearbyContainer))
+        {
+            LogDebug($"Cannot store to {nearbyContainer.name}: container is in use by another player.");
+            return false;
+        }
+
         int moved = InventoryMove.MoveStackChunked(target, item);
         changed = moved > 0;
 
@@ -235,45 +200,31 @@ public class Functions
     }
 
 
-    internal static int InProgressStores = 0;
-    internal static int InProgressTotal = 0;
+    /// <summary>
+    /// True when a player has the container open. Read the live flag when we own the
+    /// container, and the replicated ZDO flag when another client owns it.
+    /// </summary>
+    internal static bool IsContainerBeingUsed(Container container)
+    {
+        if (!container.m_nview.IsValid()) return false;
+
+        return container.m_nview.IsOwner()
+            ? container.IsInUse()
+            : container.m_nview.GetZDO().GetInt(ZDOVars.s_inUse) != 0;
+    }
 
     internal static void TryStore()
     {
         if (!Player.m_localPlayer) return;
         LogDebug("Trying to store items from player inventory");
 
-        IContainer?[] uncheckedContainers = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value).ToArray();
-
         int total = 0;
-        for (int i = 0; i < uncheckedContainers.Length; ++i)
+        foreach (IContainer nearby in Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value))
         {
-            if (uncheckedContainers[i] is not { } nearby) continue;
-
-            bool canImmediate = nearby.IsOwner() || (nearby is VanillaContainers && MUCCompat.MultiUserChestActive);
-
-            if (!canImmediate) continue;
-
-            uncheckedContainers[i] = null;
-            total += nearby.TryStore();
+            total += StoreToContainer(nearby, null, null);
         }
 
-
-        InProgressTotal += total;
-
-        InProgressStores = 0;
-        for (int i = 0; i < uncheckedContainers.Length; ++i)
-        {
-            if (uncheckedContainers[i] is not VanillaContainers v) continue;
-
-            InProgressStores++;
-            self.StartCoroutine(WaitForOwnershipAndStore(v));
-        }
-
-        if (InProgressStores == 0)
-        {
-            StoreSuccess(InProgressTotal);
-        }
+        StoreSuccess(total);
     }
 
     internal static void TryStoreThisItem(ItemDrop.ItemData itemData, Inventory m_inventory)
@@ -283,93 +234,75 @@ public class Functions
 
         LogDebug($"Trying to store {itemData.m_shared.m_name}");
 
-        IContainer?[] uncheckedContainers = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value).ToArray();
-
         int total = 0;
-
-        for (int i = 0; i < uncheckedContainers.Length; ++i)
+        foreach (IContainer nearby in Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value))
         {
-            if (uncheckedContainers[i] is not { } nearby) continue;
-
-            bool canImmediate =
-                nearby.IsOwner() ||
-                (nearby is VanillaContainers && MUCCompat.MultiUserChestActive);
-
-            if (!canImmediate) continue;
-
-            uncheckedContainers[i] = null;
-            total += nearby.TryStoreThisItem(itemData, m_inventory);
+            total += StoreToContainer(nearby, itemData, m_inventory);
         }
 
-
-        InProgressTotal += total;
-
-        InProgressStores = 0;
-        for (int i = 0; i < uncheckedContainers.Length; ++i)
-        {
-            if (uncheckedContainers[i] is not VanillaContainers v) continue;
-
-            InProgressStores++;
-            self.StartCoroutine(WaitForOwnershipAndStoreSingle(v, itemData, m_inventory));
-        }
-
-        if (InProgressStores == 0)
-        {
-            StoreSuccess(InProgressTotal);
-        }
+        StoreSuccess(total);
     }
 
-    internal static IEnumerator WaitForOwnershipAndStoreSingle(VanillaContainers vc, ItemDrop.ItemData item, Inventory inv, float timeoutSeconds = 1f)
+    /// <summary>
+    /// Store into one container and return the number of items moved. Pass
+    /// <paramref name="singleItem"/> as null to store the whole player inventory.
+    /// </summary>
+    /// <remarks>
+    /// A vanilla container is claimed and marked in use for the duration of the store,
+    /// so a second client cannot write to the same inventory at the same time. The
+    /// in-use flag is force-sent, because the store finishes before the normal ZDO
+    /// send interval. MultiUserChest does this locking itself, so we stay out of its way.
+    /// </remarks>
+    private static int StoreToContainer(IContainer container, ItemDrop.ItemData? singleItem, Inventory? inv)
     {
-        if (vc == null || vc.m_nview == null || !vc.m_nview.IsValid())
+        if (container is not VanillaContainers vanilla)
         {
-            if (--InProgressStores == 0) StoreSuccess(InProgressTotal);
-            yield break;
+            return singleItem != null ? container.TryStoreThisItem(singleItem, inv) : container.TryStore();
         }
 
+        if (!vanilla.m_nview.IsValid()) return 0;
+
+        ZDO? heldZdo = null;
         if (!MUCCompat.MultiUserChestActive)
         {
-            if (!vc.m_nview.IsOwner())
-                vc.m_nview.ClaimOwnership();
-
-            float t = 0f;
-            while (!vc.m_nview.IsOwner() && t < timeoutSeconds)
+            Container? c = vanilla.gameObject.GetComponent<Container>();
+            if (c != null && IsContainerBeingUsed(c))
             {
-                t += Time.deltaTime;
-                yield return null;
+                LogDebug($"Skipping {vanilla.gameObject.name}: container is in use.");
+                return 0;
             }
 
-            if (!vc.m_nview.IsOwner())
+            if (!vanilla.IsOwner())
+                vanilla.m_nview.ClaimOwnership();
+
+            heldZdo = vanilla.m_nview.GetZDO();
+            if (heldZdo != null)
             {
-                LogDebug($"Ownership claim timed out for {vc.gameObject.name} (single item).");
-                if (--InProgressStores == 0) StoreSuccess(InProgressTotal);
-                yield break;
+                heldZdo.Set(ZDOVars.s_inUse, 1, false);
+                ZDOMan.instance.ForceSendZDO(ZNet.GetUID(), heldZdo.m_uid);
             }
         }
 
+        int moved = 0;
         try
         {
-            int moved = vc.TryStoreThisItem(item, inv);
-            InProgressTotal += moved;
-
-            Container? c = vc.gameObject.GetComponent<Container>();
-            if (c)
-            {
-                c.Save();
-                PingContainer(c.gameObject);
-            }
+            moved = singleItem == null ? vanilla.TryStore() : vanilla.TryStoreThisItem(singleItem, inv);
         }
         catch (Exception e)
         {
-            LogError($"Error while storing to {vc.gameObject.name}: {e}");
+            LogError($"Error while storing to {vanilla.gameObject.name}: {e}");
         }
         finally
         {
-            if (--InProgressStores == 0)
-                StoreSuccess(InProgressTotal);
+            if (heldZdo != null)
+            {
+                heldZdo.Set(ZDOVars.s_inUse, 0, false);
+                ZDOMan.instance.ForceSendZDO(ZNet.GetUID(), heldZdo.m_uid);
+            }
         }
-    }
 
+        return moved;
+    }
 
     internal static void StoreSuccess(int total)
     {
@@ -384,19 +317,15 @@ public class Functions
                     PingContainer(c.gameObject);
                     try
                     {
-                        if (c.IsOwner() && InventoryGui.instance && c != InventoryGui.instance.m_currentContainer)
+                        // StoreToContainer already cleared the in-use flag it set.
+                        if (InventoryGui.instance && c.gameObject.GetComponent<Container>() != InventoryGui.instance.m_currentContainer)
                         {
-                            c.m_nview.GetZDO().Set(ZDOVars.s_inUse, 0, false);
-                            if (c is VanillaContainers container)
-                            {
-                                container.gameObject.GetComponent<Container>().SetInUse(false);
-                                InventoryGui.instance.m_moveItemEffects.Create(c.gameObject.transform.position, Quaternion.identity);
-                            }
+                            InventoryGui.instance.m_moveItemEffects.Create(c.gameObject.transform.position, Quaternion.identity);
                         }
                     }
                     catch (Exception e)
                     {
-                        AzuAutoStoreLogger.LogError($"Error while trying to reset ownership of container {c.gameObject.name}: {e}");
+                        AzuAutoStoreLogger.LogError($"Error while playing move effect for container {c.gameObject.name}: {e}");
                     }
                 }
             }
@@ -404,7 +333,6 @@ public class Functions
         finally
         {
             Boxes.ContainersToPing.Clear();
-            InProgressTotal = 0;
         }
     }
 

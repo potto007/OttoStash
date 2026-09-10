@@ -9,39 +9,61 @@ internal static class ContainerAwakePatch
     internal static int pausedSeconds = 0;
     internal static readonly int storingPausedHash = "storingPaused".GetStableHashCode();
 
-    private static void Postfix(Container __instance)
+    // Shared by the Awake postfix, the Interact postfix and the player-spawn scan,
+    // so one access check governs every route that adds a container.
+    internal static bool TryAddContainer(Container container)
     {
-        Functions.LogContainerStatus(__instance);
+        if (!container || container.m_nview == null || container.m_nview.GetZDO() == null)
+            return false;
 
-        if (__instance.m_nview.GetZDO() == null)
-            return;
+        // A container carried by another character (a backpack, a tamed creature) is not ours.
+        Character? owningCharacter = container.GetComponentInParent<Character>();
+        if (owningCharacter != null && owningCharacter != Player.m_localPlayer)
+            return false;
 
-        if (__instance.m_nview)
-        {
-            __instance.m_nview.Register<bool>("RequestPause", (sender, pause) => Boxes.RPC_RequestPause(sender, pause, __instance));
-        }
+        if (!container.m_nview.IsValid() || container.GetInventory() == null)
+            return false;
 
-        if (__instance.m_nview.GetZDO().GetLong(ZDOVars.s_creator) == 0L || __instance.GetInventory() == null || !__instance.m_nview.IsValid())
-            return;
-
+        if (container.m_nview.GetZDO().GetLong(ZDOVars.s_creator) == 0L)
+            return false;
 
         try
         {
             // Only add containers that the player should have access to
-            if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value && WardMonoscript.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
+            if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value)
             {
-                Boxes.AddContainer(__instance);
+                if (!WardMonoscript.CheckAccess(container.transform.position, flash: false, wardCheck: true))
+                    return false;
+                Boxes.AddContainer(container);
+                return true;
             }
-            else
+
+            if (PrivateArea.CheckAccess(container.transform.position, flash: false, wardCheck: true))
             {
-                if (PrivateArea.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-                    Boxes.AddContainer(__instance);
+                Boxes.AddContainer(container);
+                return true;
             }
         }
         catch
         {
             // ignored
         }
+
+        return false;
+    }
+
+    private static void Postfix(Container __instance)
+    {
+        Functions.LogContainerStatus(__instance);
+
+        if (__instance.m_nview == null || __instance.m_nview.GetZDO() == null)
+            return;
+
+        // Awake can run more than once on a pooled object. Drop the old handler first.
+        __instance.m_nview.Unregister("RequestPause");
+        __instance.m_nview.Register<bool>("RequestPause", (sender, pause) => Boxes.RPC_RequestPause(sender, pause, __instance));
+
+        TryAddContainer(__instance);
     }
 }
 
@@ -50,7 +72,7 @@ internal static class ContainerOnDestroyedPatch
 {
     private static void Postfix(Container __instance)
     {
-        if (__instance.m_nview.GetZDO().GetLong("creator".GetStableHashCode()) == 0L || __instance.GetInventory() == null || !__instance.m_nview.IsValid())
+        if (__instance.m_nview.GetZDO().GetLong(ZDOVars.s_creator) == 0L || __instance.GetInventory() == null || !__instance.m_nview.IsValid())
             return;
         Boxes.RemoveContainer(__instance);
     }
@@ -90,15 +112,23 @@ static class ContainerInteractPatch
         long playerId = Game.instance.GetPlayerProfile().GetPlayerID();
         if ((__instance.m_checkGuardStone && !PrivateArea.CheckAccess(__instance.transform.position)) || !__instance.CheckAccess(playerId))
             return;
-        // Only add containers that the player should have access to
-        if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value && WardMonoscript.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
+        ContainerAwakePatch.TryAddContainer(__instance);
+    }
+}
+
+// The Awake patch misses containers that already existed when the player spawned in.
+// Sweep them once the local player is in the world.
+[HarmonyPatch(typeof(Player), nameof(Player.OnSpawned))]
+internal static class PlayerOnSpawnedContainerScanPatch
+{
+    private static void Postfix(Player __instance)
+    {
+        if (__instance != Player.m_localPlayer)
+            return;
+
+        foreach (Container container in Resources.FindObjectsOfTypeAll<Container>())
         {
-            Boxes.AddContainer(__instance);
-        }
-        else
-        {
-            if (PrivateArea.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-                Boxes.AddContainer(__instance);
+            ContainerAwakePatch.TryAddContainer(container);
         }
     }
 }

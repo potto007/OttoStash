@@ -160,7 +160,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
         if (!Boxes.CanItemBeStored(MiscFunctions.GetPrefabName(nearbyContainer.Item.m_dropPrefab.name), item.m_dropPrefab.name))
             return false;
 
-        while (item.m_stack > 1 && nearbyContainer.CanAddItem(item))
+        while (item.m_stack > 0 && nearbyContainer.CanAddItem(item))
         {
             ItemDrop.ItemData? one = item.Clone();
             one.m_stack = 1;
