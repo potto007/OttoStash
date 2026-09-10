@@ -85,6 +85,7 @@ public class OttoStashPlugin : BaseUnityPlugin
         // binds, so a renamed setting keeps its value. See Ottomation_ModLib ADR-0007
         // and ADR-0008.
         global::Ottomation.Lib.Config.ConfigNameMigration.Apply(Config, OttoStashLogger);
+        global::Ottomation.Lib.Config.ConfigHeader.BindAuthor(Config);
 
         _serverConfigLocked = config("General", "LockConfiguration", Toggle.On, new ConfigDescription("If on, the configuration is locked and can be changed by server admins only.", null, new ConfigurationManagerAttributes() { Order = 10 }));
         ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
@@ -123,9 +124,16 @@ public class OttoStashPlugin : BaseUnityPlugin
 
         FavoritingModifierKeybind1 = config(sectionName, nameof(FavoritingModifierKeybind1), new KeyboardShortcut(KeyCode.Z), $"{favoritingKey} Identical to {nameof(FavoritingModifierKeybind2)}.", false);
         FavoritingModifierKeybind2 = config(sectionName, nameof(FavoritingModifierKeybind2), new KeyboardShortcut(KeyCode.Z), $"{favoritingKey} Identical to {nameof(FavoritingModifierKeybind1)}.", false);
-        FavoritedItemTooltip = config(sectionName, nameof(FavoritedItemTooltip), "Item is favorited and won't be stored", string.Empty, false);
-        FavoritedSlotTooltip = config(sectionName, nameof(FavoritedSlotTooltip), "Slot is favorited and won't be stored", string.Empty, false);
-        ItemOnFavoritedSlotTooltip = config(sectionName, nameof(ItemOnFavoritedSlotTooltip), "Item & Slot are favorited and won't be stored", string.Empty, false);
+        FavoritedItemTooltip = config(sectionName, nameof(FavoritedItemTooltip), "Item is favorited and will not be stored", string.Empty, false);
+        FavoritedSlotTooltip = config(sectionName, nameof(FavoritedSlotTooltip), "Slot is favorited and will not be stored", string.Empty, false);
+        ItemOnFavoritedSlotTooltip = config(sectionName, nameof(ItemOnFavoritedSlotTooltip), "Item & Slot are favorited and will not be stored", string.Empty, false);
+
+        // BepInEx saves an apostrophe as \', which breaks TOML formatters, so these
+        // defaults no longer use one. A value still on the old default moves to the new
+        // text. A value the player wrote stays as it is.
+        ReplaceOldDefault(FavoritedItemTooltip, "Item is favorited and won't be stored");
+        ReplaceOldDefault(FavoritedSlotTooltip, "Slot is favorited and won't be stored");
+        ReplaceOldDefault(ItemOnFavoritedSlotTooltip, "Item & Slot are favorited and won't be stored");
 
         if (!File.Exists(yamlPath))
         {
@@ -152,6 +160,14 @@ public class OttoStashPlugin : BaseUnityPlugin
         if (!MUCCompat.MUCLoaded)
         {
             MUCCompat.ForceEnableMUC(true);
+        }
+    }
+
+    private static void ReplaceOldDefault(ConfigEntry<string> entry, string oldDefault)
+    {
+        if (entry.Value == oldDefault)
+        {
+            entry.Value = (string)entry.DefaultValue;
         }
     }
 
