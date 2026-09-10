@@ -291,10 +291,11 @@ public class OttoStashPlugin : BaseUnityPlugin
         return stream.ToArray();
     }
 
-    // ImageConversion.LoadImage takes a ReadOnlySpan<byte> in the current Unity, and
-    // that type lives in the game's Mono mscorlib, not in the net48 reference
-    // assemblies. Bind the byte[] overload once at startup instead of referencing
-    // UnityEngine.ImageConversionModule.
+    // UnityEngine.ImageConversionModule cannot be referenced from net48 at all: its
+    // metadata names ReadOnlySpan<byte>, and that type lives in the game's Mono
+    // mscorlib rather than in the net48 reference assemblies. The byte[] overload of
+    // LoadImage still exists, so bind it once at startup and drop the reference.
+    // A netstandard2.1 target would resolve the span type and make this unnecessary.
     private static readonly MethodInfo? LoadImageMethod = AccessTools.Method(
         "UnityEngine.ImageConversion:LoadImage", [typeof(Texture2D), typeof(byte[])]);
 
