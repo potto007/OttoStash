@@ -17,6 +17,10 @@ public static class ItemDrawerCompat
         }
     }
 
+    // Without ItemDrawers the string targets below resolve to nothing, and one
+    // unresolved target aborts the whole PatchAll.
+    private static bool Prepare() => drawerContainerType != null;
+
     public static bool IsItemDrawer(Container container)
     {
         return drawerContainerType != null && container.GetComponent(drawerContainerType);
@@ -39,7 +43,7 @@ public static class ItemDrawerCompat
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Inventory), nameof(Inventory.AddItem), new[] { typeof(ItemDrop.ItemData) })]
-    [HarmonyPatch(typeof(Inventory), nameof(Inventory.AddItem), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(int), typeof(int) })]
+    [HarmonyPatch(typeof(Inventory), nameof(Inventory.AddItem), new[] { typeof(ItemDrop.ItemData), typeof(int), typeof(int), typeof(int), typeof(bool) })]
     [HarmonyPriority(Priority.VeryHigh)]
     public static bool PreventItemAdd(Inventory __instance, ItemDrop.ItemData item)
     {

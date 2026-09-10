@@ -98,7 +98,7 @@ public static class InventoryGuiPatch {
         __runOriginal = false;
     }
 
-    [HarmonyPatch(typeof(Inventory), nameof(Inventory.Load)), HarmonyPostfix]
+    [HarmonyPatch(typeof(Inventory), nameof(Inventory.Load), typeof(ZPackage)), HarmonyPostfix]
     public static void InventorySelectSameItemAfterLoad(Inventory __instance) {
         if (MUCCompat.DoNotPatch) return;
         if (!InventoryGui.instance || InventoryGui.instance.m_dragItem == null) {
