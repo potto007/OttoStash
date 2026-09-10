@@ -1,4 +1,4 @@
-using OttoStash.APIs.MUC.MUCSrc.Patches.Compatibility;
+﻿using OttoStash.APIs.MUC.MUCSrc.Patches.Compatibility;
 
 namespace OttoStash.APIs.MUC.MUCSrc.Patches;
 
@@ -43,18 +43,18 @@ public static class ContainerPatch {
         }
 
         if (!__instance.CheckAccess(playerID)) {
-            __instance.m_nview.InvokeRPC(uid, "OpenRespons", false);
+            __instance.m_nview.InvokeRPC(uid, "RPC_OpenResponse", false);
             return false;
         }
 
         if (IsContainerInUse(__instance, uid)) {
-            __instance.m_nview.InvokeRPC(uid, "OpenRespons", true);
+            __instance.m_nview.InvokeRPC(uid, "RPC_OpenResponse", true);
             return false;
         }
 
         ZDOMan.instance.ForceSendZDO(uid, __instance.m_nview.GetZDO().m_uid);
         __instance.m_nview.GetZDO().SetOwner(uid);
-        __instance.m_nview.InvokeRPC(uid, "OpenRespons", true);
+        __instance.m_nview.InvokeRPC(uid, "RPC_OpenResponse", true);
 
         return false;
     }
