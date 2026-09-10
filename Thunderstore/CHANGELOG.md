@@ -3,6 +3,23 @@
 OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.14 and below are his
 release history, kept below unchanged.
 
+## v3.2.0
+
+- Depends on Ottomation_ModLib 1.16.0, which brings Jotunn with it. OttoStash uses the
+  library for its config handling, and keeps ServerSync for syncing settings, so
+  `LockConfiguration` works as before.
+- Config names follow the Ottomation series spelling. The numbered sections lose their
+  numbers, so `1 - General` is now `General`, `1.5 - Fish` is now `Fish`, `2 - Shortcuts`
+  is now `Shortcuts` and `3 - Favoriting` is now `Favoriting`. Keys lose their spaces, so
+  `Player Range` is now `PlayerRange`. Configuration Manager lists the sections in the
+  same order as before, unless its sort-by-name option is on.
+- Your values carry over. On first load the library renames your config in place before
+  OttoStash reads it, and a config carried over from AzuAutoStore goes through the same
+  rename.
+- The README config list now matches the file. It gains `DontStoreToBackpacks` and
+  `ChestsPickupFromGround`, which it never listed, and `FishSuction` now describes what the
+  setting actually does.
+
 ## v3.1.3
 
 **Fixes chests not opening.** This affected 3.1.2 and 3.1.1.

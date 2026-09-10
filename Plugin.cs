@@ -1,4 +1,4 @@
-﻿#if DEBUG
+#if DEBUG
 using System.Text;
 using System.Text.RegularExpressions;
 #endif
@@ -10,13 +10,14 @@ using ServerSync;
 namespace OttoStash;
 
 [BepInPlugin(ModGUID, ModName, ModVersion)]
+[BepInDependency("potto007.Ottomation.ModLib", "1.16.0")]
 [BepInDependency("Azumatt.AzuExtendedPlayerInventory", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(KgGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(BackpacksGuid, BepInDependency.DependencyFlags.SoftDependency)]
 public class OttoStashPlugin : BaseUnityPlugin
 {
     internal const string ModName = "OttoStash";
-    internal const string ModVersion = "3.1.3";
+    internal const string ModVersion = "3.2.0";
     internal const string Author = "potto007";
     internal const string ModGUID = $"{Author}.{ModName}";
     internal const string KgGuid = "kg.ItemDrawers";
@@ -80,28 +81,33 @@ public class OttoStashPlugin : BaseUnityPlugin
 
         CarryOverAzuAutoStoreConfig();
 
-        _serverConfigLocked = config("1 - General", "Lock Configuration", Toggle.On, new ConfigDescription("If on, the configuration is locked and can be changed by server admins only.", null, new ConfigurationManagerAttributes() { Order = 10 }));
+        // Rename this plugin's saved settings to the series spelling before anything
+        // binds, so a renamed setting keeps its value. See Ottomation_ModLib ADR-0007
+        // and ADR-0008.
+        global::Ottomation.Lib.Config.ConfigNameMigration.Apply(Config, OttoStashLogger);
+
+        _serverConfigLocked = config("General", "LockConfiguration", Toggle.On, new ConfigDescription("If on, the configuration is locked and can be changed by server admins only.", null, new ConfigurationManagerAttributes() { Order = 10 }));
         ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
 
-        DontStoreToBackpacks = config("1 - General", "Dont Store to Backpacks", Toggle.Off, new ConfigDescription("If on, items will not be stored in backpacks.", null, new ConfigurationManagerAttributes() { Order = 9 }));
-        ChestsPickupFromGround = config("1 - General", "Chests Pickup From Ground", Toggle.On, new ConfigDescription("If on, chests will pick up items from the ground if they are in range. If off, chests will not begin their periodic checks for items nearby. Reloading zone or logging out might be required.", null, new ConfigurationManagerAttributes() { Order = 8 }));
-        MustHaveExistingItemToPull = config("1 - General", "Must Have Existing Item To Pull", Toggle.On, new ConfigDescription("If on, the chest must already have the item in its inventory to pull it from the world or player into the chest.", null, new ConfigurationManagerAttributes() { Order = 7 }));
-        PlayerRange = config("1 - General", "Player Range", 5f, new ConfigDescription("The maximum distance from the player to store items in chests when the Store Shortcut is pressed. Follows storage rules for allowed items.", new AcceptableValueRange<float>(1f, 100f), new ConfigurationManagerAttributes() { Order = 6 }));
-        FallbackRange = config("1 - General", "Fallback Range", 10f, new ConfigDescription("The range to use if the container has no range set in the yml file. This will be the fallback range for all containers.", null, new ConfigurationManagerAttributes() { Order = 5 }));
-        PlayerIgnoreHotbar = config("1 - General", "Player Ignore Hotbar", Toggle.On, new ConfigDescription("If on, the player's hotbar will not be stored when the Store Shortcut is pressed.", null, new ConfigurationManagerAttributes() { Order = 4 }), false);
-        PlayerIgnoreQuickSlots = config("1 - General", "Player Ignore Quick Slots", Toggle.Off, new ConfigDescription("If on, the player's quick slots will not be stored when the Store Shortcut is pressed. (Requires Quick Slots mod, turn on only if you need it!)", null, new ConfigurationManagerAttributes() { Order = 3 }), false);
-        PingVfxString = TextEntryConfig("1 - General", "Ping VFX", "vfx_Potion_health_medium", new ConfigDescription("The VFX to play when a chest is pinged. Leave blank to disable and only highlight the chest. (Full prefab list: https://valheim-modding.github.io/Jotunn/data/prefabs/prefab-list.html)", null, new ConfigurationManagerAttributes() { Order = 2 }));
-        HighlightContainers = config("1 - General", "Highlight Containers", Toggle.On, new ConfigDescription("If on, the containers will be highlighted when something is stored in them. If off, the containers will not be highlighted if something is stored in them.", null, new ConfigurationManagerAttributes() { Order = 1 }), false);
-        PingContainers = config("1 - General", "Ping Containers", Toggle.On, new ConfigDescription("If on, the containers will be pinged with the Ping VFX when something is stored in them. If off, the containers will not be pinged if something is stored in them.", null, new ConfigurationManagerAttributes() { Order = 0 }), false);
-        SecondsToWaitBeforeStoring = config("1 - General", "Seconds To Wait Before Storing", 10, new ConfigDescription("The number of seconds to wait before storing items into chests nearby automatically after you have pressed your hotkey to pause.", new AcceptableValueRange<int>(0, 60)));
-        IntervalSeconds = config("1 - General", nameof(IntervalSeconds), 10.0f, new ConfigDescription("The number of seconds that must pass before the chest will do an automatic check for items nearby, WARNING: Reducing this will decrease performance!"));
-        FishSuction = config("1.5 - Fish", "Fish Suction", Toggle.Off, new ConfigDescription("Allow auto-storing fish that are still in water (boat 'netting'). Off = require fish to be out of the water; On = ignore IsOutOfWater() check."));
-        SingleItemShortcut = config("2 - Shortcuts", "Store Single Item Shortcut", new KeyboardShortcut(KeyCode.Mouse2), new ConfigDescription("Keyboard shortcut/Hotkey to store a single item that you click from your inventory into nearby containers.", new AcceptableShortcuts(), new ConfigurationManagerAttributes() { Order = 2 }), false);
-        _storeShortcut = config("2 - Shortcuts", "Store Shortcut", new KeyboardShortcut(KeyCode.Period), new ConfigDescription("Keyboard shortcut/Hotkey to store your inventory into nearby containers.", new AcceptableShortcuts(), new ConfigurationManagerAttributes() { Order = 1 }), false);
-        _pauseShortcut = config("2 - Shortcuts", "Pause Shortcut", new KeyboardShortcut(KeyCode.Period, KeyCode.LeftShift), new ConfigDescription("Keyboard shortcut/Hotkey to temporarily stop storing items into chests nearby automatically. Does not override the player hotkey store.", new AcceptableShortcuts()), false);
-        SearchModifierKeybind = config("2 - Shortcuts", nameof(SearchModifierKeybind), new KeyboardShortcut(KeyCode.Y), new ConfigDescription("While holding this, you can search nearby chests for the prefab you clicked in your inventory.", new AcceptableShortcuts()), false);
+        DontStoreToBackpacks = config("General", "DontStoreToBackpacks", Toggle.Off, new ConfigDescription("If on, items will not be stored in backpacks.", null, new ConfigurationManagerAttributes() { Order = 9 }));
+        ChestsPickupFromGround = config("General", "ChestsPickupFromGround", Toggle.On, new ConfigDescription("If on, chests will pick up items from the ground if they are in range. If off, chests will not begin their periodic checks for items nearby. Reloading zone or logging out might be required.", null, new ConfigurationManagerAttributes() { Order = 8 }));
+        MustHaveExistingItemToPull = config("General", "MustHaveExistingItemToPull", Toggle.On, new ConfigDescription("If on, the chest must already have the item in its inventory to pull it from the world or player into the chest.", null, new ConfigurationManagerAttributes() { Order = 7 }));
+        PlayerRange = config("General", "PlayerRange", 5f, new ConfigDescription("The maximum distance from the player to store items in chests when the Store Shortcut is pressed. Follows storage rules for allowed items.", new AcceptableValueRange<float>(1f, 100f), new ConfigurationManagerAttributes() { Order = 6 }));
+        FallbackRange = config("General", "FallbackRange", 10f, new ConfigDescription("The range to use if the container has no range set in the yml file. This will be the fallback range for all containers.", null, new ConfigurationManagerAttributes() { Order = 5 }));
+        PlayerIgnoreHotbar = config("General", "PlayerIgnoreHotbar", Toggle.On, new ConfigDescription("If on, the player's hotbar will not be stored when the Store Shortcut is pressed.", null, new ConfigurationManagerAttributes() { Order = 4 }), false);
+        PlayerIgnoreQuickSlots = config("General", "PlayerIgnoreQuickSlots", Toggle.Off, new ConfigDescription("If on, the player's quick slots will not be stored when the Store Shortcut is pressed. (Requires Quick Slots mod, turn on only if you need it!)", null, new ConfigurationManagerAttributes() { Order = 3 }), false);
+        PingVfxString = TextEntryConfig("General", "PingVFX", "vfx_Potion_health_medium", new ConfigDescription("The VFX to play when a chest is pinged. Leave blank to disable and only highlight the chest. (Full prefab list: https://valheim-modding.github.io/Jotunn/data/prefabs/prefab-list.html)", null, new ConfigurationManagerAttributes() { Order = 2 }));
+        HighlightContainers = config("General", "HighlightContainers", Toggle.On, new ConfigDescription("If on, the containers will be highlighted when something is stored in them. If off, the containers will not be highlighted if something is stored in them.", null, new ConfigurationManagerAttributes() { Order = 1 }), false);
+        PingContainers = config("General", "PingContainers", Toggle.On, new ConfigDescription("If on, the containers will be pinged with the Ping VFX when something is stored in them. If off, the containers will not be pinged if something is stored in them.", null, new ConfigurationManagerAttributes() { Order = 0 }), false);
+        SecondsToWaitBeforeStoring = config("General", "SecondsToWaitBeforeStoring", 10, new ConfigDescription("The number of seconds to wait before storing items into chests nearby automatically after you have pressed your hotkey to pause.", new AcceptableValueRange<int>(0, 60)));
+        IntervalSeconds = config("General", nameof(IntervalSeconds), 10.0f, new ConfigDescription("The number of seconds that must pass before the chest will do an automatic check for items nearby, WARNING: Reducing this will decrease performance!"));
+        FishSuction = config("Fish", "FishSuction", Toggle.Off, new ConfigDescription("Allow auto-storing fish that are still in water (boat 'netting'). Off = require fish to be out of the water; On = ignore IsOutOfWater() check."));
+        SingleItemShortcut = config("Shortcuts", "StoreSingleItemShortcut", new KeyboardShortcut(KeyCode.Mouse2), new ConfigDescription("Keyboard shortcut/Hotkey to store a single item that you click from your inventory into nearby containers.", new AcceptableShortcuts(), new ConfigurationManagerAttributes() { Order = 2 }), false);
+        _storeShortcut = config("Shortcuts", "StoreShortcut", new KeyboardShortcut(KeyCode.Period), new ConfigDescription("Keyboard shortcut/Hotkey to store your inventory into nearby containers.", new AcceptableShortcuts(), new ConfigurationManagerAttributes() { Order = 1 }), false);
+        _pauseShortcut = config("Shortcuts", "PauseShortcut", new KeyboardShortcut(KeyCode.Period, KeyCode.LeftShift), new ConfigDescription("Keyboard shortcut/Hotkey to temporarily stop storing items into chests nearby automatically. Does not override the player hotkey store.", new AcceptableShortcuts()), false);
+        SearchModifierKeybind = config("Shortcuts", nameof(SearchModifierKeybind), new KeyboardShortcut(KeyCode.Y), new ConfigDescription("While holding this, you can search nearby chests for the prefab you clicked in your inventory.", new AcceptableShortcuts()), false);
 
-        string sectionName = "3 - Favoriting";
+        string sectionName = "Favoriting";
         string favoritingKey = $"While holding this, left clicking on items or right clicking on slots favorites them, disallowing storing";
 
         BorderColorFavoritedItem = config(sectionName, nameof(BorderColorFavoritedItem), new Color(1f, 0.8482759f, 0f), "Color of the border for slots containing favorited items.", false);
@@ -368,7 +374,7 @@ public class OttoStashPlugin : BaseUnityPlugin
                 description.Description +
                 (synchronizedSetting ? " [Synced with Server]" : " [Not Synced with Server]"),
                 description.AcceptableValues, description.Tags);
-        ConfigEntry<T> configEntry = Config.Bind(group, name, value, extendedDescription);
+        ConfigEntry<T> configEntry = Config.Bind(global::Ottomation.Lib.Config.ConfigName.Section(group), global::Ottomation.Lib.Config.ConfigName.Key(name), value, extendedDescription);
         //var configEntry = Config.Bind(group, name, value, description);
 
         SyncedConfigEntry<T> syncedConfigEntry = ConfigSync.AddConfigEntry(configEntry);
@@ -391,7 +397,7 @@ public class OttoStashPlugin : BaseUnityPlugin
                 description.Description +
                 (synchronizedSetting ? " [Synced with Server]" : " [Not Synced with Server]"),
                 description.AcceptableValues, description.Tags);
-        ConfigEntry<T> configEntry = Config.Bind(group, name, value, extendedDescription);
+        ConfigEntry<T> configEntry = Config.Bind(global::Ottomation.Lib.Config.ConfigName.Section(group), global::Ottomation.Lib.Config.ConfigName.Key(name), value, extendedDescription);
         //var configEntry = Config.Bind(group, name, value, description);
 
         SyncedConfigEntry<T> syncedConfigEntry = ConfigSync.AddConfigEntry(configEntry);

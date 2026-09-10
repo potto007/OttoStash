@@ -1,4 +1,4 @@
-﻿using System.Reflection.Emit;
+using System.Reflection.Emit;
 using OttoStash.APIs.MUC.MUCSrc.Data;
 using OttoStash.APIs.MUC.MUCSrc.Helper;
 using OttoStash.APIs.MUC.MUCSrc.Patches.Compatibility;
@@ -176,6 +176,7 @@ public static class InventoryGuiPatch {
 
         element.m_equiped.enabled = false;
         element.m_queued.enabled = false;
+        // check_enums: verified - identical to vanilla InventoryGrid.cs, which checks GlobalKeys.TeleportAll for m_noteleport.
         element.m_noteleport.enabled = !item.m_shared.m_teleportable && !ZoneSystem.instance.GetGlobalKey(GlobalKeys.TeleportAll);
 
         if (item.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Consumable && (item.m_shared.m_food > 0.0 || item.m_shared.m_foodStamina > 0.0 || item.m_shared.m_foodEitr > 0.0)) {
