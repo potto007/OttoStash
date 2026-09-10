@@ -166,10 +166,17 @@ public static class PlayerUpdateTeleportPatchCleanupContainers
 #endif
 public static class Inventory_StackAll_Patch
 {
+    // Vanilla builds `new List<ItemData>(fromInventory.GetAllItems())`. Splice one
+    // call in between, so the list is filtered before the copy is constructed:
+    //     callvirt GetAllItems -> call FilterItems -> newobj List(IEnumerable)
+    // The earlier version stored through local slot 3 and dropped the newobj, which
+    // depended on the vanilla method's local layout. Valheim 1.0 renumbered those
+    // slots. Operating purely on the evaluation stack removes that dependency.
     public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         List<CodeInstruction> code = [..instructions];
         MethodInfo? getAllItemsMethod = typeof(Inventory).GetMethod(nameof(Inventory.GetAllItems), BindingFlags.Instance | BindingFlags.Public, null, [], null);
+        MethodInfo filterMethod = typeof(Inventory_StackAll_Patch).GetMethod(nameof(FilterItems))!;
 
         int getAllItemsIndex = code.FindIndex(instr => instr.opcode == OpCodes.Callvirt && ReferenceEquals(instr.operand, getAllItemsMethod));
 
@@ -178,30 +185,7 @@ public static class Inventory_StackAll_Patch
             throw new Exception("Could not find GetAllItems call");
         }
 
-        List<CodeInstruction> newInstructions =
-        [
-            // Call GetAllItems
-            new CodeInstruction(OpCodes.Callvirt, getAllItemsMethod),
-
-            // Store the result in a local variable (list of items)
-            new CodeInstruction(OpCodes.Stloc_3),
-
-            // Load the list of items onto the stack
-            new CodeInstruction(OpCodes.Ldloc_3),
-
-            // Create a new list with filtered items
-            new CodeInstruction(OpCodes.Call, typeof(Inventory_StackAll_Patch).GetMethod(nameof(FilterItems))),
-
-            // Store the filtered list back into the local variable
-            new CodeInstruction(OpCodes.Stloc_3),
-
-            // Load the filtered list for the next instructions
-            new CodeInstruction(OpCodes.Ldloc_3)
-        ];
-
-        // Replace the GetAllItems call with our new instructions
-        code.RemoveRange(getAllItemsIndex, 2); // Remove the original GetAllItems call and the newobj instruction
-        code.InsertRange(getAllItemsIndex, newInstructions);
+        code.Insert(getAllItemsIndex + 1, new CodeInstruction(OpCodes.Call, filterMethod));
         return code.AsEnumerable();
     }
 
@@ -212,6 +196,7 @@ public static class Inventory_StackAll_Patch
 
     public static bool ShouldIncludeItem(ItemDrop.ItemData item)
     {
+        if (!Player.m_localPlayer) return true;
         return !VanillaContainers.CantStoreFavorite(item, UserConfig.GetPlayerConfig(Player.m_localPlayer.GetPlayerID()));
     }
 }

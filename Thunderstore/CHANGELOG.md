@@ -3,6 +3,15 @@
 OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.14 and below are his
 release history, kept below unchanged.
 
+## v3.1.2
+
+- Rewrote the `Inventory.StackAll` transpiler so it no longer depends on the
+  vanilla method's local variable layout. It stored through local slot 3 and
+  dropped the list constructor, which only held while those slots stayed put.
+  Valheim 1.0 renumbered them. The filter is now spliced onto the evaluation
+  stack instead, which cannot drift.
+- Favourite filtering during Stack All no longer assumes a local player exists.
+
 ## v3.1.1
 
 Fixes patch targets that 3.1.0 could not resolve. The mod logged that it loaded,
