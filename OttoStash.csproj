@@ -61,8 +61,16 @@
     <None Include="Thunderstore/CHANGELOG.md" />
   </ItemGroup>
 
-  <!-- Drop the built plugin into the BepInEx profile named by environment.props. -->
-  <Target Name="CopyOutputDLL" AfterTargets="ILRepacker" Condition="'$(CopyOutputDLLPath)' != '' AND Exists('$(CopyOutputDLLPath)')">
+  <!-- Drop the built plugin into the BepInEx profile named by environment.props.
+       Debug only. A Release build must produce exactly one output, the Thunderstore
+       zip, which is both what ships and what gets imported. Copying a Release build
+       into the mod manager's folder replaces the installed package with different
+       bytes under an unchanged version number, because .NET builds are not
+       reproducible. No manifest records that, so nothing detects it.
+
+       The cost of keeping the copy for Debug: after any Debug build the profile is
+       in an unknown state, and only a re-import returns it to a known one. -->
+  <Target Name="CopyOutputDLL" AfterTargets="ILRepacker" Condition="'$(Configuration)' == 'Debug' AND '$(CopyOutputDLLPath)' != '' AND Exists('$(CopyOutputDLLPath)')">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(CopyOutputDLLPath)" OverwriteReadOnlyFiles="true" />
   </Target>
 
