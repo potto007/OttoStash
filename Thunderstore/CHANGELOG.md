@@ -15,7 +15,10 @@ release history, kept below unchanged.
   - `InventoryGrid.OnRightClick` and `OnLeftClick` became `OnRightDown` and
     `OnLeftDown`.
   - The private `Inventory.AddItem` overload gained a `cheated` parameter.
-  - `ImageConversion.LoadImage` now takes a `ReadOnlySpan<byte>`.
+  - `UnityEngine.ImageConversionModule` cannot be referenced from net48. Its
+    metadata names `ReadOnlySpan<byte>`, which lives in the game's Mono mscorlib.
+    The `byte[]` overload of `LoadImage` still exists, so OttoStash binds it once
+    by reflection and drops the reference.
 - The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
   Your AzuAutoStore files are copied across on first run. An OttoStash file that
   already exists is never touched.
