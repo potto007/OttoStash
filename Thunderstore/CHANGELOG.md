@@ -3,6 +3,22 @@
 OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.14 and below are his
 release history, kept below unchanged.
 
+## v3.1.3
+
+**Fixes chests not opening.** This affected 3.1.2 and 3.1.1.
+
+The container patch answered `Container.RPC_RequestOpen` with an RPC named
+`OpenRespons`. Valheim 1.0 corrected that misspelling to `RPC_OpenResponse`.
+The patch suppresses the vanilla handler and then sent a reply that no longer
+exists, so the client never received the grant and the chest stayed shut. The
+log showed only `Failed to find rpc method -1556840686`, a warning rather than
+an error.
+
+An RPC name is a string hashed at run time, so a stale one compiles, patches and
+runs without complaint. Checked every RPC name in the mod against the 1.0
+registration list; this was the only stale one. The sibling stack patch already
+used the current `RPC_StackResponse`.
+
 ## v3.1.2
 
 - Rewrote the `Inventory.StackAll` transpiler so it no longer depends on the
