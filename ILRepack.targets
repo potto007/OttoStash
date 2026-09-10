@@ -1,13 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Target Name="ILRepacker" AfterTargets="Build">
         <ItemGroup>
+            <!-- Merged in, so the plugin ships as a single DLL. -->
             <InputAssemblies Include="$(TargetPath)" />
-            <InputAssemblies Include="$(OutputPath)Libs\ServerSync.dll" />
-            <InputAssemblies Include="$(OutputPath)Libs\AzuExtendedPlayerInventoryAPI.dll" />
-            <InputAssemblies Include="$(OutputPath)Libs\BackpacksAPI.dll" />
-            <InputAssemblies Include="$(OutputPath)\YamlDotNet.dll" />
+            <InputAssemblies Include="$(OutputPath)ServerSync.dll" />
+            <InputAssemblies Include="$(OutputPath)AzuExtendedPlayerInventoryAPI.dll" />
+            <InputAssemblies Include="$(OutputPath)BackpacksAPI.dll" />
+            <InputAssemblies Include="$(OutputPath)YamlDotNet.dll" />
+            <!-- ILRepack resolves the game and BepInEx assemblies from these folders. -->
+            <ILRepackLibraryPath Include="$(OutputPath)" />
+            <ILRepackLibraryPath Include="$(BepInExPath)/core" />
+            <ILRepackLibraryPath Include="$(CorlibPath)" />
         </ItemGroup>
-        <ILRepack Parallel="true" DebugInfo="true" Internalize="true" InputAssemblies="@(InputAssemblies)" OutputFile="$(TargetPath)" TargetKind="SameAsPrimaryAssembly" LibraryPath="$(OutputPath)" />
+        <ILRepack Parallel="true" DebugInfo="true" Internalize="true" InputAssemblies="@(InputAssemblies)" OutputFile="$(TargetPath)" TargetKind="SameAsPrimaryAssembly" LibraryPath="@(ILRepackLibraryPath)" />
     </Target>
 </Project>

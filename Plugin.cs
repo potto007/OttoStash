@@ -259,12 +259,24 @@ public class AzuAutoStorePlugin : BaseUnityPlugin
         return stream.ToArray();
     }
 
+    // ImageConversion.LoadImage takes a ReadOnlySpan<byte> in the current Unity, and
+    // that type lives in the game's Mono mscorlib, not in the net48 reference
+    // assemblies. Bind the byte[] overload once at startup instead of referencing
+    // UnityEngine.ImageConversionModule.
+    private static readonly MethodInfo? LoadImageMethod = AccessTools.Method(
+        "UnityEngine.ImageConversion:LoadImage", [typeof(Texture2D), typeof(byte[])]);
+
     private static Texture2D loadTexture(string name)
     {
         Texture2D texture = new(0, 0);
 
-        texture.LoadImage(ReadEmbeddedFileBytes("assets." + name));
+        if (LoadImageMethod == null)
+        {
+            AzuAutoStoreLogger.LogError("UnityEngine.ImageConversion.LoadImage was not found. Textures will not load.");
+            return texture;
+        }
 
+        LoadImageMethod.Invoke(null, [texture, ReadEmbeddedFileBytes("assets." + name)]);
 
         return texture!;
     }
