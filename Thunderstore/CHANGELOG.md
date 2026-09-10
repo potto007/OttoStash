@@ -3,6 +3,26 @@
 OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.14 and below are his
 release history, kept below unchanged.
 
+## v3.1.1
+
+Fixes patch targets that 3.1.0 could not resolve. The mod logged that it loaded,
+then threw out of `Harmony.PatchAll`, which aborted every remaining patch and the
+rest of `Awake`. The file watcher, the border sprite and the MultiUserChest setup
+never ran, so 3.1.0 was effectively inert. Harmony resolves these targets by name
+at run time, so the compiler cannot catch a stale one.
+
+- `ItemDrop.ItemData.GetTooltip` gained a trailing `appending` parameter. The hint
+  is now also suppressed while the game builds a nested tooltip, which would
+  otherwise print it twice.
+- `Inventory.AddItem(ItemData, int, int, int)` gained `skipValidPositionCheck`.
+  Three patches targeted the old four-parameter list.
+- `Inventory.Load` now has two overloads, so the target was ambiguous. Pinned to
+  `Load(ZPackage)`, which is what containers call.
+- The tooltip patch no longer assumes a local player exists.
+- The ItemDrawers and QuickStack patches are gated on those mods being loaded.
+  Their targets are resolved by name, so without the mod they resolved to nothing
+  and took the whole PatchAll down.
+
 ## v3.1.0
 
 - Renamed to OttoStash. Forked from AzuAutoStore 3.0.14 by Azumatt.
