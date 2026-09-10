@@ -1,4 +1,4 @@
-![OttoStash - Everything In Its Place](https://raw.githubusercontent.com/potto007/OttoStash/master/docs/images/ottostash-title.png)
+![OttoStash - Everything In Its Place](https://raw.githubusercontent.com/potto007/OttoStash/main/docs/images/ottostash-title.png)
 
 # OttoStash
 
