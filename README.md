@@ -28,7 +28,7 @@ ignored (`if turned on in the configuration!`).
 
 ## 1. Need to know
 
-`Version checks with itself. If installed on the server, it will kick clients who do not have it installed.`
+`ServerSync checks the version. A client running a different OttoStash version cannot join the server. A client without OttoStash can still join.`
 
 `This mod uses ServerSync, if installed on the server and all clients, it will sync all configs to client`
 
