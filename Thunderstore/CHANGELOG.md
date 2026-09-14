@@ -3,6 +3,15 @@
 OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.14 and below are his
 release history, kept below unchanged.
 
+## v3.3.0
+
+- Drops the custom version handshake. ServerSync's version check now decides who can
+  join, the same way OttoPay does.
+- A client without OttoStash can join a server that runs it. A client running a
+  different OttoStash version is still turned away.
+- Update the server first, or the server and clients together. A server still on 3.2.1
+  disconnects clients running 3.3.0.
+
 ## v3.2.1
 
 - Drops the Ottomation_ModLib and Jotunn dependencies that 3.2.0 added. OttoStash needs
