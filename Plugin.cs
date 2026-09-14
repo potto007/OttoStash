@@ -25,7 +25,7 @@ public class OttoStashPlugin : BaseUnityPlugin
     private static readonly string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
     private readonly Harmony _harmony = new(ModGUID);
     public static readonly ManualLogSource OttoStashLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
-    private static readonly ConfigSync ConfigSync = new(ModGUID) { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
+    private static readonly ConfigSync ConfigSync = new(ModGUID) { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion, ModRequired = false };
     internal static bool BackpacksIsLoaded = false;
     internal static readonly string yamlFileName = $"{ModGUID}.yml";
     internal static readonly string yamlPath = Paths.ConfigPath + Path.DirectorySeparatorChar + yamlFileName;
