@@ -12,6 +12,8 @@ release history, kept below unchanged.
 - Update the server first, or the server and clients together. A server still on 3.2.1
   disconnects clients running 3.3.0.
 
+- Rebuilt against Valheim 1.0.14. Every Harmony patch target still resolves in this build, and nothing else changed.
+
 ## v3.2.1
 
 - Drops the Ottomation_ModLib and Jotunn dependencies that 3.2.0 added. OttoStash needs
