@@ -3,6 +3,10 @@
 OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.14 and below are his
 release history, kept below unchanged.
 
+## v3.3.1
+
+- Rebuilt against Valheim 1.0.15. Every Harmony patch target still resolves in this build, and nothing else changed.
+
 ## v3.3.0
 
 - Drops the custom version handshake. ServerSync's version check now decides who can
