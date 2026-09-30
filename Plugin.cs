@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 #endif
 using OttoStash.APIs.MUC;
+using OttoStash.Patches;
 using BepInEx.Logging;
 using JetBrains.Annotations;
 using ServerSync;
@@ -225,7 +226,7 @@ public class OttoStashPlugin : BaseUnityPlugin
             foreach (Container container in Boxes.Containers)
             {
                 if (!container.m_nview.IsValid()) continue;
-                container.m_nview.InvokeRPC("RequestPause", Boxes.StoringPaused);
+                container.m_nview.InvokeRPC(ContainerAwakePatch.PauseRpcName, Boxes.StoringPaused);
             }
         }
     }
