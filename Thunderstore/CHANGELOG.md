@@ -3,6 +3,17 @@
 Versions 3.0.11 and below are the AzuAutoStore release history, kept below
 unchanged.
 
+## 3.4.1
+
+- Backpacks now take the last unit of a stack from the store hotkey. The bulk
+  path used to stop one short, while the single-item path did not.
+- The tooltip for an item that is favorited both by name and by slot now shows
+  its own text. That branch could never be reached before.
+- The Makail drawer refusal message names the item again.
+- Internal: the code is reorganised into feature classes under `Storing/` and
+  `Favoriting/`, the four store targets share one item filter, and the Debug
+  configuration builds again.
+
 ## 3.4.0
 
 Multiplayer fixes, written fresh for this release.
