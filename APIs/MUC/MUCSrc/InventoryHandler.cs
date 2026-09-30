@@ -1,4 +1,4 @@
-using OttoStash.APIs.MUC.MUCSrc.Data;
+﻿using OttoStash.APIs.MUC.MUCSrc.Data;
 using OttoStash.APIs.MUC.MUCSrc.Helper;
 
 namespace OttoStash.APIs.MUC.MUCSrc;
@@ -39,7 +39,7 @@ public static class InventoryHandler {
 
     private static void CallRPC(string timerName, IPackage package, Action action) {
 #if DEBUG
-            Timer.Stop(timerName);
+            MUCSrc.Helper.Timer.Stop(timerName);
             package.PrintDebug();
 #endif
 

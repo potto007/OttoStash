@@ -16,7 +16,7 @@ namespace OttoStash;
 public class OttoStashPlugin : BaseUnityPlugin
 {
     internal const string ModName = "OttoStash";
-    internal const string ModVersion = "3.4.0";
+    internal const string ModVersion = "3.4.1";
     internal const string Author = "potto007";
     internal const string ModGUID = $"{Author}.{ModName}";
     internal const string KgGuid = "kg.ItemDrawers";
@@ -24,7 +24,7 @@ public class OttoStashPlugin : BaseUnityPlugin
     private const string ConfigFileName = ModGUID + ".cfg";
     private static readonly string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
     private readonly Harmony _harmony = new(ModGUID);
-    public static readonly ManualLogSource OttoStashLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
+    internal static readonly ManualLogSource LogSource = BepInEx.Logging.Logger.CreateLogSource(ModName);
     private static readonly ConfigSync ConfigSync = new(ModGUID) { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion, ModRequired = false };
     internal static bool BackpacksIsLoaded = false;
     internal static readonly string yamlFileName = $"{ModGUID}.yml";
@@ -54,20 +54,20 @@ public class OttoStashPlugin : BaseUnityPlugin
             if (File.Exists(oldConfig) && !File.Exists(ConfigFileFullPath))
             {
                 File.Copy(oldConfig, ConfigFileFullPath);
-                OttoStashLogger.LogInfo($"Carried your AzuAutoStore settings over to {ConfigFileName}.");
+                LogSource.LogInfo($"Carried your AzuAutoStore settings over to {ConfigFileName}.");
             }
 
             string oldYaml = Paths.ConfigPath + Path.DirectorySeparatorChar + "Azumatt.AzuAutoStore.yml";
             if (File.Exists(oldYaml) && !File.Exists(yamlPath))
             {
                 File.Copy(oldYaml, yamlPath);
-                OttoStashLogger.LogInfo($"Carried your AzuAutoStore container rules over to {yamlFileName}.");
+                LogSource.LogInfo($"Carried your AzuAutoStore container rules over to {yamlFileName}.");
             }
         }
         catch (Exception e)
         {
             // A failure here must not stop the mod from loading.
-            OttoStashLogger.LogWarning($"Could not carry the AzuAutoStore configuration over: {e.Message}");
+            LogSource.LogWarning($"Could not carry the AzuAutoStore configuration over: {e.Message}");
         }
     }
 
@@ -102,7 +102,6 @@ public class OttoStashPlugin : BaseUnityPlugin
         string favoritingKey = $"While holding this, left clicking on items or right clicking on slots favorites them, disallowing storing";
 
         BorderColorFavoritedItem = config(sectionName, nameof(BorderColorFavoritedItem), new Color(1f, 0.8482759f, 0f), "Color of the border for slots containing favorited items.", false);
-        BorderColorFavoritedItem.SettingChanged += (a, b) => FavoritingMode.RefreshDisplay();
 
         // dark-ish green
         BorderColorFavoritedItemOnFavoritedSlot = config(sectionName, nameof(BorderColorFavoritedItemOnFavoritedSlot), new Color(0.5f, 0.67413795f, 0.5f), "Color of the border of a favorited slot that also contains a favorited item.", false);
@@ -141,7 +140,7 @@ public class OttoStashPlugin : BaseUnityPlugin
 
     public void Start()
     {
-        BorderRenderer.Border = loadSprite("border.png");
+        FavoritingPatches.BorderSprite = LoadSprite("border.png");
         if (Chainloader.PluginInfos.ContainsKey(BackpacksGuid))
         {
             BackpacksIsLoaded = true;
@@ -212,9 +211,9 @@ public class OttoStashPlugin : BaseUnityPlugin
         if (_storeShortcut.Value.IsDown() && Player.m_localPlayer.TakeInput())
         {
 #if DEBUG
-                OttoStashLogger.LogError("Taking input");
+                LogSource.LogError("Taking input");
 #endif
-            Functions.TryStore();
+            PlayerStore.StoreAll();
         }
 
         if (_pauseShortcut.Value.IsDown() && Player.m_localPlayer.TakeInput())
@@ -252,13 +251,13 @@ public class OttoStashPlugin : BaseUnityPlugin
         if (!File.Exists(ConfigFileFullPath)) return;
         try
         {
-            Functions.LogDebug("ReadConfigValues called");
+            StashLog.Debug("ReadConfigValues called");
             Config.Reload();
         }
         catch
         {
-            Functions.LogError($"There was an issue loading your {ConfigFileName}");
-            Functions.LogError("Please check your config entries for spelling and format!");
+            StashLog.Error($"There was an issue loading your {ConfigFileName}");
+            StashLog.Error("Please check your config entries for spelling and format!");
         }
     }
 
@@ -267,27 +266,27 @@ public class OttoStashPlugin : BaseUnityPlugin
         if (!File.Exists(yamlPath)) return;
         try
         {
-            OttoStashLogger.LogDebug("ReadConfigValues called");
+            LogSource.LogDebug("ReadConfigValues called");
             OttoStashContainerData.AssignLocalValue(File.ReadAllText(yamlPath));
         }
         catch
         {
-            OttoStashLogger.LogError($"There was an issue loading your {yamlFileName}");
-            OttoStashLogger.LogError("Please check your entries for spelling and format!");
+            LogSource.LogError($"There was an issue loading your {yamlFileName}");
+            LogSource.LogError("Please check your entries for spelling and format!");
         }
     }
 
     private static void OnValChangedUpdate()
     {
-        OttoStashLogger.LogDebug("OnValChanged called");
+        LogSource.LogDebug("OnValChanged called");
         try
         {
-            YamlUtils.ReadYaml(OttoStashContainerData.Value);
-            YamlUtils.ParseGroups();
+            ContainerRules.Read(OttoStashContainerData.Value);
+            ContainerRules.ParseGroups();
         }
         catch (Exception e)
         {
-            OttoStashLogger.LogError($"Failed to deserialize {yamlFileName}: {e}");
+            LogSource.LogError($"Failed to deserialize {yamlFileName}: {e}");
         }
     }
 
@@ -306,13 +305,13 @@ public class OttoStashPlugin : BaseUnityPlugin
     private static readonly MethodInfo? LoadImageMethod = AccessTools.Method(
         "UnityEngine.ImageConversion:LoadImage", [typeof(Texture2D), typeof(byte[])]);
 
-    private static Texture2D loadTexture(string name)
+    private static Texture2D LoadTexture(string name)
     {
         Texture2D texture = new(0, 0);
 
         if (LoadImageMethod == null)
         {
-            OttoStashLogger.LogError("UnityEngine.ImageConversion.LoadImage was not found. Textures will not load.");
+            LogSource.LogError("UnityEngine.ImageConversion.LoadImage was not found. Textures will not load.");
             return texture;
         }
 
@@ -321,9 +320,9 @@ public class OttoStashPlugin : BaseUnityPlugin
         return texture!;
     }
 
-    internal static Sprite loadSprite(string name)
+    internal static Sprite LoadSprite(string name)
     {
-        Texture2D texture = loadTexture(name);
+        Texture2D texture = LoadTexture(name);
         if (texture != null)
         {
             return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);

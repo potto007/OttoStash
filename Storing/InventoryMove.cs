@@ -1,11 +1,10 @@
-﻿namespace OttoStash.Util;
+namespace OttoStash.Storing;
 
 internal static class InventoryMove
 {
-    /// <summary>
-    /// Moves as much of sourceItem as possible to target using fewest AddItem calls.
-    /// Returns number of units moved. sourceItem.m_stack is reduced accordingly.
-    /// </summary>
+    /// Moves as much of the stack as the target takes, in as few adds as
+    /// possible, and returns the number moved. The source stack is reduced by
+    /// that number.
     internal static int MoveStackChunked(Inventory target, ItemDrop.ItemData sourceItem)
     {
         if (target == null || sourceItem == null || sourceItem.m_stack <= 0)
@@ -15,10 +14,10 @@ internal static class InventoryMove
 
         if (target.CanAddItem(sourceItem, sourceItem.m_stack))
         {
-            var clone = sourceItem.Clone();
-            clone.m_stack = sourceItem.m_stack;
+            ItemDrop.ItemData whole = sourceItem.Clone();
+            whole.m_stack = sourceItem.m_stack;
 
-            if (target.AddItem(clone))
+            if (target.AddItem(whole))
             {
                 moved += sourceItem.m_stack;
                 sourceItem.m_stack = 0;
@@ -28,21 +27,19 @@ internal static class InventoryMove
 
         while (sourceItem.m_stack > 0)
         {
-            int best = FindLargestFittableChunk(target, sourceItem);
-
+            int best = LargestFittingChunk(target, sourceItem);
             if (best <= 0)
                 break;
 
-            var chunk = sourceItem.Clone();
+            ItemDrop.ItemData chunk = sourceItem.Clone();
             chunk.m_stack = best;
 
             if (!target.AddItem(chunk))
             {
-                // Extremely rare desync: try single unit to break stalemate, otherwise bail.
+                // A rare disagreement between CanAddItem and AddItem: try one unit, then give up.
                 chunk.m_stack = 1;
                 if (!target.AddItem(chunk))
                     break;
-
                 best = 1;
             }
 
@@ -53,12 +50,11 @@ internal static class InventoryMove
         return moved;
     }
 
-
     // Binary search for the largest part of the stack the inventory still takes.
     // Fitting is monotonic in the amount, so the search is sound from 1 up to the
     // whole stack. An earlier version started the search at half the stack and
     // so moved nothing when less than half fitted.
-    private static int FindLargestFittableChunk(Inventory target, ItemDrop.ItemData probe)
+    private static int LargestFittingChunk(Inventory target, ItemDrop.ItemData probe)
     {
         int lo = 1;
         int hi = probe.m_stack;

@@ -1,4 +1,3 @@
-using OttoStash.Interfaces;
 using OttoStash.Storing;
 
 namespace OttoStash.Tests;
@@ -9,7 +8,7 @@ public class StoreRunTests
 
     private static int Run(FakeChestAccess chests, bool multiUserChest, params FakeTarget[] targets)
     {
-        return StoreRun.Run(targets, t => t.TryStore(), chests, multiUserChest, Quiet, Quiet);
+        return StoreRun.Run(targets, t => t.StoreAll(), chests, multiUserChest, Quiet, Quiet);
     }
 
     [Fact]
@@ -115,7 +114,7 @@ public class StoreRunTests
     {
         FakeChestAccess chests = new();
 
-        int total = StoreRun.Run(Array.Empty<IContainer>(), t => t.TryStore(), chests, false, Quiet, Quiet);
+        int total = StoreRun.Run(Array.Empty<IStoreTarget>(), t => t.StoreAll(), chests, false, Quiet, Quiet);
 
         Assert.Equal(0, total);
         Assert.Empty(chests.Ledger);

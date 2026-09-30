@@ -1,4 +1,4 @@
-using OttoStash.Util;
+using OttoStash.Storing;
 
 namespace OttoStash.Tests;
 

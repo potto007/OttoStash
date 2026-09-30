@@ -24,7 +24,7 @@ internal static class StorePause
     internal static void Toggle()
     {
         Paused = !Paused;
-        foreach (Container container in Boxes.Containers)
+        foreach (Container container in ContainerRegistry.Containers)
         {
             if (container.m_nview == null || !container.m_nview.IsValid())
                 continue;
