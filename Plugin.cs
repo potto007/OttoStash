@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 #endif
 using OttoStash.APIs.MUC;
-using OttoStash.Patches;
 using BepInEx.Logging;
 using JetBrains.Annotations;
 using ServerSync;
@@ -34,8 +33,6 @@ public class OttoStashPlugin : BaseUnityPlugin
     internal static readonly CustomSyncedValue<string> CraftyContainerGroupsData = new(ConfigSync, "ottostashGroupsData", "");
 
     //
-    internal static Dictionary<string, object>? yamlData;
-    internal static Dictionary<string?, HashSet<string?>> groups = null!;
     internal static OttoStashPlugin self = null!;
 
     public enum Toggle
@@ -222,12 +219,7 @@ public class OttoStashPlugin : BaseUnityPlugin
 
         if (_pauseShortcut.Value.IsDown() && Player.m_localPlayer.TakeInput())
         {
-            Boxes.StoringPaused = !Boxes.StoringPaused;
-            foreach (Container container in Boxes.Containers)
-            {
-                if (!container.m_nview.IsValid()) continue;
-                container.m_nview.InvokeRPC(ContainerAwakePatch.PauseRpcName, Boxes.StoringPaused);
-            }
+            StorePause.Toggle();
         }
     }
 

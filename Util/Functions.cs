@@ -1,6 +1,5 @@
 ﻿using OttoStash.APIs.Compatibility;
 using OttoStash.APIs.MUC;
-using OttoStash.Patches;
 using Object = UnityEngine.Object;
 
 namespace OttoStash.Util;
@@ -21,9 +20,9 @@ public class Functions
 
     internal static float GetContainerRange(Container container)
     {
-        if (yamlData == null)
+        if (ContainerRules.Rules == null)
         {
-            OttoStashLogger.LogError("yamlData is null when trying to get the container range for a container. Make sure that your YAML file is not empty or to call DeserializeYamlFile() before using GetContainerRange.");
+            OttoStashLogger.LogError("The container rules are not loaded, so no container range can be read.");
             return -1f;
         }
 
@@ -32,7 +31,7 @@ public class Functions
 
         // Try to get container settings from YAML configuration
         string containerName = MiscFunctions.GetPrefabName(container.transform.root.name);
-        if (yamlData.TryGetValue(containerName, out object containerData))
+        if (ContainerRules.Rules.TryGetValue(containerName, out object containerData))
         {
             if (containerData is Dictionary<object, object> containerInfo)
             {
@@ -102,10 +101,9 @@ public class Functions
             if (distance > GetContainerRange(container)) continue;
 
             // Pause flag
-            bool isPaused = container.m_nview.GetZDO().GetBool(ContainerAwakePatch.storingPausedHash, false);
-            if (isPaused) continue;
+            if (StorePause.IsPaused(container)) continue;
 
-            if (IsOpenByAnotherPlayer(container)) continue;
+            if (ChestGate.IsOpenElsewhere(container)) continue;
 
             LogDebug($"Nearby item name: {itemDrop.m_itemData.m_dropPrefab.name}");
 
@@ -191,12 +189,8 @@ public class Functions
         if (!Player.m_localPlayer) return;
         LogDebug("Trying to store items from player inventory");
 
-        int total = 0;
-        foreach (IContainer nearby in Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value))
-        {
-            total += StoreInto(nearby, target => target.TryStore());
-        }
-
+        List<IContainer> targets = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value);
+        int total = StoreRun.Run(targets, target => target.TryStore(), VanillaChestAccess.Instance, MUCCompat.MultiUserChestActive, LogDebug, LogError);
         StoreSuccess(total);
     }
 
@@ -207,86 +201,9 @@ public class Functions
 
         LogDebug($"Trying to store {itemData.m_shared.m_name}");
 
-        int total = 0;
-        foreach (IContainer nearby in Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value))
-        {
-            total += StoreInto(nearby, target => target.TryStoreThisItem(itemData, m_inventory));
-        }
-
+        List<IContainer> targets = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value);
+        int total = StoreRun.Run(targets, target => target.TryStoreThisItem(itemData, m_inventory), VanillaChestAccess.Instance, MUCCompat.MultiUserChestActive, LogDebug, LogError);
         StoreSuccess(total);
-    }
-
-    /// <summary>
-    /// Runs one store action against a container and returns the number of items
-    /// moved. Everything happens in the calling frame: there is no wait for
-    /// network ownership, because a local ownership claim takes effect at once.
-    /// </summary>
-    private static int StoreInto(IContainer target, Func<IContainer, int> store)
-    {
-        if (target is VanillaContainers chest)
-            return StoreIntoChest(chest, store);
-
-        // Drawers and backpacks manage their own access; only touch the ones we own.
-        return target.IsOwner() ? store(target) : 0;
-    }
-
-    private static int StoreIntoChest(VanillaContainers wrapper, Func<IContainer, int> store)
-    {
-        Container? chest = wrapper.gameObject ? wrapper.gameObject.GetComponent<Container>() : null;
-        ZNetView? nview = wrapper.m_nview;
-        if (!chest || !nview || !nview.IsValid()) return 0;
-
-        // MultiUserChest arbitrates concurrent access itself.
-        if (MUCCompat.MultiUserChestActive)
-            return store(wrapper);
-
-        if (IsOpenByAnotherPlayer(chest))
-        {
-            LogDebug($"Skipping {chest.name}: another player has it open.");
-            return 0;
-        }
-
-        if (!nview.IsOwner())
-            nview.ClaimOwnership();
-
-        if (!nview.IsOwner())
-        {
-            LogDebug($"Skipping {chest.name}: could not take ownership.");
-            return 0;
-        }
-
-        // Hold the chest for the duration of the store so an open request from
-        // another player is refused meanwhile, and release it whatever happens.
-        bool wasInUse = chest.m_inUse;
-        chest.m_inUse = true;
-        try
-        {
-            return store(wrapper);
-        }
-        catch (Exception e)
-        {
-            LogError($"Error while storing to {chest.name}: {e}");
-            return 0;
-        }
-        finally
-        {
-            chest.m_inUse = wasInUse;
-        }
-    }
-
-    /// <summary>
-    /// True when a player other than the local one has this chest open. The
-    /// owner keeps the flag locally; everyone else reads the synced copy.
-    /// </summary>
-    internal static bool IsOpenByAnotherPlayer(Container chest)
-    {
-        if (MUCCompat.MultiUserChestActive) return false;
-        if (InventoryGui.instance && InventoryGui.instance.m_currentContainer == chest) return false;
-
-        if (chest.IsInUse()) return true;
-
-        ZDO? zdo = chest.m_nview ? chest.m_nview.GetZDO() : null;
-        return zdo != null && zdo.GetInt(ZDOVars.s_inUse) == 1;
     }
 
     internal static void StoreSuccess(int total)

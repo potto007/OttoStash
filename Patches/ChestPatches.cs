@@ -2,38 +2,6 @@
 
 namespace OttoStash.Patches;
 
-[HarmonyPatch(typeof(Container), nameof(Container.Awake))]
-internal static class ContainerAwakePatch
-{
-    internal static int pausedSeconds = 0;
-    internal static readonly int storingPausedHash = "storingPaused".GetStableHashCode();
-    internal const string PauseRpcName = "RequestPause";
-
-    private static void Postfix(Container __instance)
-    {
-        Functions.LogContainerStatus(__instance);
-
-        ZNetView? nview = __instance.m_nview;
-        if (!nview || nview.GetZDO() == null)
-            return;
-
-        RegisterPauseHandler(nview, __instance);
-        Boxes.RegisterIfEligible(__instance);
-    }
-
-    /// <summary>
-    /// Registers the pause handler exactly once per network view. Awake can run
-    /// more than once for the same object, and the routed RPC table refuses a
-    /// second registration under the same name, so any earlier handler is
-    /// dropped before the new one goes in.
-    /// </summary>
-    internal static void RegisterPauseHandler(ZNetView nview, Container container)
-    {
-        nview.Unregister(PauseRpcName);
-        nview.Register<bool>(PauseRpcName, (sender, pause) => Boxes.RPC_RequestPause(sender, pause, container));
-    }
-}
-
 [HarmonyPatch(typeof(Container), nameof(Container.OnDestroyed))]
 internal static class ContainerOnDestroyedPatch
 {
@@ -67,38 +35,6 @@ static class WearNTearOnDestroyPatch
                 Boxes.RemoveContainer(c);
             }
         }
-    }
-}
-
-// Add container to list on container interaction. Just in case.
-[HarmonyPatch(typeof(Container), nameof(Container.Interact))]
-static class ContainerInteractPatch
-{
-    static void Postfix(Container __instance, Humanoid character, bool hold, bool alt)
-    {
-        long playerId = Game.instance.GetPlayerProfile().GetPlayerID();
-        if ((__instance.m_checkGuardStone && !PrivateArea.CheckAccess(__instance.transform.position)) || !__instance.CheckAccess(playerId))
-            return;
-        Boxes.RegisterIfEligible(__instance);
-    }
-}
-
-// Containers that loaded before the local player existed never saw a player to
-// register against. Re-evaluate every loaded container once the player is in.
-[HarmonyPatch(typeof(Player), nameof(Player.OnSpawned))]
-internal static class PlayerOnSpawnedRegisterContainersPatch
-{
-    private static void Postfix(Player __instance)
-    {
-        if (__instance != Player.m_localPlayer) return;
-
-        int before = Boxes.Containers.Count;
-        foreach (Container container in UnityEngine.Object.FindObjectsByType<Container>(FindObjectsSortMode.None))
-        {
-            Boxes.RegisterIfEligible(container);
-        }
-
-        Functions.LogDebug($"Spawn scan registered {Boxes.Containers.Count - before} loaded containers for autostore.");
     }
 }
 

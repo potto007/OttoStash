@@ -7,23 +7,23 @@ public static class YamlUtils
     internal static void ReadYaml(string yamlInput)
     {
         IDeserializer? deserializer = new DeserializerBuilder().Build();
-        yamlData = deserializer.Deserialize<Dictionary<string, object>>(yamlInput);
-        OttoStashLogger.LogDebug($"yamlData:\n{yamlInput}");
+        ContainerRules.Rules = deserializer.Deserialize<Dictionary<string, object>>(yamlInput);
+        Functions.LogIfBuildDebug($"Container rules:\n{yamlInput}");
     }
 
     internal static void ParseGroups()
     {
-        // Initialize the groups dictionary if it's null
-        groups ??= new Dictionary<string?, HashSet<string?>>();
+        // First use creates the group table.
+        ContainerRules.Groups ??= new Dictionary<string?, HashSet<string?>>();
 
-        // Validate yamlData before trying to use it
-        if (yamlData == null)
+        // Nothing to parse until the rules file has been read.
+        if (ContainerRules.Rules == null)
         {
-            OttoStashLogger.LogError("yamlData is null.");
+            Functions.LogError("The container rules are not loaded.");
             return;
         }
 
-        if (yamlData.TryGetValue("groups", out object groupData))
+        if (ContainerRules.Rules.TryGetValue("groups", out object groupData))
         {
             // Safely cast to the expected Dictionary type
             if (groupData is Dictionary<object, object> groupDict)
@@ -47,18 +47,18 @@ public static class YamlUtils
                             }
                         }
 
-                        groups[groupName] = prefabNames;
+                        ContainerRules.Groups[groupName] = prefabNames;
                     }
                 }
             }
             else
             {
-                OttoStashLogger.LogError("groupData is not of type Dictionary<object, object>.");
+                Functions.LogError("groupData is not of type Dictionary<object, object>.");
             }
         }
         else
         {
-            OttoStashLogger.LogError("No 'groups' key found in yamlData.");
+            Functions.LogError("The container rules have no groups entry.");
         }
     }
 
@@ -66,10 +66,10 @@ public static class YamlUtils
     {
         ISerializer? serializer = new SerializerBuilder().Build();
         using StreamWriter? output = new StreamWriter(filePath);
-        serializer.Serialize(output, yamlData);
+        serializer.Serialize(output, ContainerRules.Rules);
 
         // Serialize the data again to YAML format
-        string serializedData = serializer.Serialize(yamlData);
+        string serializedData = serializer.Serialize(ContainerRules.Rules);
 
         // Append the serialized YAML data to the file
         File.AppendAllText(filePath, serializedData);

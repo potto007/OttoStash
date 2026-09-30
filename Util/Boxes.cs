@@ -1,6 +1,4 @@
-﻿using OttoStash.APIs.Compatibility.WardIsLove;
-using OttoStash.Patches;
-using Backpacks;
+﻿using Backpacks;
 using ItemDataManager;
 
 namespace OttoStash.Util;
@@ -12,76 +10,13 @@ public class Boxes
     private static readonly List<Container> ContainersToAdd = new();
     private static readonly List<Container> ContainersToRemove = new();
     internal static readonly List<IContainer> ContainersToPing = new();
-    internal static bool StoringPaused;
-
-    /// <summary>
-    /// Adds the container to the autostore list when it passes the eligibility
-    /// rules. Every registration path (container awake, player interaction, the
-    /// scan after the local player spawns) goes through here so they agree.
-    /// </summary>
-    internal static void RegisterIfEligible(Container container)
-    {
-        try
-        {
-            if (IsEligible(container))
-                AddContainer(container);
-        }
-        catch (Exception e)
-        {
-            OttoStashLogger.LogDebug($"Could not evaluate container for autostore: {e.Message}");
-        }
-    }
-
-    /// <summary>
-    /// A container may be an autostore target when it is a live network object
-    /// with an inventory, was built by a player, is not carried by another
-    /// character, and sits inside a ward the local player may use.
-    /// </summary>
-    internal static bool IsEligible(Container container)
-    {
-        if (!container) return false;
-
-        ZNetView? nview = container.m_nview;
-        if (!nview || !nview.IsValid()) return false;
-
-        ZDO? zdo = nview.GetZDO();
-        if (zdo == null || zdo.GetLong(ZDOVars.s_creator) == 0L) return false;
-
-        if (container.GetInventory() == null) return false;
-
-        if (IsCarriedByAnotherCharacter(container)) return false;
-
-        return HasWardAccess(container.transform.position);
-    }
-
-    /// <summary>
-    /// A container that hangs off another player or a creature is that
-    /// character's, never a chest to store into. Claiming its network object
-    /// from a second client has broken that player's session.
-    /// </summary>
-    internal static bool IsCarriedByAnotherCharacter(Container container)
-    {
-        Character? carrier = container.GetComponentInParent<Character>();
-        if (!carrier && container.m_nview)
-            carrier = container.m_nview.GetComponentInParent<Character>();
-
-        return carrier && carrier != Player.m_localPlayer;
-    }
-
-    private static bool HasWardAccess(Vector3 position)
-    {
-        if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value && WardMonoscript.CheckAccess(position, flash: false, wardCheck: true))
-            return true;
-
-        return PrivateArea.CheckAccess(position, flash: false, wardCheck: true);
-    }
 
     internal static void AddContainer(Container container)
     {
         if (!Containers.Contains(container))
         {
             ContainersToAdd.Add(container);
-            OttoStashLogger.LogDebug($"Added container {container.name} to list");
+            Functions.LogDebug($"Added container {container.name} to list");
         }
 
         UpdateContainers();
@@ -93,7 +28,7 @@ public class Boxes
         {
             ContainersToRemove.Add(container);
             if (container)
-                OttoStashLogger.LogDebug($"Removed container {container.name} from list");
+                Functions.LogDebug($"Removed container {container.name} from list");
         }
 
         UpdateContainers();
@@ -121,7 +56,7 @@ public class Boxes
             float distance = Vector3.Distance(container.transform.position, gameObject.transform.position);
             if (!(distance <= rangeToUse)) continue;
             // log the distance and the range to use
-            OttoStashLogger.LogDebug($"Distance to container {container.name} is {distance}m, within the range of {rangeToUse}m set to store items for this chest");
+            Functions.LogDebug($"Distance to container {container.name} is {distance}m, within the range of {rangeToUse}m set to store items for this chest");
             nearbyContainers.Add(VanillaContainers.Create(container));
         }
 
@@ -148,9 +83,9 @@ public class Boxes
 
     public static void AddContainerIfNotExists(string containerName)
     {
-        if (yamlData != null && !yamlData.ContainsKey(containerName))
+        if (ContainerRules.Rules != null && !ContainerRules.Rules.ContainsKey(containerName))
         {
-            yamlData[containerName] = new Dictionary<string, object>
+            ContainerRules.Rules[containerName] = new Dictionary<string, object>
             {
                 { "exclude", new List<string>() },
                 { "includeOverride", new List<string>() },
@@ -177,28 +112,28 @@ public class Boxes
     // Get a list of all containers
     public static List<string>? GetAllContainers()
     {
-        return yamlData?.Keys.Where(key => key != "groups").ToList();
+        return ContainerRules.Rules?.Keys.Where(key => key != "groups").ToList();
     }
 
     // Check if a prefab is excluded from a container
 
     public static bool CanItemBeStored(string container, string prefab)
     {
-        if (yamlData == null)
+        if (ContainerRules.Rules == null)
         {
-            OttoStashLogger.LogError("yamlData is null.");
+            Functions.LogError("The container rules are not loaded.");
             return false;
         }
 
-        if (!yamlData.ContainsKey(container))
+        if (!ContainerRules.Rules.ContainsKey(container))
         {
-            return true; // Allow storing by default if the container is not defined in yamlData
+            return true; // Allow storing by default if the container is not defined in ContainerRules.Rules
         }
 
-        Dictionary<object, object>? containerData = yamlData[container] as Dictionary<object, object>;
+        Dictionary<object, object>? containerData = ContainerRules.Rules[container] as Dictionary<object, object>;
         if (containerData == null)
         {
-            OttoStashLogger.LogError($"Unable to cast containerData for container '{container}' to Dictionary<object, object>.");
+            Functions.LogError($"Unable to cast containerData for container '{container}' to Dictionary<object, object>.");
             return false;
         }
 
@@ -211,13 +146,13 @@ public class Boxes
 
         if (excludeList == null)
         {
-            OttoStashLogger.LogError($"Unable to cast excludeList for container '{container}' to List<object>.");
+            Functions.LogError($"Unable to cast excludeList for container '{container}' to List<object>.");
             return false;
         }
 
         if (includeOverrideList == null)
         {
-            OttoStashLogger.LogError($"Unable to cast includeOverrideList for container '{container}' to List<object>.");
+            Functions.LogError($"Unable to cast includeOverrideList for container '{container}' to List<object>.");
             return false;
         }
 
@@ -255,7 +190,7 @@ public class Boxes
             {
                 string? excludeItemName = excludeItem.ToString();
 
-                if (groups.TryGetValue(excludeItemName, out HashSet<string?>? groupPrefabs))
+                if (ContainerRules.Groups.TryGetValue(excludeItemName, out HashSet<string?>? groupPrefabs))
                 {
                     if (groupPrefabs.Contains(prefab))
                     {
@@ -274,7 +209,7 @@ public class Boxes
 
     public static List<string?> GetExcludedPrefabs(string container)
     {
-        if (yamlData != null && yamlData.TryGetValue(container, out object containerData))
+        if (ContainerRules.Rules != null && ContainerRules.Rules.TryGetValue(container, out object containerData))
         {
             Dictionary<object, object>? containerInfo = containerData as Dictionary<object, object>;
             if (containerInfo != null && containerInfo.TryGetValue("exclude", out object excludeData))
@@ -286,7 +221,7 @@ public class Boxes
                     foreach (object? excludeItem in excludeList)
                     {
                         string? excludeItemName = excludeItem.ToString();
-                        if (groups.TryGetValue(excludeItemName, out HashSet<string?>? groupPrefabs))
+                        if (ContainerRules.Groups.TryGetValue(excludeItemName, out HashSet<string?>? groupPrefabs))
                         {
                             excludedPrefabs.AddRange(groupPrefabs);
                         }
@@ -302,16 +237,5 @@ public class Boxes
         }
 
         return new List<string?>();
-    }
-
-
-    internal static void RPC_RequestPause(long sender, bool pause, Container container)
-    {
-        if (!container.m_nview.IsValid())
-            return;
-        if (container.m_nview.IsOwner())
-        {
-            container.m_nview.GetZDO().Set(ContainerAwakePatch.storingPausedHash, pause);
-        }
     }
 }
