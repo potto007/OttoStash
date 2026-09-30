@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using OttoStash;
 
 // General Information about an assembly is controlled through the following 
@@ -33,3 +34,6 @@ using OttoStash;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion(OttoStashPlugin.ModVersion)]
 [assembly: AssemblyFileVersion(OttoStashPlugin.ModVersion)]
+
+// The unit tests under tests/ exercise internal types directly.
+[assembly: InternalsVisibleTo("OttoStash.Tests")]
