@@ -34,8 +34,8 @@ public class Boxes
 
     /// <summary>
     /// A container may be an autostore target when it is a live network object
-    /// with an inventory, was built by a player, and sits inside a ward the
-    /// local player may use.
+    /// with an inventory, was built by a player, is not carried by another
+    /// character, and sits inside a ward the local player may use.
     /// </summary>
     internal static bool IsEligible(Container container)
     {
@@ -49,7 +49,23 @@ public class Boxes
 
         if (container.GetInventory() == null) return false;
 
+        if (IsCarriedByAnotherCharacter(container)) return false;
+
         return HasWardAccess(container.transform.position);
+    }
+
+    /// <summary>
+    /// A container that hangs off another player or a creature is that
+    /// character's, never a chest to store into. Claiming its network object
+    /// from a second client has broken that player's session.
+    /// </summary>
+    internal static bool IsCarriedByAnotherCharacter(Container container)
+    {
+        Character? carrier = container.GetComponentInParent<Character>();
+        if (!carrier && container.m_nview)
+            carrier = container.m_nview.GetComponentInParent<Character>();
+
+        return carrier && carrier != Player.m_localPlayer;
     }
 
     private static bool HasWardAccess(Vector3 position)
