@@ -83,8 +83,7 @@ many containers.
 ## FAQ
 
 - Frequently asked questions will be added to the wiki tab of this mod as they are asked. Wiki tab is located at the top
-  of this page (or you can be lazy and click this here linky
-  link: https://valheim.thunderstore.io/package/Azumatt/OttoStash/wiki/).
+  of this page.
 
 ## 2. Configuration (Collapsed due to length. Click to expand)
 
@@ -276,7 +275,7 @@ ItemOnFavoritedSlotTooltip [Not Synced with Server]
    > For Thunderstore Mod Manager, you can also install it through the Overwolf app store
    ![](https://i.imgur.com/HQLZFp4.png "Thunderstore Mod Manager Download")
 2. **Open the Mod Manager and search for "OttoStash" under the Online
-   tab. `Note: You can also search for "Azumatt" to find all my mods.`**
+   tab.**
    The image below shows VikingShip as an example, but it was easier to reuse the image. Type OttoStash.
 
 ![](https://i.imgur.com/5CR5XKu.png)
@@ -523,22 +522,6 @@ rk_crate2:
 
 </details>
 
-
-`Feel free to reach out to me on discord if you need manual download assistance.`
-
-# Author Information
-
-### Azumatt
-
-`DISCORD:` Azumatt#2625
-
-`STEAM:` https://steamcommunity.com/id/azumatt/
-
-For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
-
-[![https://i.imgur.com/XXP6HCU.png](https://i.imgur.com/XXP6HCU.png)](https://discord.gg/Pb6bVMnFb2)
-<a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
-
 --------------------
 
 ## Version Information
@@ -549,15 +532,3 @@ renders on the Changelog tab of the Thunderstore package page.
 ## Credits
 
 OttoStash is maintained by **Paul Otto**.
-
-It continues [AzuAutoStore](https://thunderstore.io/c/valheim/p/Azumatt/AzuAutoStore/)
-by **Azumatt**, who wrote every line of the mod this fork carries forward. Credit for
-the mod belongs to him. AzuAutoStore stopped at 3.0.11 and does not load on Valheim
-1.0; OttoStash carries the work forward under the same licence.
-
-Please support the original author. He maintains many other Valheim mods:
-
-> * [AzuExtendedPlayerInventory](https://thunderstore.io/c/valheim/p/Azumatt/AzuExtendedPlayerInventory/)
-> * [AzuCraftyBoxes](https://thunderstore.io/c/valheim/p/Azumatt/AzuCraftyBoxes/)
-> * [AzuWorkbenchInventoryRepair](https://thunderstore.io/c/valheim/p/Azumatt/AzuWorkbenchInventoryRepair/)
-> * [Recycle_N_Reclaim](https://thunderstore.io/c/valheim/p/Azumatt/Recycle_N_Reclaim/)
