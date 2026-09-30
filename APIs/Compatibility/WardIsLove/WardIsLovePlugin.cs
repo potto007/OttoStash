@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.APIs.Compatibility.WardIsLove;
+﻿namespace OttoStash.APIs.Compatibility.WardIsLove;
 
 
 public class WardIsLovePlugin : WILCompat {

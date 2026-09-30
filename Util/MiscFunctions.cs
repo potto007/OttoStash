@@ -1,10 +1,10 @@
-﻿namespace AzuAutoStore.Util;
+﻿namespace OttoStash.Util;
 
 public class MiscFunctions
 {
     private static void LogResourceInfo(int totalAmount, int totalRequirement, string reqName)
     {
-        AzuAutoStoreLogger.LogDebug($"(ConsumeResourcesPatch) Have {totalAmount}/{totalRequirement} {reqName} in player inventory");
+        OttoStashLogger.LogDebug($"(ConsumeResourcesPatch) Have {totalAmount}/{totalRequirement} {reqName} in player inventory");
     }
 
     public static string GetPrefabName(string name)
@@ -216,7 +216,7 @@ public class MiscFunctions
                     if (!string.IsNullOrEmpty(groupName))
                     {
                         #if DEBUG
-                        AzuAutoStorePlugin.AzuAutoStoreLogger.LogDebug($"(CreatePredefinedGroups) Adding {itemDrop.m_itemData.m_dropPrefab.name} to {groupName}");
+                        OttoStashPlugin.OttoStashLogger.LogDebug($"(CreatePredefinedGroups) Adding {itemDrop.m_itemData.m_dropPrefab.name} to {groupName}");
                         #endif
                         AddItemToGroup(groupName, itemDrop);
                     }
@@ -247,7 +247,7 @@ public class MiscFunctions
         string? prefabName = Utils.GetPrefabName(itemDrop.m_itemData.m_dropPrefab);
         if (groups[groupName].Contains(prefabName)) return;
         groups[groupName].Add(prefabName);
-        AzuAutoStoreLogger.LogDebug($"(CreatePredefinedGroups) Added {prefabName} to {groupName}");
+        OttoStashLogger.LogDebug($"(CreatePredefinedGroups) Added {prefabName} to {groupName}");
     }
 
     private static void SaveGroupsToFile()

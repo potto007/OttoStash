@@ -1,7 +1,7 @@
 ﻿using System.Reflection.Emit;
-using AzuAutoStore.APIs.Compatibility.WardIsLove;
+using OttoStash.APIs.Compatibility.WardIsLove;
 
-namespace AzuAutoStore.Patches;
+namespace OttoStash.Patches;
 
 [HarmonyPatch(typeof(Container), nameof(Container.Awake))]
 internal static class ContainerAwakePatch

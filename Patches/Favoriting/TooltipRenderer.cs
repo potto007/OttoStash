@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace AzuAutoStore.Patches.Favoriting;
+namespace OttoStash.Patches.Favoriting;
 
 [HarmonyPatch(typeof(ItemDrop.ItemData))]
 internal static class TooltipRenderer

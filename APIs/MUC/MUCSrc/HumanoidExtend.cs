@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public class HumanoidExtend : MonoBehaviour {
     private static readonly ConditionalWeakTable<Inventory, HumanoidInventoryOwner> Humanoids = new ConditionalWeakTable<Inventory, HumanoidInventoryOwner>();

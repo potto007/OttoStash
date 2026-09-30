@@ -1,3 +1,33 @@
+# Changelog
+
+OttoStash continues AzuAutoStore by Azumatt. Versions 3.0.11 and below are his
+release history, kept below unchanged.
+
+## v3.1.0
+
+- Renamed to OttoStash. Forked from AzuAutoStore 3.0.11 by Azumatt.
+- Ported to the Valheim 1.0 API. AzuAutoStore did not load at all on 1.0:
+  `ZRoutedRpc.Everybody` became a constant, so the bundled ServerSync threw
+  `MissingFieldException` in the plugin's static constructor.
+  - Rebuilt ServerSync against the 1.0 assemblies.
+  - `InventoryGrid.Element` is now the top-level `InventoryElement`, and it no
+    longer carries `m_pos`.
+  - `InventoryGrid.OnRightClick` and `OnLeftClick` became `OnRightDown` and
+    `OnLeftDown`.
+  - The private `Inventory.AddItem` overload gained a `cheated` parameter.
+  - `ImageConversion.LoadImage` now takes a `ReadOnlySpan<byte>`.
+- The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
+  Your AzuAutoStore files are copied across on first run. An OttoStash file that
+  already exists is never touched.
+- The console command is now `ottostashsearch`, not `azuautostoresearch`.
+- Rebuilt the project SDK-style, with a version-drift guard and a guard against
+  repacking a version that is already tagged as published.
+- New title banner and package icon.
+
+--------------------
+
+# AzuAutoStore release history, by Azumatt
+
 | `Version` | `Update Notes`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 |-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 3.0.11    | - Update KGItemDrawers API. <br/> - Chunked item adds to reduce some churn<br/> - Update README.md with much needed missing information.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |

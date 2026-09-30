@@ -1,6 +1,6 @@
-﻿using AzuAutoStore.APIs.MUC.MUCSrc.Data;
+﻿using OttoStash.APIs.MUC.MUCSrc.Data;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Patches;
+namespace OttoStash.APIs.MUC.MUCSrc.Patches;
 
 [HarmonyPatch]
 public static class GamePatches {

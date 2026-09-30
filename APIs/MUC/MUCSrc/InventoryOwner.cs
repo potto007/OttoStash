@@ -1,7 +1,7 @@
-﻿using AzuAutoStore.APIs.MUC.MUCSrc.Patches;
-using AzuAutoStore.APIs.MUC.MUCSrc.Patches.Compatibility;
+﻿using OttoStash.APIs.MUC.MUCSrc.Patches;
+using OttoStash.APIs.MUC.MUCSrc.Patches.Compatibility;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public abstract class InventoryOwner {
     public abstract ZNetView ZNetView { get; }

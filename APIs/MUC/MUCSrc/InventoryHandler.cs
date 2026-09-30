@@ -1,7 +1,7 @@
-using AzuAutoStore.APIs.MUC.MUCSrc.Data;
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Data;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc;
+namespace OttoStash.APIs.MUC.MUCSrc;
 
 public static class InventoryHandler {
     public static void RPC_RequestItemAddResponse(long sender, ZDOID containerId, ZPackage package) {

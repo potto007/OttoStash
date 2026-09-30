@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Util;
+﻿namespace OttoStash.Util;
 
 public class GroupUtils
 {
@@ -27,7 +27,7 @@ public class GroupUtils
     {
         if (yamlData == null)
         {
-            AzuAutoStoreLogger.LogError("yamlData is null. Make sure that your YAML file is not empty or to call DeserializeYamlFile() before using IsGroupDefined.");
+            OttoStashLogger.LogError("yamlData is null. Make sure that your YAML file is not empty or to call DeserializeYamlFile() before using IsGroupDefined.");
             return false;
         }
 
@@ -42,7 +42,7 @@ public class GroupUtils
             }
             else
             {
-                AzuAutoStoreLogger.LogError("Unable to cast groupsData to Dictionary<object, object>.");
+                OttoStashLogger.LogError("Unable to cast groupsData to Dictionary<object, object>.");
             }
         }
 

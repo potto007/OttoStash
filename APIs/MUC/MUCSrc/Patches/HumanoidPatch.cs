@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.APIs.MUC.MUCSrc.Patches;
+﻿namespace OttoStash.APIs.MUC.MUCSrc.Patches;
 
 [HarmonyPatch]
 public static class HumanoidPatch {

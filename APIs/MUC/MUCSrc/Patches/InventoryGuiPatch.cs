@@ -1,9 +1,9 @@
 ﻿using System.Reflection.Emit;
-using AzuAutoStore.APIs.MUC.MUCSrc.Data;
-using AzuAutoStore.APIs.MUC.MUCSrc.Helper;
-using AzuAutoStore.APIs.MUC.MUCSrc.Patches.Compatibility;
+using OttoStash.APIs.MUC.MUCSrc.Data;
+using OttoStash.APIs.MUC.MUCSrc.Helper;
+using OttoStash.APIs.MUC.MUCSrc.Patches.Compatibility;
 
-namespace AzuAutoStore.APIs.MUC.MUCSrc.Patches;
+namespace OttoStash.APIs.MUC.MUCSrc.Patches;
 
 [HarmonyPatch]
 public static class InventoryGuiPatch {

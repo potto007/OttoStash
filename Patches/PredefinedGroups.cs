@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Patches;
+﻿namespace OttoStash.Patches;
 
 [HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.Awake))]
 static class PredefinedGroupGrab

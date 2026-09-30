@@ -1,6 +1,6 @@
 ﻿using Backpacks;
 
-namespace AzuAutoStore.Interfaces;
+namespace OttoStash.Interfaces;
 
 public class BackpackContainer(ItemContainer _container) : IContainer
 {
@@ -11,7 +11,7 @@ public class BackpackContainer(ItemContainer _container) : IContainer
 
     internal static void LogDebug(string data)
     {
-        AzuAutoStoreLogger.LogDebug(data);
+        OttoStashLogger.LogDebug(data);
     }
 
     public int TryStore()

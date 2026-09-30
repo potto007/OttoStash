@@ -1,18 +1,18 @@
 ﻿using Object = UnityEngine.Object;
 
-namespace AzuAutoStore.Managers;
+namespace OttoStash.Managers;
 
 [HarmonyPatch(typeof(Game), nameof(Game.Start))]
 public static class GameStartPatch
 {
     static void Postfix()
     {
-        AzuAutoStoreItemDropManager? itemDropManager = new GameObject("AzuAutoStore_ItemDropManager").AddComponent<AzuAutoStoreItemDropManager>();
+        OttoStashItemDropManager? itemDropManager = new GameObject("OttoStash_ItemDropManager").AddComponent<OttoStashItemDropManager>();
         Object.DontDestroyOnLoad(itemDropManager);
     }
 }
 
-public class AzuAutoStoreItemDropManager : MonoBehaviour
+public class OttoStashItemDropManager : MonoBehaviour
 {
     private void Awake()
     {

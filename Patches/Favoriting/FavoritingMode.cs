@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Patches.Favoriting;
+﻿namespace OttoStash.Patches.Favoriting;
 
 internal class FavoritingMode
 {

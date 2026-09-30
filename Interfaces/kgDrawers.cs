@@ -1,6 +1,6 @@
-﻿using AzuAutoStore.APIs;
+﻿using OttoStash.APIs;
 
-namespace AzuAutoStore.Interfaces;
+namespace OttoStash.Interfaces;
 
 public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
 {
@@ -11,7 +11,7 @@ public class kgDrawer(ItemDrawers_API.Drawer _drawer) : IContainer
 
     internal static void LogDebug(string data)
     {
-        AzuAutoStoreLogger.LogDebug(data);
+        OttoStashLogger.LogDebug(data);
     }
 
     public bool ContainsItem(string prefab, int amount, out int result)

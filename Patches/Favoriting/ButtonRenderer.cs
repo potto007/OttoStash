@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine.UI;
 
-namespace AzuAutoStore.Patches.Favoriting;
+namespace OttoStash.Patches.Favoriting;
 
 internal class ButtonRenderer
 {

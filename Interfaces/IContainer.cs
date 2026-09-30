@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Interfaces;
+﻿namespace OttoStash.Interfaces;
 
 public interface IContainer
 {

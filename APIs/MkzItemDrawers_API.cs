@@ -1,6 +1,6 @@
 ﻿using Object = UnityEngine.Object;
 
-namespace AzuAutoStore.APIs;
+namespace OttoStash.APIs;
 
 public static class MkzItemDrawers_API
 {

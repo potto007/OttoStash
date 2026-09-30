@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore;
+﻿namespace OttoStash;
 
 // Patch the Terminal.Init to add commands to the terminal
 [HarmonyPatch(typeof(Terminal), nameof(Terminal.InitTerminal))]
@@ -19,7 +19,7 @@ static class TerminalInitTerminalPatch
 
     static void Postfix(Terminal __instance)
     {
-        Terminal.ConsoleCommand searchNearbyCwItems = new("azuautostoresearch",
+        Terminal.ConsoleCommand searchNearbyCwItems = new("ottostashsearch",
             "[prefab name/query text] - search for items in chests near the player. It uses the prefab name",
             args =>
             {

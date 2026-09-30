@@ -1,4 +1,4 @@
-﻿namespace AzuAutoStore.Util;
+﻿namespace OttoStash.Util;
 
 public class ChestPingEffect : MonoBehaviour
 {
