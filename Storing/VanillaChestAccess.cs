@@ -5,19 +5,19 @@ internal sealed class VanillaChestAccess : IChestAccess
 {
     internal static readonly VanillaChestAccess Instance = new();
 
-    public bool IsChest(IContainer target)
+    public bool IsChest(IStoreTarget target)
     {
-        return target is VanillaContainers;
+        return target is ChestTarget;
     }
 
-    public bool IsOpenElsewhere(IContainer chest)
+    public bool IsOpenElsewhere(IStoreTarget chest)
     {
         return ChestGate.IsOpenElsewhere(ChestOf(chest));
     }
 
-    public bool TakeOwnership(IContainer chest)
+    public bool TakeOwnership(IStoreTarget chest)
     {
-        ZNetView? view = chest.m_nview;
+        ZNetView? view = chest.NetView;
         if (view == null || !view.IsValid())
             return false;
         if (!view.IsOwner())
@@ -25,14 +25,14 @@ internal sealed class VanillaChestAccess : IChestAccess
         return view.IsOwner();
     }
 
-    public IDisposable Hold(IContainer chest)
+    public IDisposable Hold(IStoreTarget chest)
     {
         return new InUseHold(ChestOf(chest));
     }
 
-    private static Container? ChestOf(IContainer target)
+    private static Container? ChestOf(IStoreTarget target)
     {
-        return target.gameObject != null ? target.gameObject.GetComponent<Container>() : null;
+        return (target as ChestTarget)?.Chest;
     }
 
     /// Raises the chest's own in-use flag, which is what the owner consults when

@@ -1,11 +1,10 @@
-using OttoStash.Interfaces;
 using OttoStash.Storing;
 using UnityEngine;
 
 namespace OttoStash.Tests;
 
 /// A store target that records what the run asked of it.
-internal sealed class FakeTarget : IContainer
+internal sealed class FakeTarget : IStoreTarget
 {
     private readonly Func<int> _store;
 
@@ -24,15 +23,15 @@ internal sealed class FakeTarget : IContainer
     internal bool OwnershipClaimSucceeds { get; set; } = true;
     internal int StoreCalls { get; private set; }
 
-    public int TryStore()
+    public int StoreAll()
     {
         StoreCalls++;
         return _store();
     }
 
-    public int TryStoreThisItem(ItemDrop.ItemData item, Inventory playerInventory)
+    public int StoreItem(ItemDrop.ItemData item, Inventory playerInventory)
     {
-        return TryStore();
+        return StoreAll();
     }
 
     public bool IsOwner()
@@ -40,8 +39,8 @@ internal sealed class FakeTarget : IContainer
         return Owned;
     }
 
-    public GameObject gameObject => null!;
-    public ZNetView m_nview => null!;
+    public GameObject GameObject => null!;
+    public ZNetView NetView => null!;
 }
 
 /// Chest access that never touches the engine and keeps a ledger of every call.
@@ -50,19 +49,19 @@ internal sealed class FakeChestAccess : IChestAccess
     internal readonly List<string> Ledger = new();
     internal readonly HashSet<FakeTarget> Held = new();
 
-    public bool IsChest(IContainer target)
+    public bool IsChest(IStoreTarget target)
     {
         return ((FakeTarget)target).IsChest;
     }
 
-    public bool IsOpenElsewhere(IContainer chest)
+    public bool IsOpenElsewhere(IStoreTarget chest)
     {
         FakeTarget target = (FakeTarget)chest;
         Ledger.Add($"gate {target.Name}");
         return target.OpenElsewhere;
     }
 
-    public bool TakeOwnership(IContainer chest)
+    public bool TakeOwnership(IStoreTarget chest)
     {
         FakeTarget target = (FakeTarget)chest;
         Ledger.Add($"claim {target.Name}");
@@ -71,7 +70,7 @@ internal sealed class FakeChestAccess : IChestAccess
         return target.Owned;
     }
 
-    public IDisposable Hold(IContainer chest)
+    public IDisposable Hold(IStoreTarget chest)
     {
         FakeTarget target = (FakeTarget)chest;
         Ledger.Add($"hold {target.Name}");

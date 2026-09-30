@@ -12,11 +12,11 @@ internal static class StoreTargets
         try
         {
             if (IsEligible(container))
-                Boxes.AddContainer(container);
+                ContainerRegistry.Add(container);
         }
         catch (Exception e)
         {
-            OttoStashLogger.LogDebug($"Could not evaluate a container for autostore: {e.Message}");
+            StashLog.Debug($"Could not evaluate a container for autostore: {e.Message}");
         }
     }
 
@@ -24,10 +24,10 @@ internal static class StoreTargets
     /// before the local player existed never had a player to register against.
     internal static int RegisterLoaded()
     {
-        int before = Boxes.Containers.Count;
+        int before = ContainerRegistry.Containers.Count;
         foreach (Container container in UnityEngine.Object.FindObjectsByType<Container>(FindObjectsSortMode.None))
             Register(container);
-        return Boxes.Containers.Count - before;
+        return ContainerRegistry.Containers.Count - before;
     }
 
     /// The rule on plain values, so it can be checked without the engine.
