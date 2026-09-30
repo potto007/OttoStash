@@ -1,4 +1,5 @@
-﻿using OttoStash.Patches;
+﻿using OttoStash.APIs.Compatibility.WardIsLove;
+using OttoStash.Patches;
 using Backpacks;
 using ItemDataManager;
 
@@ -12,6 +13,52 @@ public class Boxes
     private static readonly List<Container> ContainersToRemove = new();
     internal static readonly List<IContainer> ContainersToPing = new();
     internal static bool StoringPaused;
+
+    /// <summary>
+    /// Adds the container to the autostore list when it passes the eligibility
+    /// rules. Every registration path (container awake, player interaction, the
+    /// scan after the local player spawns) goes through here so they agree.
+    /// </summary>
+    internal static void RegisterIfEligible(Container container)
+    {
+        try
+        {
+            if (IsEligible(container))
+                AddContainer(container);
+        }
+        catch (Exception e)
+        {
+            OttoStashLogger.LogDebug($"Could not evaluate container for autostore: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// A container may be an autostore target when it is a live network object
+    /// with an inventory, was built by a player, and sits inside a ward the
+    /// local player may use.
+    /// </summary>
+    internal static bool IsEligible(Container container)
+    {
+        if (!container) return false;
+
+        ZNetView? nview = container.m_nview;
+        if (!nview || !nview.IsValid()) return false;
+
+        ZDO? zdo = nview.GetZDO();
+        if (zdo == null || zdo.GetLong(ZDOVars.s_creator) == 0L) return false;
+
+        if (container.GetInventory() == null) return false;
+
+        return HasWardAccess(container.transform.position);
+    }
+
+    private static bool HasWardAccess(Vector3 position)
+    {
+        if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value && WardMonoscript.CheckAccess(position, flash: false, wardCheck: true))
+            return true;
+
+        return PrivateArea.CheckAccess(position, flash: false, wardCheck: true);
+    }
 
     internal static void AddContainer(Container container)
     {

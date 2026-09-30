@@ -1,5 +1,4 @@
 ﻿using System.Reflection.Emit;
-using OttoStash.APIs.Compatibility.WardIsLove;
 
 namespace OttoStash.Patches;
 
@@ -19,28 +18,7 @@ internal static class ContainerAwakePatch
             return;
 
         RegisterPauseHandler(nview, __instance);
-
-        if (__instance.m_nview.GetZDO().GetLong(ZDOVars.s_creator) == 0L || __instance.GetInventory() == null || !__instance.m_nview.IsValid())
-            return;
-
-
-        try
-        {
-            // Only add containers that the player should have access to
-            if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value && WardMonoscript.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-            {
-                Boxes.AddContainer(__instance);
-            }
-            else
-            {
-                if (PrivateArea.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-                    Boxes.AddContainer(__instance);
-            }
-        }
-        catch
-        {
-            // ignored
-        }
+        Boxes.RegisterIfEligible(__instance);
     }
 
     /// <summary>
@@ -101,16 +79,7 @@ static class ContainerInteractPatch
         long playerId = Game.instance.GetPlayerProfile().GetPlayerID();
         if ((__instance.m_checkGuardStone && !PrivateArea.CheckAccess(__instance.transform.position)) || !__instance.CheckAccess(playerId))
             return;
-        // Only add containers that the player should have access to
-        if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value && WardMonoscript.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-        {
-            Boxes.AddContainer(__instance);
-        }
-        else
-        {
-            if (PrivateArea.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-                Boxes.AddContainer(__instance);
-        }
+        Boxes.RegisterIfEligible(__instance);
     }
 }
 
