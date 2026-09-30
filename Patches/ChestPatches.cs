@@ -83,6 +83,25 @@ static class ContainerInteractPatch
     }
 }
 
+// Containers that loaded before the local player existed never saw a player to
+// register against. Re-evaluate every loaded container once the player is in.
+[HarmonyPatch(typeof(Player), nameof(Player.OnSpawned))]
+internal static class PlayerOnSpawnedRegisterContainersPatch
+{
+    private static void Postfix(Player __instance)
+    {
+        if (__instance != Player.m_localPlayer) return;
+
+        int before = Boxes.Containers.Count;
+        foreach (Container container in UnityEngine.Object.FindObjectsByType<Container>(FindObjectsSortMode.None))
+        {
+            Boxes.RegisterIfEligible(container);
+        }
+
+        Functions.LogDebug($"Spawn scan registered {Boxes.Containers.Count - before} loaded containers for autostore.");
+    }
+}
+
 // Postfix ZNetScene Awake to get all containers loaded by the game.
 [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake))]
 internal static class ZNetSceneAwakePatch
