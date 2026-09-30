@@ -1,4 +1,5 @@
-﻿namespace OttoStash.APIs.MUC.MUCSrc.Data;
+﻿using OttoStash.APIs.MUC.MUCSrc.Helper;
+namespace OttoStash.APIs.MUC.MUCSrc.Data;
 
 public class RequestDrop : IPackage {
     public readonly Vector2i targetContainerSlot;

@@ -1,4 +1,5 @@
-﻿namespace OttoStash.APIs.MUC.MUCSrc.Patches;
+﻿using OttoStash.APIs.MUC.MUCSrc.Helper;
+namespace OttoStash.APIs.MUC.MUCSrc.Patches;
 
 /// <summary>
 ///     block complete pickup if any slot is blocked

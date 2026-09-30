@@ -26,7 +26,7 @@ public static class GamePatches {
 
     public static void InvokeRPC(ZNetView netView, string rpc, IPackage package) {
 #if DEBUG
-            Timer.Start(package);
+            MUCSrc.Helper.Timer.Start(package);
 #endif
 
         ZRoutedRpc.instance.InvokeRoutedRPC(netView.m_zdo.GetOwner(), rpc, netView.m_zdo.m_uid, package.WriteToPackage());
