@@ -7,6 +7,7 @@ global using System.Linq;
 global using System.Reflection;
 global using OttoStash.Interfaces;
 global using OttoStash.Patches.Favoriting;
+global using OttoStash.Storing;
 global using OttoStash.Util;
 global using BepInEx;
 global using BepInEx.Bootstrap;

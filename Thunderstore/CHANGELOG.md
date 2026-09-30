@@ -3,6 +3,27 @@
 Versions 3.0.11 and below are the AzuAutoStore release history, kept below
 unchanged.
 
+## 3.4.0
+
+Multiplayer fixes, written fresh for this release.
+
+- Chests that were already loaded when you spawn become autostore targets straight
+  away. You no longer have to open each one first after joining a server.
+- The pause toggle applies once per chest, even when the game initialises a chest
+  more than once.
+- A container carried by another player or a creature is never treated as a chest.
+  Pressing the store hotkey near another player no longer blanks their screen.
+- A chest another player has open is left alone by the store hotkey, single-item
+  store, and ground pickup, and OttoStash never takes it over. Chests are always
+  released after a store, even if something goes wrong mid-way.
+- The store hotkey and single-item store now run in one pass, in one frame, and
+  report a single "Stored N items" total.
+- A chest only glows when something actually went into it.
+- A stack now tops up a chest that has less than half the stack's worth of room
+  left. Before, such a chest was skipped and the whole stack stayed with you.
+- Adds an off-runtime unit test suite under `tests/` that covers the store pass,
+  the chest rules, the pause handler and the stack moves.
+
 ## 3.3.2
 
 - Rebuilt against Valheim 1.0.16. Every Harmony patch target still resolves in this build, and nothing else changed.

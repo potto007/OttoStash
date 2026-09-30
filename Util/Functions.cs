@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using OttoStash.APIs.Compatibility;
+﻿using OttoStash.APIs.Compatibility;
 using OttoStash.APIs.MUC;
-using OttoStash.Patches;
 using Object = UnityEngine.Object;
 
 namespace OttoStash.Util;
@@ -20,61 +18,11 @@ public class Functions
         }
     }
 
-    internal static IEnumerator WaitForOwnershipAndStore(VanillaContainers vc, float timeoutSeconds = 1f)
-    {
-        if (vc == null || vc.m_nview == null || !vc.m_nview.IsValid())
-        {
-            if (--InProgressStores == 0) StoreSuccess(InProgressTotal);
-            yield break;
-        }
-
-        if (!MUCCompat.MultiUserChestActive)
-        {
-            if (!vc.m_nview.IsOwner())
-                vc.m_nview.ClaimOwnership();
-
-            float t = 0f;
-            while (!vc.m_nview.IsOwner() && t < timeoutSeconds)
-            {
-                t += Time.deltaTime;
-                yield return null;
-            }
-
-            if (!vc.m_nview.IsOwner())
-            {
-                LogDebug($"Ownership claim timed out for {vc.gameObject.name}.");
-                if (--InProgressStores == 0) StoreSuccess(InProgressTotal);
-                yield break;
-            }
-        }
-
-        try
-        {
-            int moved = vc.TryStore();
-            InProgressTotal += moved;
-
-            Container? c = vc.gameObject.GetComponent<Container>();
-            if (!c) yield break;
-            c.Save();
-            PingContainer(c.gameObject);
-        }
-        catch (Exception e)
-        {
-            LogError($"Error while storing to {vc.gameObject.name}: {e}");
-        }
-        finally
-        {
-            if (--InProgressStores == 0)
-                StoreSuccess(InProgressTotal);
-        }
-    }
-
-
     internal static float GetContainerRange(Container container)
     {
-        if (yamlData == null)
+        if (ContainerRules.Rules == null)
         {
-            OttoStashLogger.LogError("yamlData is null when trying to get the container range for a container. Make sure that your YAML file is not empty or to call DeserializeYamlFile() before using GetContainerRange.");
+            OttoStashLogger.LogError("The container rules are not loaded, so no container range can be read.");
             return -1f;
         }
 
@@ -83,7 +31,7 @@ public class Functions
 
         // Try to get container settings from YAML configuration
         string containerName = MiscFunctions.GetPrefabName(container.transform.root.name);
-        if (yamlData.TryGetValue(containerName, out object containerData))
+        if (ContainerRules.Rules.TryGetValue(containerName, out object containerData))
         {
             if (containerData is Dictionary<object, object> containerInfo)
             {
@@ -153,8 +101,9 @@ public class Functions
             if (distance > GetContainerRange(container)) continue;
 
             // Pause flag
-            bool isPaused = container.m_nview.GetZDO().GetBool(ContainerAwakePatch.storingPausedHash, false);
-            if (isPaused) continue;
+            if (StorePause.IsPaused(container)) continue;
+
+            if (ChestGate.IsOpenElsewhere(container)) continue;
 
             LogDebug($"Nearby item name: {itemDrop.m_itemData.m_dropPrefab.name}");
 
@@ -235,45 +184,14 @@ public class Functions
     }
 
 
-    internal static int InProgressStores = 0;
-    internal static int InProgressTotal = 0;
-
     internal static void TryStore()
     {
         if (!Player.m_localPlayer) return;
         LogDebug("Trying to store items from player inventory");
 
-        IContainer?[] uncheckedContainers = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value).ToArray();
-
-        int total = 0;
-        for (int i = 0; i < uncheckedContainers.Length; ++i)
-        {
-            if (uncheckedContainers[i] is not { } nearby) continue;
-
-            bool canImmediate = nearby.IsOwner() || (nearby is VanillaContainers && MUCCompat.MultiUserChestActive);
-
-            if (!canImmediate) continue;
-
-            uncheckedContainers[i] = null;
-            total += nearby.TryStore();
-        }
-
-
-        InProgressTotal += total;
-
-        InProgressStores = 0;
-        for (int i = 0; i < uncheckedContainers.Length; ++i)
-        {
-            if (uncheckedContainers[i] is not VanillaContainers v) continue;
-
-            InProgressStores++;
-            self.StartCoroutine(WaitForOwnershipAndStore(v));
-        }
-
-        if (InProgressStores == 0)
-        {
-            StoreSuccess(InProgressTotal);
-        }
+        List<IContainer> targets = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value);
+        int total = StoreRun.Run(targets, target => target.TryStore(), VanillaChestAccess.Instance, MUCCompat.MultiUserChestActive, LogDebug, LogError);
+        StoreSuccess(total);
     }
 
     internal static void TryStoreThisItem(ItemDrop.ItemData itemData, Inventory m_inventory)
@@ -283,128 +201,30 @@ public class Functions
 
         LogDebug($"Trying to store {itemData.m_shared.m_name}");
 
-        IContainer?[] uncheckedContainers = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value).ToArray();
-
-        int total = 0;
-
-        for (int i = 0; i < uncheckedContainers.Length; ++i)
-        {
-            if (uncheckedContainers[i] is not { } nearby) continue;
-
-            bool canImmediate =
-                nearby.IsOwner() ||
-                (nearby is VanillaContainers && MUCCompat.MultiUserChestActive);
-
-            if (!canImmediate) continue;
-
-            uncheckedContainers[i] = null;
-            total += nearby.TryStoreThisItem(itemData, m_inventory);
-        }
-
-
-        InProgressTotal += total;
-
-        InProgressStores = 0;
-        for (int i = 0; i < uncheckedContainers.Length; ++i)
-        {
-            if (uncheckedContainers[i] is not VanillaContainers v) continue;
-
-            InProgressStores++;
-            self.StartCoroutine(WaitForOwnershipAndStoreSingle(v, itemData, m_inventory));
-        }
-
-        if (InProgressStores == 0)
-        {
-            StoreSuccess(InProgressTotal);
-        }
+        List<IContainer> targets = Boxes.GetNearbyContainers(Player.m_localPlayer, PlayerRange.Value);
+        int total = StoreRun.Run(targets, target => target.TryStoreThisItem(itemData, m_inventory), VanillaChestAccess.Instance, MUCCompat.MultiUserChestActive, LogDebug, LogError);
+        StoreSuccess(total);
     }
-
-    internal static IEnumerator WaitForOwnershipAndStoreSingle(VanillaContainers vc, ItemDrop.ItemData item, Inventory inv, float timeoutSeconds = 1f)
-    {
-        if (vc == null || vc.m_nview == null || !vc.m_nview.IsValid())
-        {
-            if (--InProgressStores == 0) StoreSuccess(InProgressTotal);
-            yield break;
-        }
-
-        if (!MUCCompat.MultiUserChestActive)
-        {
-            if (!vc.m_nview.IsOwner())
-                vc.m_nview.ClaimOwnership();
-
-            float t = 0f;
-            while (!vc.m_nview.IsOwner() && t < timeoutSeconds)
-            {
-                t += Time.deltaTime;
-                yield return null;
-            }
-
-            if (!vc.m_nview.IsOwner())
-            {
-                LogDebug($"Ownership claim timed out for {vc.gameObject.name} (single item).");
-                if (--InProgressStores == 0) StoreSuccess(InProgressTotal);
-                yield break;
-            }
-        }
-
-        try
-        {
-            int moved = vc.TryStoreThisItem(item, inv);
-            InProgressTotal += moved;
-
-            Container? c = vc.gameObject.GetComponent<Container>();
-            if (c)
-            {
-                c.Save();
-                PingContainer(c.gameObject);
-            }
-        }
-        catch (Exception e)
-        {
-            LogError($"Error while storing to {vc.gameObject.name}: {e}");
-        }
-        finally
-        {
-            if (--InProgressStores == 0)
-                StoreSuccess(InProgressTotal);
-        }
-    }
-
 
     internal static void StoreSuccess(int total)
     {
         try
         {
-            if (total > 0)
-            {
-                Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"Stored {total} items from your inventory into nearby containers");
+            if (total <= 0) return;
 
-                foreach (IContainer c in Boxes.ContainersToPing)
-                {
-                    PingContainer(c.gameObject);
-                    try
-                    {
-                        if (c.IsOwner() && InventoryGui.instance && c != InventoryGui.instance.m_currentContainer)
-                        {
-                            c.m_nview.GetZDO().Set(ZDOVars.s_inUse, 0, false);
-                            if (c is VanillaContainers container)
-                            {
-                                container.gameObject.GetComponent<Container>().SetInUse(false);
-                                InventoryGui.instance.m_moveItemEffects.Create(c.gameObject.transform.position, Quaternion.identity);
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        OttoStashLogger.LogError($"Error while trying to reset ownership of container {c.gameObject.name}: {e}");
-                    }
-                }
+            Player.m_localPlayer.Message(MessageHud.MessageType.Center, $"Stored {total} items from your inventory into nearby containers");
+
+            // Only containers that actually received items are on this list.
+            foreach (IContainer c in Boxes.ContainersToPing)
+            {
+                PingContainer(c.gameObject);
+                if (c is VanillaContainers && InventoryGui.instance)
+                    InventoryGui.instance.m_moveItemEffects.Create(c.gameObject.transform.position, Quaternion.identity);
             }
         }
         finally
         {
             Boxes.ContainersToPing.Clear();
-            InProgressTotal = 0;
         }
     }
 

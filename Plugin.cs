@@ -16,7 +16,7 @@ namespace OttoStash;
 public class OttoStashPlugin : BaseUnityPlugin
 {
     internal const string ModName = "OttoStash";
-    internal const string ModVersion = "3.3.2";
+    internal const string ModVersion = "3.4.0";
     internal const string Author = "potto007";
     internal const string ModGUID = $"{Author}.{ModName}";
     internal const string KgGuid = "kg.ItemDrawers";
@@ -33,8 +33,6 @@ public class OttoStashPlugin : BaseUnityPlugin
     internal static readonly CustomSyncedValue<string> CraftyContainerGroupsData = new(ConfigSync, "ottostashGroupsData", "");
 
     //
-    internal static Dictionary<string, object>? yamlData;
-    internal static Dictionary<string?, HashSet<string?>> groups = null!;
     internal static OttoStashPlugin self = null!;
 
     public enum Toggle
@@ -221,12 +219,7 @@ public class OttoStashPlugin : BaseUnityPlugin
 
         if (_pauseShortcut.Value.IsDown() && Player.m_localPlayer.TakeInput())
         {
-            Boxes.StoringPaused = !Boxes.StoringPaused;
-            foreach (Container container in Boxes.Containers)
-            {
-                if (!container.m_nview.IsValid()) continue;
-                container.m_nview.InvokeRPC("RequestPause", Boxes.StoringPaused);
-            }
+            StorePause.Toggle();
         }
     }
 

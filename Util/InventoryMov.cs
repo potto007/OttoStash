@@ -54,21 +54,19 @@ internal static class InventoryMove
     }
 
 
+    // Binary search for the largest part of the stack the inventory still takes.
+    // Fitting is monotonic in the amount, so the search is sound from 1 up to the
+    // whole stack. An earlier version started the search at half the stack and
+    // so moved nothing when less than half fitted.
     private static int FindLargestFittableChunk(Inventory target, ItemDrop.ItemData probe)
     {
         int lo = 1;
-        int hi = Mathf.Max(1, probe.m_stack);
+        int hi = probe.m_stack;
         int best = 0;
-
-        while (hi < probe.m_stack && target.CanAddItem(probe, hi)) hi = Math.Min(probe.m_stack, hi << 1);
-        if (!target.CanAddItem(probe, hi))
-        {
-            lo = hi >> 1;
-        }
 
         while (lo <= hi)
         {
-            int mid = (lo + hi) >> 1;
+            int mid = lo + (hi - lo) / 2;
             if (target.CanAddItem(probe, mid))
             {
                 best = mid;

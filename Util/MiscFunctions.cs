@@ -240,13 +240,13 @@ public class MiscFunctions
         // Check if the group exists, and if not, create it
         if (!GroupUtils.GroupExists(groupName))
         {
-            groups[groupName] = [];
+            ContainerRules.Groups[groupName] = [];
         }
 
         // Add the item to the group
         string? prefabName = Utils.GetPrefabName(itemDrop.m_itemData.m_dropPrefab);
-        if (groups[groupName].Contains(prefabName)) return;
-        groups[groupName].Add(prefabName);
+        if (ContainerRules.Groups[groupName].Contains(prefabName)) return;
+        ContainerRules.Groups[groupName].Add(prefabName);
         OttoStashLogger.LogDebug($"(CreatePredefinedGroups) Added {prefabName} to {groupName}");
     }
 
@@ -260,12 +260,12 @@ public class MiscFunctions
         string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty, $"{ModName}_PredefinedGroups.txt");
         using StreamWriter file = new(path, false);
 
-        // Before writing to the file, alphabetize the groups then the prefab names
-        foreach (string? group in groups.Keys.OrderBy(x => x))
+        // Before writing to the file, alphabetize the ContainerRules.Groups then the prefab names
+        foreach (string? group in ContainerRules.Groups.Keys.OrderBy(x => x))
         {
             file.WriteLine(group);
             if (group != null)
-                foreach (string? prefab in groups[group].OrderBy(x => x))
+                foreach (string? prefab in ContainerRules.Groups[group].OrderBy(x => x))
                 {
                     file.WriteLine($"\t{prefab}");
                 }

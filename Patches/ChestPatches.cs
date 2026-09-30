@@ -1,49 +1,6 @@
 ﻿using System.Reflection.Emit;
-using OttoStash.APIs.Compatibility.WardIsLove;
 
 namespace OttoStash.Patches;
-
-[HarmonyPatch(typeof(Container), nameof(Container.Awake))]
-internal static class ContainerAwakePatch
-{
-    internal static int pausedSeconds = 0;
-    internal static readonly int storingPausedHash = "storingPaused".GetStableHashCode();
-
-    private static void Postfix(Container __instance)
-    {
-        Functions.LogContainerStatus(__instance);
-
-        if (__instance.m_nview.GetZDO() == null)
-            return;
-
-        if (__instance.m_nview)
-        {
-            __instance.m_nview.Register<bool>("RequestPause", (sender, pause) => Boxes.RPC_RequestPause(sender, pause, __instance));
-        }
-
-        if (__instance.m_nview.GetZDO().GetLong(ZDOVars.s_creator) == 0L || __instance.GetInventory() == null || !__instance.m_nview.IsValid())
-            return;
-
-
-        try
-        {
-            // Only add containers that the player should have access to
-            if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value && WardMonoscript.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-            {
-                Boxes.AddContainer(__instance);
-            }
-            else
-            {
-                if (PrivateArea.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-                    Boxes.AddContainer(__instance);
-            }
-        }
-        catch
-        {
-            // ignored
-        }
-    }
-}
 
 [HarmonyPatch(typeof(Container), nameof(Container.OnDestroyed))]
 internal static class ContainerOnDestroyedPatch
@@ -77,28 +34,6 @@ static class WearNTearOnDestroyPatch
             {
                 Boxes.RemoveContainer(c);
             }
-        }
-    }
-}
-
-// Add container to list on container interaction. Just in case.
-[HarmonyPatch(typeof(Container), nameof(Container.Interact))]
-static class ContainerInteractPatch
-{
-    static void Postfix(Container __instance, Humanoid character, bool hold, bool alt)
-    {
-        long playerId = Game.instance.GetPlayerProfile().GetPlayerID();
-        if ((__instance.m_checkGuardStone && !PrivateArea.CheckAccess(__instance.transform.position)) || !__instance.CheckAccess(playerId))
-            return;
-        // Only add containers that the player should have access to
-        if (WardIsLovePlugin.IsLoaded() && WardIsLovePlugin.WardEnabled()!.Value && WardMonoscript.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-        {
-            Boxes.AddContainer(__instance);
-        }
-        else
-        {
-            if (PrivateArea.CheckAccess(__instance.transform.position, flash: false, wardCheck: true))
-                Boxes.AddContainer(__instance);
         }
     }
 }
