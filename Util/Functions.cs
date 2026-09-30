@@ -105,6 +105,8 @@ public class Functions
             bool isPaused = container.m_nview.GetZDO().GetBool(ContainerAwakePatch.storingPausedHash, false);
             if (isPaused) continue;
 
+            if (IsOpenByAnotherPlayer(container)) continue;
+
             LogDebug($"Nearby item name: {itemDrop.m_itemData.m_dropPrefab.name}");
 
             if (!TryStore(container, ref itemDrop.m_itemData))
@@ -238,6 +240,12 @@ public class Functions
         if (MUCCompat.MultiUserChestActive)
             return store(wrapper);
 
+        if (IsOpenByAnotherPlayer(chest))
+        {
+            LogDebug($"Skipping {chest.name}: another player has it open.");
+            return 0;
+        }
+
         if (!nview.IsOwner())
             nview.ClaimOwnership();
 
@@ -264,6 +272,21 @@ public class Functions
         {
             chest.m_inUse = wasInUse;
         }
+    }
+
+    /// <summary>
+    /// True when a player other than the local one has this chest open. The
+    /// owner keeps the flag locally; everyone else reads the synced copy.
+    /// </summary>
+    internal static bool IsOpenByAnotherPlayer(Container chest)
+    {
+        if (MUCCompat.MultiUserChestActive) return false;
+        if (InventoryGui.instance && InventoryGui.instance.m_currentContainer == chest) return false;
+
+        if (chest.IsInUse()) return true;
+
+        ZDO? zdo = chest.m_nview ? chest.m_nview.GetZDO() : null;
+        return zdo != null && zdo.GetInt(ZDOVars.s_inUse) == 1;
     }
 
     internal static void StoreSuccess(int total)
