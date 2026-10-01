@@ -6,3 +6,4 @@ riderModule.iml
 .idea/
 .vs/
 AzuAutoStore.sln.DotSettings.user
+.claude/settings.local.json
