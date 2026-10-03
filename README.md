@@ -4,7 +4,7 @@
 
 ### Updated for Valheim 1.0
 
-**Version 3.4.1**, built and Harmony-checked against Valheim 1.0.16.
+**Version 3.5.0**, built and Harmony-checked against Valheim 1.0.16.
 
 **Maintainer:** Paul Otto
 
@@ -73,6 +73,15 @@ ignored (`if turned on in the configuration!`).
   affect that item. No accidental
   storing something you didn't want. The favoriting state is shown with a custom colored border around the slot. If
   GoldenRevolver's mod is present, it will read his favoriting file and use that instead.
+
+- **Armor stand panel.** Press Use on an armor stand and your inventory opens with the
+  stand's slots beside it, laid out as a figure: head on top, hands either side of the
+  chest, cape, legs and utility item along the bottom. Drag gear onto a slot or back
+  into your bag, or hold Ctrl and click to move it in one go. Take All empties the
+  stand into your inventory. Nothing lands on the ground. The hotbar keys still attach
+  the vanilla way, and the panel waits for the stand to be yours to change before it
+  moves anything, so two players cannot pull the same item. Turn it off to get the
+  vanilla take-and-drop back.
 
 Designed to be server-friendly: runs on configurable intervals, chunks bulk transfers, and throttles ownership requests
 to avoid lag and race conditions.
@@ -247,6 +256,13 @@ ItemOnFavoritedSlotTooltip [Not Synced with Server]
 
 *
     * Default Value: Item & Slot are favorited and will not be stored
+
+`4 - Armor Stands`
+
+Armor Stand Panel [Synced with Server]
+
+* If on, Use on an armor stand opens your inventory beside the slots of the stand. Drag gear onto a slot or back out, or hold Ctrl and click to move it in one go. The hotbar keys still attach the vanilla way. If off, Use takes the item and throws it on the ground, as in vanilla.
+    * Default Value: On
 
 </details>
 

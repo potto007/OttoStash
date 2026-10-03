@@ -3,6 +3,13 @@
 Versions 3.0.11 and below are the AzuAutoStore release history, kept below
 unchanged.
 
+## 3.5.0
+
+- Armor stands open a panel. Use on a stand shows your inventory beside the stand's
+  slots, drawn as a figure. Drag gear on or off, Ctrl-click to move it in one go, or
+  Take All to empty the stand into your bag. Nothing is thrown on the ground any
+  more. The hotbar keys still attach the vanilla way. `Armor Stand Panel` turns it off.
+
 ## 3.4.1
 
 - Backpacks now take the last unit of a stack from the store hotkey. The bulk
