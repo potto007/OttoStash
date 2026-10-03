@@ -16,7 +16,7 @@ namespace OttoStash;
 public class OttoStashPlugin : BaseUnityPlugin
 {
     internal const string ModName = "OttoStash";
-    internal const string ModVersion = "3.4.1";
+    internal const string ModVersion = "3.5.0";
     internal const string Author = "potto007";
     internal const string ModGUID = $"{Author}.{ModName}";
     internal const string KgGuid = "kg.ItemDrawers";
@@ -123,6 +123,8 @@ public class OttoStashPlugin : BaseUnityPlugin
         ReplaceOldDefault(FavoritedItemTooltip, "Item is favorited and won't be stored");
         ReplaceOldDefault(FavoritedSlotTooltip, "Slot is favorited and won't be stored");
         ReplaceOldDefault(ItemOnFavoritedSlotTooltip, "Item & Slot are favorited and won't be stored");
+
+        ArmorStandPanel = config("4 - Armor Stands", "Armor Stand Panel", Toggle.On, new ConfigDescription("If on, Use on an armor stand opens your inventory beside the slots of the stand. Drag gear onto a slot or back out, or hold Ctrl and click to move it in one go. The hotbar keys still attach the vanilla way. If off, Use takes the item and throws it on the ground, as in vanilla."));
 
         if (!File.Exists(yamlPath))
         {
@@ -365,6 +367,10 @@ public class OttoStashPlugin : BaseUnityPlugin
     public static ConfigEntry<string> FavoritedItemTooltip = null!;
     public static ConfigEntry<string> FavoritedSlotTooltip = null!;
     public static ConfigEntry<string> ItemOnFavoritedSlotTooltip = null!;
+
+    // Armor stands
+
+    internal static ConfigEntry<Toggle> ArmorStandPanel = null!;
 
     private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
         bool synchronizedSetting = true)

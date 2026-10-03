@@ -28,6 +28,7 @@
     <Reference Include="ServerSync" HintPath="Libs/ServerSync.dll" Private="true" />
 
     <Reference Include="UnityEngine" HintPath="$(CorlibPath)/UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.AnimationModule" HintPath="$(CorlibPath)/UnityEngine.AnimationModule.dll" Private="false" />
     <Reference Include="UnityEngine.AssetBundleModule" HintPath="$(CorlibPath)/UnityEngine.AssetBundleModule.dll" Private="false" />
     <Reference Include="UnityEngine.CoreModule" HintPath="$(CorlibPath)/UnityEngine.CoreModule.dll" Private="false" />
     <Reference Include="UnityEngine.IMGUIModule" HintPath="$(CorlibPath)/UnityEngine.IMGUIModule.dll" Private="false" />
