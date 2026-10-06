@@ -4,7 +4,7 @@
 
 ### Updated for Valheim 1.0
 
-**Version 3.5.0**, built and Harmony-checked against Valheim 1.0.16.
+**Version 3.5.1**, built and Harmony-checked against Valheim 1.0.17.
 
 **Maintainer:** Paul Otto
 

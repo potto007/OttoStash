@@ -3,6 +3,10 @@
 Versions 3.0.11 and below are the AzuAutoStore release history, kept below
 unchanged.
 
+## 3.5.1
+
+- Rebuilt against Valheim 1.0.17. Every Harmony patch target still resolves in this build, and nothing else changed.
+
 ## 3.5.0
 
 - Armor stands open a panel. Use on a stand shows your inventory beside the stand's
