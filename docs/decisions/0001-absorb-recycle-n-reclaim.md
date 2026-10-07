@@ -6,8 +6,8 @@
 ## Context
 
 Azumatt stopped publishing Recycle_N_Reclaim's source; the GitHub repository is gone
-and new releases appear only on Hexium. The last public source (1.4.4) has the same
-code as the latest release (1.4.5, a version bump). The mod is MIT licensed. Its
+and new releases appear only on Hexium. The latest release (1.4.5) differs from the
+last public source (1.4.4) only in its version strings. The mod is MIT licensed. Its
 features (marking slots, acting on the player's inventory, a YAML rules file,
 ServerSync) sit closest to OttoStash, which already absorbed AzuAutoStore the same way.
 
@@ -20,7 +20,7 @@ extra version handshake, under `Reclaiming/` and `Trashing/`.
   the Harmony patches in those two namespaces and creates no reclaim UI. Storing keeps
   working. A soft `BepInDependency` makes Recycle_N_Reclaim load first so the check in
   `Awake` sees it.
-- **Settings.** The new settings follow the PascalCase rule (ModLib ADR-0007/0008) in
+- **Settings.** The new settings follow the PascalCase rule (Ottomation_ModLib ADR-0007 and ADR-0008) in
   sections `Reclaim`, `ReclaimUI`, `Discard`, `Trash` and `ReclaimDebug`. On the first
   run whose `.cfg` has no `[Reclaim]` section, the values in
   `Azumatt.Recycle_N_Reclaim.cfg` are copied onto them through a fixed rename table.
