@@ -107,6 +107,7 @@ internal static class PullPatches
                 if (!player.m_knownStations.ContainsKey(piece.m_craftingStation.m_name))
                     return false;
             }
+            // check_enums: verified - identical to vanilla Player.HaveRequirements(Piece) in Valheim 1.0.17, which checks GlobalKeys.NoWorkbench here.
             else if (!CraftingStation.HaveBuildStationInRange(piece.m_craftingStation.m_name, player.transform.position) && !ZoneSystem.instance.GetGlobalKey(GlobalKeys.NoWorkbench))
             {
                 return false;
