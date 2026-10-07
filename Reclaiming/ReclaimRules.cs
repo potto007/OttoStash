@@ -87,7 +87,7 @@ internal static class ReclaimRules
     /// A container the file does not name excludes nothing.
     internal static bool IsExcludedInContainer(string containerName, string prefabName)
     {
-        return _file.Containers!.TryGetValue(containerName, out ExcludeList container) && IsExcluded(container, prefabName);
+        return _file.Containers!.TryGetValue(containerName, out ExcludeList? container) && container != null && IsExcluded(container, prefabName);
     }
 
     /// An include override, by name or by group, beats any exclusion.

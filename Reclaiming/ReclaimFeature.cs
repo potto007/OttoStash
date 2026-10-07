@@ -17,7 +17,7 @@ internal static class ReclaimFeature
     {
         YieldsToRecycleNReclaim = Chainloader.PluginInfos.ContainsKey(ReclaimCarryOver.OldGuid);
         if (YieldsToRecycleNReclaim)
-            StashLog.Warning("Recycle_N_Reclaim is installed, so OttoStash leaves reclaiming and trash marking to it. Remove Recycle_N_Reclaim to use the OttoStash versions; your settings carry over.");
+            StashLog.Warning("Recycle_N_Reclaim is installed, so OttoStash leaves reclaiming and trash marking to it. Its settings and exclude lists are copied into OttoStash on every start; remove Recycle_N_Reclaim to switch to the OttoStash versions.");
     }
 
     /// Whether a type's Harmony patches belong to the reclaim features.

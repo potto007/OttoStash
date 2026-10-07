@@ -25,8 +25,9 @@ extra version handshake, under `Reclaiming/` and `Trashing/`.
   run whose `.cfg` has no `[Reclaim]` section, the values in
   `Azumatt.Recycle_N_Reclaim.cfg` are copied onto them through a fixed rename table.
   `Azumatt.Recycle_N_Reclaim_ExcludeLists.yml` is copied to
-  `potto007.OttoStash.Reclaim.yml` when that file does not exist. Old files are never
-  written.
+  `potto007.OttoStash.Reclaim.yml` when that file does not exist. While
+  Recycle_N_Reclaim is installed both copies run on every start, so its files stay the
+  source of truth until it is removed. Old files are never written.
 - **Rules.** The reclaim rules keep Recycle_N_Reclaim's file format and its own
   predefined groups. They are not merged with the storing groups, whose names differ
   (`Helmet` vs `Helmets`, `Ammo` vs `Ammunition`), so a carried-over file keeps its
@@ -35,9 +36,9 @@ extra version handshake, under `Reclaiming/` and `Trashing/`.
 ## Consequences
 
 Removing Recycle_N_Reclaim is the only step a player takes; nothing is lost if they
-forget, because OttoStash then does nothing new. A player who changed a reclaim setting
-in OttoStash while Recycle_N_Reclaim was still installed keeps that value, since the
-carry-over runs once.
+forget, because OttoStash then does nothing new. A reclaim setting changed in OttoStash
+while Recycle_N_Reclaim is still installed is overwritten on the next start; the
+Recycle_N_Reclaim value wins until it is removed.
 
 ## What would reverse this
 

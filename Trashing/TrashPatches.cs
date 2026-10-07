@@ -26,34 +26,16 @@ internal static class TrashPatches
             MarkedSlots.Add(slot);
     }
 
+    /// The game picks an item up on pointer down (or the gamepad's A) through
+    /// OnSelectedItem, so marking has to happen there, before the pickup. Returns
+    /// false when the press marked a slot.
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(InventoryGrid), nameof(InventoryGrid.OnLeftClick))]
-    private static bool InventoryGridOnLeftClickPrefix(InventoryGrid __instance, UIInputHandler clickHandler)
+    [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.OnSelectedItem))]
+    private static bool InventoryGuiOnSelectedItemPrefix(InventoryGui __instance, InventoryGrid grid, ItemDrop.ItemData? item, Vector2i pos)
     {
-        return HandleClick(__instance, __instance.GetButtonPos(clickHandler.gameObject));
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(InventoryGrid), nameof(InventoryGrid.UpdateGamepad))]
-    private static void InventoryGridUpdateGamepadPostfix(InventoryGrid __instance)
-    {
-        if (__instance != InventoryGui.instance.m_playerGrid || !__instance.m_uiGroup.IsActive)
-            return;
-        if (ZInput.GetButtonDown("JoyButtonA"))
-            HandleClick(__instance, __instance.m_selected);
-    }
-
-    /// False when the click marked a slot, so the game does not also pick the item up.
-    private static bool HandleClick(InventoryGrid grid, Vector2i slot)
-    {
-        if (InventoryGui.instance.m_playerGrid != grid || Player.m_localPlayer.IsTeleporting() || InventoryGui.instance.m_dragGo
-            || !IsTrashing || slot == new Vector2i(-1, -1))
+        if (grid != __instance.m_playerGrid || __instance.m_dragGo || item == null || !IsTrashing || Player.m_localPlayer.IsTeleporting())
             return true;
-
-        bool gamepad = grid.m_uiGroup.IsActive && ZInput.IsGamepadActive();
-        InventoryElement? element = gamepad ? grid.GetElement(grid.m_selected.x, grid.m_selected.y, grid.m_inventory.GetWidth()) : grid.GetHoveredElement();
-        if (element is { m_used: true })
-            ToggleMark(slot);
+        ToggleMark(pos);
         return false;
     }
 

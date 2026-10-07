@@ -38,7 +38,11 @@ internal sealed class ContainerReclaimButton : MonoBehaviour
     {
         if (_button == null || ContainerRecyclingEnabled.Value.IsOff())
             return;
-        if (_armed && !InventoryGui.instance.IsContainerOpen())
+        // The armor stand panel reuses the container panel, but has no container to reclaim.
+        bool standOpen = StandSession.Current != null;
+        if (_button.gameObject.activeSelf == standOpen)
+            _button.gameObject.SetActive(!standOpen);
+        if (_armed && (standOpen || !InventoryGui.instance.IsContainerOpen()))
             SetArmed(false);
     }
 

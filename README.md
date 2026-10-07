@@ -23,7 +23,8 @@ Two names changed with the rename:
 **Coming from Recycle_N_Reclaim?** OttoStash now does everything it did: the Reclaim tab,
 Reclaim All on containers, inventory discard, trash marking and undo. Remove
 Recycle_N_Reclaim; while it is installed, OttoStash leaves reclaiming and trash marking
-to it and only stores. On the first run with these features, OttoStash copies the
+to it and only stores. On the first run with these features, and on every start while
+Recycle_N_Reclaim is still installed, OttoStash copies the
 settings in `Azumatt.Recycle_N_Reclaim.cfg` into new sections of `potto007.OttoStash.cfg`,
 and `Azumatt.Recycle_N_Reclaim_ExcludeLists.yml` to `potto007.OttoStash.Reclaim.yml`.
 Neither old file is changed. The settings now have PascalCase names under `Reclaim`,

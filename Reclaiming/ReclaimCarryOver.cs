@@ -147,15 +147,16 @@ internal static class ReclaimCarryOver
         }
     }
 
-    /// Copies the old exclude lists when OttoStash has no reclaim rules file yet.
-    internal static void CarryOverRules(string newYamlPath)
+    /// Copies the old exclude lists when OttoStash has no reclaim rules file yet,
+    /// or every time when overwrite is set.
+    internal static void CarryOverRules(string newYamlPath, bool overwrite)
     {
         try
         {
             string oldYaml = Path.Combine(Paths.ConfigPath, OldYamlFileName);
-            if (!File.Exists(oldYaml) || File.Exists(newYamlPath))
+            if (!File.Exists(oldYaml) || (File.Exists(newYamlPath) && !overwrite))
                 return;
-            File.Copy(oldYaml, newYamlPath);
+            File.Copy(oldYaml, newYamlPath, overwrite);
             StashLog.Info($"Carried your Recycle_N_Reclaim exclude lists over to {Path.GetFileName(newYamlPath)}.");
         }
         catch (Exception e)

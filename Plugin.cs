@@ -63,6 +63,9 @@ public partial class OttoStashPlugin : BaseUnityPlugin
             if (File.Exists(oldConfig) && !File.Exists(ConfigFileFullPath))
             {
                 File.Copy(oldConfig, ConfigFileFullPath);
+                // Config read the file when the plugin was constructed, before the
+                // copy existed; without a reload the first Bind saves defaults over it.
+                self.Config.Reload();
                 LogSource.LogInfo($"Carried your AzuAutoStore settings over to {ConfigFileName}.");
             }
 
@@ -86,6 +89,7 @@ public partial class OttoStashPlugin : BaseUnityPlugin
 
         CarryOverAzuAutoStoreConfig();
         bool firstReclaimRun = ReclaimCarryOver.IsFirstReclaimRun(ConfigFileFullPath);
+        ReclaimFeature.DetectRecycleNReclaim();
         Localizer.Load();
 
         _serverConfigLocked = config("1 - General", "Lock Configuration", Toggle.On, new ConfigDescription("If on, the configuration is locked and can be changed by server admins only.", null, new ConfigurationManagerAttributes() { Order = 10 }));
@@ -138,7 +142,9 @@ public partial class OttoStashPlugin : BaseUnityPlugin
         ArmorStandPanel = config("4 - Armor Stands", "Armor Stand Panel", Toggle.On, new ConfigDescription("If on, Use on an armor stand opens your inventory beside the slots of the stand. Drag gear onto a slot or back out, or hold Ctrl and click to move it in one go. The hotbar keys still attach the vanilla way. If off, Use takes the item and throws it on the ground, as in vanilla."));
 
         BindReclaimSettings();
-        if (firstReclaimRun)
+        // While Recycle_N_Reclaim is installed its settings stay the source of
+        // truth, so they are copied again on every start until it is removed.
+        if (firstReclaimRun || ReclaimFeature.YieldsToRecycleNReclaim)
             ReclaimCarryOver.CarryOverSettings(Config);
 
         if (!File.Exists(yamlPath))
@@ -146,7 +152,7 @@ public partial class OttoStashPlugin : BaseUnityPlugin
             WriteConfigFileFromResource(yamlPath);
         }
 
-        ReclaimCarryOver.CarryOverRules(reclaimYamlPath);
+        ReclaimCarryOver.CarryOverRules(reclaimYamlPath, overwrite: ReclaimFeature.YieldsToRecycleNReclaim);
         if (!File.Exists(reclaimYamlPath))
             ReclaimRules.WriteExampleFile(reclaimYamlPath);
         ReclaimRulesData.ValueChanged += OnReclaimRulesChanged;
@@ -156,7 +162,6 @@ public partial class OttoStashPlugin : BaseUnityPlugin
         OttoStashContainerData.AssignLocalValue(File.ReadAllText(yamlPath));
 
         AutoDoc();
-        ReclaimFeature.DetectRecycleNReclaim();
         PatchAll(Assembly.GetExecutingAssembly());
         SetupWatcher();
     }

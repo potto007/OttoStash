@@ -19,8 +19,13 @@ Recycle_N_Reclaim's features, brought into OttoStash.
 - Coming from Recycle_N_Reclaim: on the first run, its settings are copied into the new
   `Reclaim`, `ReclaimUI`, `Discard`, `Trash` and `ReclaimDebug` sections of
   `potto007.OttoStash.cfg`, and its exclude lists to `potto007.OttoStash.Reclaim.yml`. While
-  Recycle_N_Reclaim is still installed, OttoStash leaves reclaiming and trash marking to it.
+  Recycle_N_Reclaim is still installed, OttoStash leaves reclaiming and trash marking to it
+  and copies its settings and exclude lists again on every start.
 - Differences from Recycle_N_Reclaim 1.4.5:
+  - Trash marking works again. On Valheim 1.0 the click picked the item up before
+    Recycle_N_Reclaim could mark the slot, so nothing was ever marked.
+  - Discarding with `Delete` clears the drag. Before, a later `Delete` press with nothing
+    dragged could discard the same amount from that stack again.
   - Bulk trashing obeys `Discard.LockToAdmin` and `Discard.Enabled`. It used to return
     resources even where inventory discard was locked to admins.
   - Two identical Jewelcrafting gems on one item come back as two gems instead of failing.
@@ -33,6 +38,8 @@ Recycle_N_Reclaim's features, brought into OttoStash.
   - Middle-click with the trash modifier held no longer also stores the hovered item.
   - No Auga support, and no extra version handshake: a client without OttoStash can still
     join a server that has it.
+- Fixed: coming from AzuAutoStore, the carried-over settings were overwritten with defaults
+  on the first run. They are now read after the copy.
 - The text of the reclaim features is translated into Chinese, French, German, Japanese,
   Korean, Russian and Spanish.
 

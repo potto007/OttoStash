@@ -39,7 +39,7 @@ internal static class Reclaimer
         {
             ReclaimAnalysis analysis = new(item);
             analyses.Add(analysis);
-            string prefabName = global::Utils.GetPrefabName(item.m_dropPrefab);
+            string prefabName = item.m_dropPrefab != null ? global::Utils.GetPrefabName(item.m_dropPrefab) : item.m_shared.m_name;
             if (!ReclaimRules.IsExcludedInContainer(containerName, prefabName))
                 ReclaimOne(analysis, inventory, player);
 

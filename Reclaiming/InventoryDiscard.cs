@@ -19,8 +19,9 @@ internal static class InventoryDiscard
 
         Discard(item, __instance.m_dragAmount, __instance.m_dragInventory);
 
-        Object.Destroy(__instance.m_dragGo);
-        __instance.m_dragGo = null;
+        // Clears the whole drag state; destroying m_dragGo alone leaves m_dragItem
+        // set, and the next Delete press would discard from the stack again.
+        __instance.SetupDragItem(null, null, 1);
         __instance.UpdateCraftingPanel();
     }
 
