@@ -1,7 +1,7 @@
 {
   "name": "OttoStash",
   "description": "Chests pull nearby items off the ground and out of your inventory. Per-chest rules, groups and favouriting. Craft and build from nearby chests. Reclaim items back into resources at crafting stations.",
-  "version_number": "3.6.0",
+  "version_number": "3.6.1",
   "website_url": "https://github.com/potto007/OttoStash",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2350"

@@ -3,6 +3,11 @@
 Versions 3.0.11 and below are AzuAutoStore's release history, kept below exactly as
 Azumatt wrote it.
 
+## 3.6.1
+
+- Rewrote the README and this changelog. The code is unchanged from 3.6.0, but a server
+  and its clients still have to run the same version, so update them together.
+
 ## 3.6.0
 
 This release brings Recycle_N_Reclaim's reclaiming and AzuCraftyBoxes' crafting from

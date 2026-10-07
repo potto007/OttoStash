@@ -23,7 +23,7 @@ namespace OttoStash;
 public partial class OttoStashPlugin : BaseUnityPlugin
 {
     internal const string ModName = "OttoStash";
-    internal const string ModVersion = "3.6.0";
+    internal const string ModVersion = "3.6.1";
     internal const string Author = "potto007";
     internal const string ModGUID = $"{Author}.{ModName}";
     internal const string KgGuid = "kg.ItemDrawers";
