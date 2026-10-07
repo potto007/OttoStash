@@ -1,12 +1,12 @@
 # Changelog
 
-Versions 3.0.11 and below are the AzuAutoStore release history, kept below
-unchanged.
+Versions 3.0.11 and below are AzuAutoStore's release history, kept below exactly as
+Azumatt wrote it.
 
 ## 3.6.0
 
-Recycle_N_Reclaim's reclaiming and AzuCraftyBoxes' crafting from chests, brought into
-OttoStash.
+This release brings Recycle_N_Reclaim's reclaiming and AzuCraftyBoxes' crafting from
+chests into OttoStash.
 
 ### Setting names
 
@@ -15,67 +15,69 @@ OttoStash.
   is `Fish`, `2 - Shortcuts` is `Shortcuts`, `3 - Favoriting` is `Favoriting` and
   `4 - Armor Stands` is `ArmorStands`. Keys lose their spaces, so `Player Range` is now
   `PlayerRange`.
-- Your values carry over. On the first run OttoStash renames the names in
+- Your values carry over. On the first run OttoStash renames the settings in
   `potto007.OttoStash.cfg` before it reads them, and a config carried over from
-  AzuAutoStore goes through the same rename. The file is backed up during the rename and
-  put back if it fails.
-- If you ran 3.2.0, your config may hold a setting under both spellings. The spaced one,
-  written by 3.2.1 through 3.5.1, is kept.
+  AzuAutoStore goes through the same rename. The file is backed up first and put back if
+  the rename fails.
+- If you ran 3.2.0, your config may hold a setting under both spellings, and OttoStash
+  keeps the spaced one that 3.2.1 through 3.5.1 wrote.
 
 ### Reclaiming, from Recycle_N_Reclaim
 
-- A Reclaim tab at every crafting station turns items back into their resources, at
-  `RecyclingRate`. Blocked items say why. `Ctrl+Z` undoes the last reclaim within 20 seconds.
+- A Reclaim tab at every crafting station turns items back into their resources at
+  `RecyclingRate`, and an item that cannot be reclaimed says why. `Ctrl+Z` undoes the last
+  reclaim within 20 seconds.
 - Reclaim All on an open container, inventory discard with `Delete` while dragging, and
   trash marking: hold `X`, click slots, then middle-click to discard them all. Discard and
   bulk trash are admin-only by default.
-- Optional reclaim yield in item tooltips (`ShowRecycleYieldInTooltip`).
+- `ShowRecycleYieldInTooltip` adds the reclaim yield to item tooltips.
 - Epic Loot enchanting materials and Jewelcrafting gems come back too.
-- `potto007.OttoStash.Reclaim.yml` holds the reclaim rules, in the Recycle_N_Reclaim
+- `potto007.OttoStash.Reclaim.yml` holds the reclaim rules, in Recycle_N_Reclaim's
   exclude-list format.
 - Coming from Recycle_N_Reclaim: on the first run, its settings are copied into the new
   `Reclaim`, `ReclaimUI`, `Discard`, `Trash` and `ReclaimDebug` sections of
   `potto007.OttoStash.cfg`, and its exclude lists to `potto007.OttoStash.Reclaim.yml`. While
   Recycle_N_Reclaim is still installed, OttoStash leaves reclaiming and trash marking to it
-  and copies its settings and exclude lists again on every start.
-- Differences from Recycle_N_Reclaim 1.4.5:
+  and copies its settings and exclude lists again on every start, so a reclaim setting
+  changed in OttoStash is overwritten until Recycle_N_Reclaim is removed.
+- Changes from Recycle_N_Reclaim 1.4.5:
   - Trash marking works again. On Valheim 1.0 the click picked the item up before
     Recycle_N_Reclaim could mark the slot, so nothing was ever marked.
-  - Discarding with `Delete` clears the drag. Before, a later `Delete` press with nothing
-    dragged could discard the same amount from that stack again.
+  - Discarding with `Delete` now clears the drag. Before, pressing `Delete` again with
+    nothing dragged could discard the same amount from that stack a second time.
   - Bulk trashing obeys `Discard.LockToAdmin` and `Discard.Enabled`. It used to return
     resources even where inventory discard was locked to admins.
-  - Two identical Jewelcrafting gems on one item come back as two gems instead of failing.
-  - Discarded resources that do not fit and drop to the ground are separate items, not
-    one item shared between the drops.
-  - `ReclaimTabEnabled` (was `EnableExperimentalCraftingTabUI`) also hides the tab on its
-    first appearance.
-  - Trash marks live only while the modifier is held, as they effectively did, and are
-    no longer written to a per-player file.
-  - Middle-click with the trash modifier held no longer also stores the hovered item.
-  - No Auga support, and no extra version handshake: a client without OttoStash can still
-    join a server that has it.
-- Fixed: coming from AzuAutoStore, the carried-over settings were overwritten with defaults
-  on the first run. They are now read after the copy.
-- The text of the reclaim features is translated into Chinese, French, German, Japanese,
-  Korean, Russian and Spanish.
+  - Two identical Jewelcrafting gems on one item come back as two gems. They used to fail.
+  - Discarded resources that do not fit in your inventory and drop to the ground are now
+    separate items, where they used to be one item shared between the drops.
+  - `ReclaimTabEnabled` (formerly `EnableExperimentalCraftingTabUI`) also hides the tab
+    the first time it would appear.
+  - Trash marks last only while the modifier is held, which is how they effectively
+    behaved already, and they are no longer written to a per-player file.
+  - Middle-click with the trash modifier held no longer stores the hovered item as well.
+  - There is no Auga support and no extra version handshake, so a client without
+    OttoStash can still join a server that has it.
+- Fixed: coming from AzuAutoStore, the first run overwrote the carried-over settings with
+  defaults. OttoStash now reads them after the copy.
+- The reclaim features are translated into Chinese, French, German, Japanese, Korean,
+  Russian and Spanish.
 
 ### Crafting from chests, from AzuCraftyBoxes
 
 - Crafting and building take the materials you lack from containers within `PullRange`,
   kg drawers, and the backpacks and gem bags you carry. Requirement lists show
-  `have/need` and the build menu shows how many of a piece you can build.
+  `have/need`, and the build menu shows how many of a piece you can build.
 - A `pull:` block on a container or crafting station in `potto007.OttoStash.yml` keeps
-  items from being pulled. It is separate from the store rules.
+  items from being pulled, separately from the store rules.
 - `LeaveOneItem`, a personal on/off hotkey (`Alt+O`) with a status icon, and Epic Loot's
   enchanting table drawing from the chests.
 - Coming from AzuCraftyBoxes: on the first run, its settings are copied into the new
   `CraftFromChests` section and its container rules are merged into
   `potto007.OttoStash.yml` as pull blocks. While AzuCraftyBoxes, CraftFromContainers or
   CFCMod is installed, OttoStash leaves crafting from chests to it.
-- Differences from AzuCraftyBoxes 1.8.19:
-  - No Use-to-fill on smelters, kilns, fires, ovens, fermenters, shield generators or
-    ballistas. OttoFuel covers those.
+- Changes from AzuCraftyBoxes 1.8.19:
+  - Use-to-fill on smelters, kilns, fires, ovens, fermenters, shield generators and
+    ballistas is left out, because OttoFuel already covers those.
   - Spending obeys the pull rules. An excluded item used to be counted out and spent anyway.
   - A one-ingredient recipe spends from the chests only when the craft succeeds, and only
     for that recipe.
@@ -88,16 +90,17 @@ OttoStash.
 ## 3.5.0
 
 - Armor stands open a panel. Use on a stand shows your inventory beside the stand's
-  slots, drawn as a figure. Drag gear on or off, Ctrl-click to move it in one go, or
-  Take All to empty the stand into your bag. Nothing is thrown on the ground any
-  more. The hotbar keys still attach the vanilla way. `Armor Stand Panel` turns it off.
+  slots, drawn as a figure, where you can drag gear on or off, Ctrl-click to move it in
+  one go, or use Take All to empty the stand into your bag. Nothing is thrown on the
+  ground any more, and the hotbar keys still attach the vanilla way. `Armor Stand Panel`
+  turns the panel off.
 
 ## 3.4.1
 
-- Backpacks now take the last unit of a stack from the store hotkey. The bulk
-  path used to stop one short, while the single-item path did not.
-- The tooltip for an item that is favorited both by name and by slot now shows
-  its own text. That branch could never be reached before.
+- Backpacks now take the last unit of a stack from the store hotkey. The bulk path used
+  to stop one short, while the single-item path did not.
+- An item favorited both by name and by slot now gets its own tooltip text. That branch
+  could never be reached before.
 - The Makail drawer refusal message names the item again.
 - Internal: the code is reorganised into feature classes under `Storing/` and
   `Favoriting/`, the four store targets share one item filter, and the Debug
@@ -108,19 +111,19 @@ OttoStash.
 Multiplayer fixes, written fresh for this release.
 
 - Chests that were already loaded when you spawn become autostore targets straight
-  away. You no longer have to open each one first after joining a server.
+  away, so you no longer have to open each one after joining a server.
 - The pause toggle applies once per chest, even when the game initialises a chest
   more than once.
-- A container carried by another player or a creature is never treated as a chest.
-  Pressing the store hotkey near another player no longer blanks their screen.
-- A chest another player has open is left alone by the store hotkey, single-item
-  store, and ground pickup, and OttoStash never takes it over. Chests are always
-  released after a store, even if something goes wrong mid-way.
+- A container carried by another player or a creature is never treated as a chest, so
+  pressing the store hotkey near another player no longer blanks their screen.
+- The store hotkey, single-item store and ground pickup leave a chest alone while
+  another player has it open, and OttoStash never takes that chest over. Chests are
+  always released after a store, even if something goes wrong partway through.
 - The store hotkey and single-item store now run in one pass, in one frame, and
   report a single "Stored N items" total.
 - A chest only glows when something actually went into it.
-- A stack now tops up a chest that has less than half the stack's worth of room
-  left. Before, such a chest was skipped and the whole stack stayed with you.
+- A stack now tops up a chest that has room for less than half of it. Before, that
+  chest was skipped and the whole stack stayed with you.
 - Adds an off-runtime unit test suite under `tests/` that covers the store pass,
   the chest rules, the pause handler and the stack moves.
 
@@ -134,29 +137,27 @@ Multiplayer fixes, written fresh for this release.
 
 ## v3.3.0
 
-- Drops the custom version handshake. ServerSync's version check now decides who can
-  join, the same way OttoPay does.
-- A client without OttoStash can join a server that runs it. A client running a
-  different OttoStash version is still turned away.
-- Update the server first, or the server and clients together. A server still on 3.2.1
-  disconnects clients running 3.3.0.
-
+- Update the server first, or the server and clients together, because a server still
+  on 3.2.1 disconnects clients running 3.3.0.
+- Drops the custom version handshake, so ServerSync's version check decides who can
+  join, the same way it does for OttoPay. A client without OttoStash can join a server
+  that runs it, and a client running a different OttoStash version is still turned away.
 - Rebuilt against Valheim 1.0.14. Every Harmony patch target still resolves in this build, and nothing else changed.
 
 ## v3.2.1
 
-- Drops the Ottomation_ModLib and Jotunn dependencies that 3.2.0 added. OttoStash needs
+- If you ran 3.2.0, check your settings, because a value you changed under 3.2.0 is back
+  at its default. Setting names go back to the 3.1.3 spelling, such as `1 - General` and
+  `Player Range`, so a config from 3.1.3 or earlier loads with its values.
+- Drops the Ottomation_ModLib and Jotunn dependencies that 3.2.0 added, so OttoStash needs
   only BepInEx again.
-- Setting names go back to the 3.1.3 spelling, such as `1 - General` and `Player Range`,
-  so a config from 3.1.3 or earlier loads with its values. If you ran 3.2.0, check your
-  settings, because a value you changed under 3.2.0 is back at its default.
 - Keeps the favoriting tooltip text from 3.2.0, which has no apostrophe, and the README
   corrections.
 
 ## v3.2.0
 
 - Depends on Ottomation_ModLib 1.16.0, which brings Jotunn with it. OttoStash uses the
-  library for its config handling, and keeps ServerSync for syncing settings, so
+  library for its config handling and keeps ServerSync for syncing settings, so
   `LockConfiguration` works as before.
 - Config names follow the Ottomation series spelling. The numbered sections lose their
   numbers, so `1 - General` is now `General`, `1.5 - Fish` is now `Fish`, `2 - Shortcuts`
@@ -172,60 +173,58 @@ Multiplayer fixes, written fresh for this release.
 - The config file starts with an `_Author` section, the same as the rest of the
   Ottomation series.
 - The three favoriting tooltips now say "will not be stored" in place of "won't be
-  stored". BepInEx saved the apostrophe as `\'`, and that broke TOML formatters and
-  syntax colors. A tooltip still on the old default changes to the new text. A tooltip
-  you wrote yourself stays as it is.
+  stored", because BepInEx saved the apostrophe as `\'`, which broke TOML formatters and
+  syntax colors. A tooltip still on the old default changes to the new text, and a
+  tooltip you wrote yourself stays as it is.
 
 ## v3.1.3
 
-**Fixes chests not opening.** This affected 3.1.2 and 3.1.1.
+**Fixes chests not opening in 3.1.1 and 3.1.2.**
 
 The container patch answered `Container.RPC_RequestOpen` with an RPC named
-`OpenRespons`. Valheim 1.0 corrected that misspelling to `RPC_OpenResponse`.
-The patch suppresses the vanilla handler and then sent a reply that no longer
-exists, so the client never received the grant and the chest stayed shut. The
-log showed only `Failed to find rpc method -1556840686`, a warning rather than
-an error.
+`OpenRespons`, a misspelling that Valheim 1.0 corrected to `RPC_OpenResponse`. Because
+the patch suppresses the vanilla handler, the reply it sent went to an RPC that no
+longer exists, the client never received the grant, and the chest stayed shut. The log
+showed only `Failed to find rpc method -1556840686`, at warning level.
 
-An RPC name is a string hashed at run time, so a stale one compiles, patches and
-runs without complaint. Checked every RPC name in the mod against the 1.0
-registration list; this was the only stale one. The sibling stack patch already
-used the current `RPC_StackResponse`.
+An RPC name is a string hashed at run time, so a stale one compiles, patches and runs
+without complaint. Every RPC name in the mod was checked against the 1.0 registration
+list, and this was the only stale one. The sibling stack patch already used the current
+`RPC_StackResponse`.
 
 ## v3.1.2
 
-- Rewrote the `Inventory.StackAll` transpiler so it no longer depends on the
-  vanilla method's local variable layout. It stored through local slot 3 and
-  dropped the list constructor, which only held while those slots stayed put.
-  Valheim 1.0 renumbered them. The filter is now spliced onto the evaluation
-  stack instead, which cannot drift.
+- Rewrote the `Inventory.StackAll` transpiler so it no longer depends on the vanilla
+  method's local variable layout. It stored through local slot 3 and dropped the list
+  constructor, which only held while those slots stayed put, and Valheim 1.0 renumbered
+  them. The filter is now spliced onto the evaluation stack, where it cannot drift.
 - Favourite filtering during Stack All no longer assumes a local player exists.
 
 ## v3.1.1
 
-Fixes patch targets that 3.1.0 could not resolve. The mod logged that it loaded,
-then threw out of `Harmony.PatchAll`, which aborted every remaining patch and the
-rest of `Awake`. The file watcher, the border sprite and the MultiUserChest setup
-never ran, so 3.1.0 was effectively inert. Harmony resolves these targets by name
-at run time, so the compiler cannot catch a stale one.
+**3.1.0 was effectively inert, and this release fixes the patch targets it could not
+resolve.** The mod logged that it loaded, then threw out of `Harmony.PatchAll`, which
+aborted every remaining patch and the rest of `Awake`, so the file watcher, the border
+sprite and the MultiUserChest setup never ran. Harmony resolves these targets by name at
+run time, so the compiler cannot catch a stale one.
 
-- `ItemDrop.ItemData.GetTooltip` gained a trailing `appending` parameter. The hint
-  is now also suppressed while the game builds a nested tooltip, which would
-  otherwise print it twice.
-- `Inventory.AddItem(ItemData, int, int, int)` gained `skipValidPositionCheck`.
-  Three patches targeted the old four-parameter list.
-- `Inventory.Load` now has two overloads, so the target was ambiguous. Pinned to
-  `Load(ZPackage)`, which is what containers call.
+- `ItemDrop.ItemData.GetTooltip` gained a trailing `appending` parameter. The hint is
+  now also suppressed while the game builds a nested tooltip, which would otherwise
+  print it twice.
+- `Inventory.AddItem(ItemData, int, int, int)` gained `skipValidPositionCheck`, and three
+  patches targeted the old four-parameter list.
+- `Inventory.Load` now has two overloads, which made the target ambiguous, so it is
+  pinned to `Load(ZPackage)`, the one containers call.
 - The tooltip patch no longer assumes a local player exists.
-- The ItemDrawers and QuickStack patches are gated on those mods being loaded.
-  Their targets are resolved by name, so without the mod they resolved to nothing
-  and took the whole PatchAll down.
+- The ItemDrawers and QuickStack patches only apply when those mods are loaded. Their
+  targets are resolved by name, so without the mod they resolved to nothing and took the
+  whole PatchAll down.
 
 ## v3.1.0
 
 - Renamed to OttoStash from AzuAutoStore 3.0.11.
-- Ported to the Valheim 1.0 API. AzuAutoStore did not load at all on 1.0:
-  `ZRoutedRpc.Everybody` became a constant, so the bundled ServerSync threw
+- Ported to the Valheim 1.0 API. AzuAutoStore did not load at all on 1.0, because
+  `ZRoutedRpc.Everybody` became a constant and the bundled ServerSync threw
   `MissingFieldException` in the plugin's static constructor.
   - Rebuilt ServerSync against the 1.0 assemblies.
   - `InventoryGrid.Element` is now the top-level `InventoryElement`, and it no
@@ -233,14 +232,14 @@ at run time, so the compiler cannot catch a stale one.
   - `InventoryGrid.OnRightClick` and `OnLeftClick` became `OnRightDown` and
     `OnLeftDown`.
   - The private `Inventory.AddItem` overload gained a `cheated` parameter.
-  - `UnityEngine.ImageConversionModule` cannot be referenced from net48. Its
-    metadata names `ReadOnlySpan<byte>`, which lives in the game's Mono mscorlib.
-    The `byte[]` overload of `LoadImage` still exists, so OttoStash binds it once
-    by reflection and drops the reference.
+  - `UnityEngine.ImageConversionModule` cannot be referenced from net48, because its
+    metadata names `ReadOnlySpan<byte>`, which lives in the game's Mono mscorlib. The
+    `byte[]` overload of `LoadImage` still exists, so OttoStash binds it once by
+    reflection and drops the reference.
 - The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
-  Your AzuAutoStore files are copied across on first run. An OttoStash file that
+  Your AzuAutoStore files are copied across on the first run, and an OttoStash file that
   already exists is never touched.
-- The console command is now `ottostashsearch`, not `azuautostoresearch`.
+- The console command `azuautostoresearch` is now `ottostashsearch`.
 - Rebuilt the project SDK-style, with a version-drift guard and a guard against
   repacking a version that is already tagged as published.
 - New title banner and package icon.
