@@ -23,6 +23,11 @@ internal static class StorePatches
         if (!SingleItemShortcut.Value.IsKeyDown())
             return;
 
+        // Both default to the middle mouse button; with the trash modifier held it
+        // means bulk trash, not store.
+        if (TrashingModifierKeybind.Value.IsKeyHeld())
+            return;
+
         if (__instance.m_inventory == null)
             return;
 

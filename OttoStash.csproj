@@ -26,6 +26,8 @@
     <Reference Include="AzuExtendedPlayerInventory" HintPath="Libs/AzuExtendedPlayerInventoryAPI.dll" Private="true" />
     <Reference Include="Backpacks" HintPath="Libs/BackpacksAPI.dll" Private="true" />
     <Reference Include="ServerSync" HintPath="Libs/ServerSync.dll" Private="true" />
+    <Reference Include="EpicLootAPI" HintPath="Libs/EpicLootAPI.dll" Private="true" />
+    <Reference Include="JewelcraftingAPI" HintPath="Libs/JewelcraftingAPI.dll" Private="true" />
 
     <Reference Include="UnityEngine" HintPath="$(CorlibPath)/UnityEngine.dll" Private="false" />
     <Reference Include="UnityEngine.AnimationModule" HintPath="$(CorlibPath)/UnityEngine.AnimationModule.dll" Private="false" />
@@ -54,7 +56,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Example.yml" />
     <EmbeddedResource Include="assets/border.png" />
-    <EmbeddedResource Include="translations/English.yml" />
+    <EmbeddedResource Include="ReclaimExample.yml" />
+    <EmbeddedResource Include="assets/trashingborder.png" />
+    <EmbeddedResource Include="translations/*.yml" />
   </ItemGroup>
 
   <ItemGroup>
