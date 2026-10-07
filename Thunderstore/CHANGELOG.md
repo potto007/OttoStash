@@ -3,6 +3,29 @@
 Versions 3.0.11 and below are the AzuAutoStore release history, kept below
 unchanged.
 
+## Unreleased
+
+AzuCraftyBoxes' crafting from chests, brought into OttoStash.
+
+- Crafting and building take the materials you lack from containers within `PullRange`,
+  kg drawers, and the backpacks and gem bags you carry. Requirement lists show
+  `have/need` and the build menu shows how many of a piece you can build.
+- A `pull:` block on a container or crafting station in `potto007.OttoStash.yml` keeps
+  items from being pulled. It is separate from the store rules.
+- `LeaveOneItem`, a personal on/off hotkey (`Alt+O`) with a status icon, and Epic Loot's
+  enchanting table drawing from the chests.
+- Coming from AzuCraftyBoxes: on the first run, its settings are copied into the new
+  `CraftFromChests` section and its container rules are merged into
+  `potto007.OttoStash.yml` as pull blocks. While AzuCraftyBoxes, CraftFromContainers or
+  CFCMod is installed, OttoStash leaves crafting from chests to it.
+- Differences from AzuCraftyBoxes 1.8.19:
+  - No Use-to-fill on smelters, kilns, fires, ovens, fermenters, shield generators or
+    ballistas. OttoFuel covers those.
+  - Spending obeys the pull rules. An excluded item used to be counted out and spent anyway.
+  - A one-ingredient recipe spends from the chests only when the craft succeeds, and only
+    for that recipe.
+  - Taking from a chest claims its ownership first, so the change is saved.
+
 ## 3.5.1
 
 - Rebuilt against Valheim 1.0.17. Every Harmony patch target still resolves in this build, and nothing else changed.

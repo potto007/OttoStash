@@ -20,6 +20,13 @@ Two names changed with the rename:
 - The console command is now `ottostashsearch`, not `azuautostoresearch`.
 - The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
 
+**Coming from AzuCraftyBoxes?** OttoStash now crafts and builds from nearby chests. On
+first run it copies the settings in `Azumatt.AzuCraftyBoxes.cfg` into the `CraftFromChests`
+section, and merges the container rules in `Azumatt.AzuCraftyBoxes.yml` into
+`potto007.OttoStash.yml` as `pull:` blocks. Remove AzuCraftyBoxes afterwards: while it is
+installed, OttoStash leaves crafting from chests to it. AzuCraftyBoxes' Use-to-fill on
+smelters, kilns, fires and other stations is not part of OttoStash; OttoFuel fuels them.
+
 --------------------
 
 # Description
@@ -44,7 +51,8 @@ ignored (`if turned on in the configuration!`).
 4. Middle-click an item to store just that one.
 5. Hold `Y` and click an item (or use `ottostashsearch`) to find where you put something.
 6. Edit `potto007.OttoStash.yml` to define per-container ranges and allowed/excluded items.
-7. All configuration files are found in the `BepInEx/config` folder. Examples are found in the yml file. 
+7. Craft and build with what is in nearby chests. `Alt+O` switches that off and on for you.
+8. All configuration files are found in the `BepInEx/config` folder. Examples are found in the yml file. 
 
 ## Compatibility
 
@@ -73,6 +81,16 @@ ignored (`if turned on in the configuration!`).
   affect that item. No accidental
   storing something you didn't want. The favoriting state is shown with a custom colored border around the slot. If
   GoldenRevolver's mod is present, it will read his favoriting file and use that instead.
+
+- **Craft and build from nearby chests.** Crafting and building take whatever you lack
+  from containers within `PullRange` (20 m), plus kg drawers, the backpacks and gem bags
+  you carry. The requirement lists show `have/need`, the amount flashes when chests make
+  up the difference, and the build menu shows how many of a piece you can build. Private
+  chests you cannot open, carts on the move and chests another player has open are
+  skipped. A `pull:` block on a container or crafting station in the yml file keeps items
+  from being pulled; see the end of the example file. `LeaveOneItem` keeps the last of
+  each item in every chest. `Alt+O` switches pulling off for you alone, with a status
+  icon while it is off. Epic Loot's enchanting table can use the chests too.
 
 - **Armor stand panel.** Press Use on an armor stand and your inventory opens with the
   stand's slots beside it, laid out as a figure: head on top, hands either side of the
@@ -263,6 +281,41 @@ Armor Stand Panel [Synced with Server]
 
 * If on, Use on an armor stand opens your inventory beside the slots of the stand. Drag gear onto a slot or back out, or hold Ctrl and click to move it in one go. The hotbar keys still attach the vanilla way. If off, Use takes the item and throws it on the ground, as in vanilla.
     * Default Value: On
+
+`CraftFromChests`
+
+PullFromChests [Synced with Server]
+
+* If on, crafting and building take the materials you lack from containers within PullRange, and the crafting and build menus count them.
+    * Default Value: On
+
+PullRange [Synced with Server]
+
+* The maximum distance from the player to a container that crafting and building may take materials from.
+    * Default Value: 20
+
+LeaveOneItem [Synced with Server]
+
+* If on, pulling leaves one of each item in every container, so the container still has it and keeps storing it.
+    * Default Value: Off
+
+TogglePullingShortcut [Not Synced with Server]
+
+* Keyboard shortcut/Hotkey that switches pulling off and on for you alone.
+    * Default Value: O + LeftAlt
+
+TogglePullingMessage, TogglePullingMessageFormat, PullingOffStatusEffect [Not Synced with Server]
+
+* The message above your head after the toggle, its format, and the status icon while pulling is off.
+
+RequirementFormat [Not Synced with Server]
+
+* How requirements read while pulling is on. {0} is what you have, carried and nearby; {1} is what is needed. Empty keeps the vanilla amount.
+    * Default Value: {0}/{1}
+
+FlashColor, UnflashColor, CanBuildColor, CannotBuildColor [Not Synced with Server]
+
+* The requirement flash colors, and the colors of the build menu's buildable count.
 
 </details>
 
