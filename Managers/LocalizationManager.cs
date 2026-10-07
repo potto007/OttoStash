@@ -1,6 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using System.Text;
 using YamlDotNet.Serialization;
+using System.Runtime.CompilerServices;
+using BepInEx.Bootstrap;
+using BepInEx.Configuration;
+using JetBrains.Annotations;
 
 namespace LocalizationManager;
 
@@ -13,9 +16,10 @@ public class Localizer
 
     private static readonly ConditionalWeakTable<Localization, string> localizationLanguage = new();
 
-    private static readonly List<WeakReference<Localization>> localizationObjects = new();
+    private static readonly List<WeakReference<Localization>> localizationObjects = [];
 
     private static BaseUnityPlugin? _plugin;
+    public static event Action? OnLocalizationComplete;
 
     private static BaseUnityPlugin plugin
     {
@@ -40,7 +44,7 @@ public class Localizer
         }
     }
 
-    private static readonly List<string> fileExtensions = new() { ".json", ".yml" };
+    private static readonly List<string> fileExtensions = [".json", ".yml"];
 
     private static void UpdatePlaceholderText(Localization localization, string key)
     {
@@ -77,7 +81,7 @@ public class Localizer
 
     public static void AddText(string key, string text)
     {
-        List<WeakReference<Localization>> remove = new();
+        List<WeakReference<Localization>> remove = [];
         foreach (WeakReference<Localization> reference in localizationObjects)
         {
             if (reference.TryGetTarget(out Localization localization))
@@ -101,7 +105,10 @@ public class Localizer
         }
     }
 
-    public static void Load() => LoadLocalization(Localization.instance, Localization.instance.GetSelectedLanguage());
+    public static void Load() => _ = plugin;
+
+    public static void LoadLocalizationLater(Localization __instance) => LoadLocalization(Localization.instance, __instance.GetSelectedLanguage());
+    public static void SafeCallLocalizeComplete() => OnLocalizationComplete?.Invoke();
 
     private static void LoadLocalization(Localization __instance, string language)
     {
@@ -115,7 +122,13 @@ public class Localizer
         Dictionary<string, string> localizationFiles = new();
         foreach (string file in Directory.GetFiles(Path.GetDirectoryName(Paths.PluginPath)!, $"{plugin.Info.Metadata.Name}.*", SearchOption.AllDirectories).Where(f => fileExtensions.IndexOf(Path.GetExtension(f)) >= 0))
         {
-            string key = Path.GetFileNameWithoutExtension(file).Split('.')[1];
+            string[] parts = Path.GetFileNameWithoutExtension(file).Split('.');
+            if (parts.Length < 2)
+            {
+                continue;
+            }
+
+            string key = parts[1];
             if (localizationFiles.ContainsKey(key))
             {
                 // Handle duplicate key
@@ -132,7 +145,7 @@ public class Localizer
             throw new Exception($"Found no English localizations in mod {plugin.Info.Metadata.Name}. Expected an embedded resource translations/English.json or translations/English.yml.");
         }
 
-        Dictionary<string, string>? localizationTexts = new DeserializerBuilder().IgnoreFields().Build().Deserialize<Dictionary<string, string>?>(System.Text.Encoding.UTF8.GetString(englishAssemblyData));
+        Dictionary<string, string>? localizationTexts = new DeserializerBuilder().IgnoreFields().Build().Deserialize<Dictionary<string, string>?>(Encoding.UTF8.GetString(englishAssemblyData));
         if (localizationTexts is null)
         {
             throw new Exception($"Localization for mod {plugin.Info.Metadata.Name} failed: Localization file was empty.");
@@ -141,19 +154,19 @@ public class Localizer
         string? localizationData = null;
         if (language != "English")
         {
-            if (localizationFiles.ContainsKey(language))
+            if (localizationFiles.TryGetValue(language, out string? localizationFile))
             {
-                localizationData = File.ReadAllText(localizationFiles[language]);
+                localizationData = File.ReadAllText(localizationFile);
             }
             else if (LoadTranslationFromAssembly(language) is { } languageAssemblyData)
             {
-                localizationData = System.Text.Encoding.UTF8.GetString(languageAssemblyData);
+                localizationData = Encoding.UTF8.GetString(languageAssemblyData);
             }
         }
 
-        if (localizationData is null && localizationFiles.ContainsKey("English"))
+        if (localizationData is null && localizationFiles.TryGetValue("English", out string? localizationFile1))
         {
-            localizationData = File.ReadAllText(localizationFiles["English"]);
+            localizationData = File.ReadAllText(localizationFile1);
         }
 
         if (localizationData is not null)
@@ -174,7 +187,9 @@ public class Localizer
     static Localizer()
     {
         Harmony harmony = new("org.bepinex.helpers.LocalizationManager");
-        harmony.Patch(AccessTools.DeclaredMethod(typeof(Localization), nameof(Localization.LoadCSV)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Localizer), nameof(LoadLocalization))));
+        harmony.Patch(AccessTools.DeclaredMethod(typeof(Localization), nameof(Localization.SetupLanguage)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Localizer), nameof(LoadLocalization))));
+        harmony.Patch(AccessTools.DeclaredMethod(typeof(FejdStartup), nameof(FejdStartup.SetupGui)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Localizer), nameof(LoadLocalizationLater))));
+        harmony.Patch(AccessTools.DeclaredMethod(typeof(FejdStartup), nameof(FejdStartup.Start)), postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Localizer), nameof(SafeCallLocalizeComplete))));
     }
 
     private static byte[]? LoadTranslationFromAssembly(string language)
@@ -201,4 +216,9 @@ public class Localizer
 
         return stream.Length == 0 ? null : stream.ToArray();
     }
+}
+
+public static class LocalizationManagerVersion
+{
+    public const string Version = "1.4.1";
 }

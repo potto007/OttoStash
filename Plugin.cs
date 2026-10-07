@@ -3,6 +3,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 #endif
 using OttoStash.APIs.MUC;
+using OttoStash.Reclaiming;
+using OttoStash.Trashing;
+using LocalizationManager;
 using BepInEx.Logging;
 using JetBrains.Annotations;
 using ServerSync;
@@ -13,12 +16,13 @@ namespace OttoStash;
 [BepInDependency("Azumatt.AzuExtendedPlayerInventory", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(KgGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(BackpacksGuid, BepInDependency.DependencyFlags.SoftDependency)]
-[BepInDependency("org.bepinex.plugins.jewelcrafting", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(ReclaimCarryOver.OldGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("randyknapp.mods.epicloot", BepInDependency.DependencyFlags.SoftDependency)]
-public class OttoStashPlugin : BaseUnityPlugin
+[BepInDependency("org.bepinex.plugins.jewelcrafting", BepInDependency.DependencyFlags.SoftDependency)]
+public partial class OttoStashPlugin : BaseUnityPlugin
 {
     internal const string ModName = "OttoStash";
-    internal const string ModVersion = "3.5.1";
+    internal const string ModVersion = "3.6.0";
     internal const string Author = "potto007";
     internal const string ModGUID = $"{Author}.{ModName}";
     internal const string KgGuid = "kg.ItemDrawers";
@@ -33,6 +37,9 @@ public class OttoStashPlugin : BaseUnityPlugin
     internal static readonly string yamlPath = Paths.ConfigPath + Path.DirectorySeparatorChar + yamlFileName;
     internal static readonly CustomSyncedValue<string> OttoStashContainerData = new(ConfigSync, "ottostashData", "");
     internal static readonly CustomSyncedValue<string> CraftyContainerGroupsData = new(ConfigSync, "ottostashGroupsData", "");
+    internal static readonly string reclaimYamlFileName = $"{ModGUID}.Reclaim.yml";
+    internal static readonly string reclaimYamlPath = Paths.ConfigPath + Path.DirectorySeparatorChar + reclaimYamlFileName;
+    internal static readonly CustomSyncedValue<string> ReclaimRulesData = new(ConfigSync, "ottostashReclaimData", "");
 
     //
     internal static OttoStashPlugin self = null!;
@@ -56,6 +63,9 @@ public class OttoStashPlugin : BaseUnityPlugin
             if (File.Exists(oldConfig) && !File.Exists(ConfigFileFullPath))
             {
                 File.Copy(oldConfig, ConfigFileFullPath);
+                // Config read the file when the plugin was constructed, before the
+                // copy existed; without a reload the first Bind saves defaults over it.
+                self.Config.Reload();
                 LogSource.LogInfo($"Carried your AzuAutoStore settings over to {ConfigFileName}.");
             }
 
@@ -80,6 +90,9 @@ public class OttoStashPlugin : BaseUnityPlugin
         CarryOverAzuAutoStoreConfig();
         string oldCraftyConfig = Paths.ConfigPath + Path.DirectorySeparatorChar + PullCarryOver.OldConfigName;
         bool carryOverCraftyConfig = File.Exists(oldCraftyConfig) && !ConfigHasSection(PullSection);
+        bool firstReclaimRun = ReclaimCarryOver.IsFirstReclaimRun(ConfigFileFullPath);
+        ReclaimFeature.DetectRecycleNReclaim();
+        Localizer.Load();
 
         _serverConfigLocked = config("1 - General", "Lock Configuration", Toggle.On, new ConfigDescription("If on, the configuration is locked and can be changed by server admins only.", null, new ConfigurationManagerAttributes() { Order = 10 }));
         ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
@@ -130,6 +143,12 @@ public class OttoStashPlugin : BaseUnityPlugin
 
         ArmorStandPanel = config("4 - Armor Stands", "Armor Stand Panel", Toggle.On, new ConfigDescription("If on, Use on an armor stand opens your inventory beside the slots of the stand. Drag gear onto a slot or back out, or hold Ctrl and click to move it in one go. The hotbar keys still attach the vanilla way. If off, Use takes the item and throws it on the ground, as in vanilla."));
 
+        BindReclaimSettings();
+        // While Recycle_N_Reclaim is installed its settings stay the source of
+        // truth, so they are copied again on every start until it is removed.
+        if (firstReclaimRun || ReclaimFeature.YieldsToRecycleNReclaim)
+            ReclaimCarryOver.CarryOverSettings(Config);
+
         PullEnabled = config(PullSection, "PullFromChests", Toggle.On, new ConfigDescription("If on, crafting and building take the materials you lack from containers within PullRange, and the crafting and build menus count them. Add a pull block to a container or crafting station in the yml file to keep items from being pulled."));
         PullRange = config(PullSection, "PullRange", 20f, new ConfigDescription("The maximum distance from the player to a container that crafting and building may take materials from."));
         LeaveOneItem = config(PullSection, "LeaveOneItem", Toggle.Off, new ConfigDescription("If on, pulling leaves one of each item in every container, so the container still has it and keeps storing it."));
@@ -167,20 +186,27 @@ public class OttoStashPlugin : BaseUnityPlugin
             WriteConfigFileFromResource(yamlPath);
         }
 
+        ReclaimCarryOver.CarryOverRules(reclaimYamlPath, overwrite: ReclaimFeature.YieldsToRecycleNReclaim);
+        if (!File.Exists(reclaimYamlPath))
+            ReclaimRules.WriteExampleFile(reclaimYamlPath);
+        ReclaimRulesData.ValueChanged += OnReclaimRulesChanged;
+        ReclaimRulesData.AssignLocalValue(File.ReadAllText(reclaimYamlPath));
+
         CarryOverAzuCraftyBoxesRules();
 
         OttoStashContainerData.ValueChanged += OnValChangedUpdate; // check for file changes
         OttoStashContainerData.AssignLocalValue(File.ReadAllText(yamlPath));
 
         AutoDoc();
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        _harmony.PatchAll(assembly);
+        PatchAll(Assembly.GetExecutingAssembly());
         SetupWatcher();
     }
 
     public void Start()
     {
         FavoritingPatches.BorderSprite = LoadSprite("border.png");
+        TrashPatches.BorderSprite = LoadSprite("trashingborder.png");
+        ReclaimFeature.Start(gameObject);
         PullStatusEffect.Create();
         Pull.FindConflictingMod();
         EpicLootCompat.Init();
@@ -192,6 +218,18 @@ public class OttoStashPlugin : BaseUnityPlugin
         if (!MUCCompat.MUCLoaded)
         {
             MUCCompat.ForceEnableMUC(true);
+        }
+    }
+
+    /// PatchAll, except that the reclaim and trash patches stay off while
+    /// Recycle_N_Reclaim is installed.
+    private void PatchAll(Assembly assembly)
+    {
+        foreach (Type type in AccessTools.GetTypesFromAssembly(assembly))
+        {
+            if (ReclaimFeature.YieldsToRecycleNReclaim && ReclaimFeature.Owns(type))
+                continue;
+            _harmony.CreateClassProcessor(type).Patch();
         }
     }
 
@@ -333,6 +371,40 @@ public class OttoStashPlugin : BaseUnityPlugin
         yamlwatcher.IncludeSubdirectories = true;
         yamlwatcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
         yamlwatcher.EnableRaisingEvents = true;
+
+        FileSystemWatcher reclaimWatcher = new(Paths.ConfigPath, reclaimYamlFileName);
+        reclaimWatcher.Changed += ReadReclaimYaml;
+        reclaimWatcher.Created += ReadReclaimYaml;
+        reclaimWatcher.Renamed += ReadReclaimYaml;
+        reclaimWatcher.IncludeSubdirectories = true;
+        reclaimWatcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
+        reclaimWatcher.EnableRaisingEvents = true;
+    }
+
+    private void ReadReclaimYaml(object sender, FileSystemEventArgs e)
+    {
+        if (!File.Exists(reclaimYamlPath)) return;
+        try
+        {
+            ReclaimRulesData.AssignLocalValue(File.ReadAllText(reclaimYamlPath));
+        }
+        catch
+        {
+            StashLog.Error($"There was an issue loading your {reclaimYamlFileName}");
+            StashLog.Error("Please check your entries for spelling and format!");
+        }
+    }
+
+    private static void OnReclaimRulesChanged()
+    {
+        try
+        {
+            ReclaimRules.Read(ReclaimRulesData.Value);
+        }
+        catch (Exception e)
+        {
+            StashLog.Error($"Failed to deserialize {reclaimYamlFileName}: {e}");
+        }
     }
 
     private void ReadConfigValues(object sender, FileSystemEventArgs e)

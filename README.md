@@ -4,7 +4,7 @@
 
 ### Updated for Valheim 1.0
 
-**Version 3.5.1**, built and Harmony-checked against Valheim 1.0.17.
+**Version 3.6.0**, built and Harmony-checked against Valheim 1.0.17.
 
 **Maintainer:** Paul Otto
 
@@ -19,6 +19,17 @@ Two names changed with the rename:
 
 - The console command is now `ottostashsearch`, not `azuautostoresearch`.
 - The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
+
+**Coming from Recycle_N_Reclaim?** OttoStash now does everything it did: the Reclaim tab,
+Reclaim All on containers, inventory discard, trash marking and undo. Remove
+Recycle_N_Reclaim; while it is installed, OttoStash leaves reclaiming and trash marking
+to it and only stores. On the first run with these features, and on every start while
+Recycle_N_Reclaim is still installed, OttoStash copies the
+settings in `Azumatt.Recycle_N_Reclaim.cfg` into new sections of `potto007.OttoStash.cfg`,
+and `Azumatt.Recycle_N_Reclaim_ExcludeLists.yml` to `potto007.OttoStash.Reclaim.yml`.
+Neither old file is changed. The settings now have PascalCase names under `Reclaim`,
+`ReclaimUI`, `Discard`, `Trash` and `ReclaimDebug`; for example
+`EnableExperimentalCraftingTabUI` is now `ReclaimUI.ReclaimTabEnabled`.
 
 **Coming from AzuCraftyBoxes?** OttoStash now crafts and builds from nearby chests. On
 first run it copies the settings in `Azumatt.AzuCraftyBoxes.cfg` into the `CraftFromChests`
@@ -51,8 +62,12 @@ ignored (`if turned on in the configuration!`).
 4. Middle-click an item to store just that one.
 5. Hold `Y` and click an item (or use `ottostashsearch`) to find where you put something.
 6. Edit `potto007.OttoStash.yml` to define per-container ranges and allowed/excluded items.
-7. Craft and build with what is in nearby chests. `Alt+O` switches that off and on for you.
-8. All configuration files are found in the `BepInEx/config` folder. Examples are found in the yml file. 
+7. At a crafting station, open the Reclaim tab to turn an item back into most of its resources.
+8. Click Reclaim All twice on an open container to reclaim everything in it.
+9. Hold `X` and click inventory slots to mark them as trash, then middle-click to discard them all.
+10. Edit `potto007.OttoStash.Reclaim.yml` to keep items out of reclaiming and discarding.
+11. Craft and build with what is in nearby chests. `Alt+O` switches that off and on for you.
+12. All configuration files are found in the `BepInEx/config` folder. Examples are found in the yml files. 
 
 ## Compatibility
 
@@ -62,6 +77,9 @@ ignored (`if turned on in the configuration!`).
 - **Backpack mods** (Smoothbrain’s Backpacks, AdventureBackpack, etc.) – supports storing *into* backpacks and has
   options to globally disable storing to any backpack containers.
 - **ItemDrawers** – supports both KG’s fork and the original Makail version for storing and searching.
+- **Epic Loot and Jewelcrafting** – reclaiming and discarding also return enchanting materials and socketed gems.
+- **Recycle_N_Reclaim** – OttoStash replaces it. If both are installed, OttoStash turns its own reclaiming and
+  trash marking off and leaves them to Recycle_N_Reclaim.
 
 ## Features
 
@@ -100,6 +118,23 @@ ignored (`if turned on in the configuration!`).
   the vanilla way, and the panel waits for the stand to be yours to change before it
   moves anything, so two players cannot pull the same item. Turn it off to get the
   vanilla take-and-drop back.
+
+- **Reclaiming, from Recycle_N_Reclaim.** A Reclaim tab sits next to Craft and Upgrade at every
+  crafting station. It lists what you carry that the station could have made, and the craft button
+  turns the selected item back into its resources, at `RecyclingRate` (half by default, rounded
+  down; higher quality returns more). An item you need a better station for, or whose recipe you
+  do not know, shows why it is blocked. Press `Ctrl+Z` within 20 seconds to undo the last reclaim.
+  Turn on `ShowRecycleYieldInTooltip` to see the yield in every item tooltip.
+- **Reclaim All.** An open container gets a Reclaim All button. Click it twice to reclaim
+  everything in the container; anything that cannot be reclaimed is listed with the reason. Hold
+  Left Ctrl and drag the button with the right mouse button to move it.
+- **Discard and trash marking.** Drag an item and press `Delete` to destroy it and get its
+  resources back. Hold `X` and click slots to mark them as trash (red border), then middle-click
+  while still holding `X` to discard them all. Both are admin-only by default
+  (`Discard.LockToAdmin`).
+- **Reclaim rules.** `potto007.OttoStash.Reclaim.yml` keeps items or groups out of reclaiming, out
+  of discarding, or out of Reclaim All for one kind of container, and sets per-item or per-group
+  recycle rates.
 
 Designed to be server-friendly: runs on configurable intervals, chunks bulk transfers, and throttles ownership requests
 to avoid lag and race conditions.
@@ -281,6 +316,176 @@ Armor Stand Panel [Synced with Server]
 
 * If on, Use on an armor stand opens your inventory beside the slots of the stand. Drag gear onto a slot or back out, or hold Ctrl and click to move it in one go. The hotbar keys still attach the vanilla way. If off, Use takes the item and throws it on the ground, as in vanilla.
     * Default Value: On
+
+`Reclaim`
+
+ApplyCraftedBy [Synced with Server]
+
+* If on, you are the crafter of every item that reclaiming or discarding gives back. If off, the crafter is left empty.
+    * Default Value: On
+
+RecyclingRate [Synced with Server]
+
+* The share of an item's crafting resources that reclaiming returns, from 0 to 1. The amount always rounds down, so 2.5 becomes 2. At 0.5 a quality 1 item returns half of what it cost. Higher quality items return more, because their upgrades cost more. The recycleRates list in potto007.OttoStash.Reclaim.yml overrides this for single items or groups.
+    * Default Value: 0.5
+
+UnstackableItemsAlwaysReturnAtLeastOneResource [Synced with Server]
+
+* If on, reclaiming an item that does not stack returns at least 1 of each resource that would otherwise round down to 0.
+    * Default Value: On
+
+RequireExactCraftingStationForRecycling [Synced with Server]
+
+* If on, reclaiming needs the crafting station the item is made at, at the level its quality needs. If off, any station will do.
+    * Default Value: On
+
+ReturnEnchantedResources [Synced with Server]
+
+* If on and Epic Loot or Jewelcrafting is installed, reclaiming also returns the enchanting materials or socketed gems.
+    * Default Value: On
+
+PreventZeroResourceYields [Synced with Server]
+
+* If on, an item that would return 0 of any resource cannot be reclaimed, so nothing is lost to rounding.
+    * Default Value: On
+
+AllowRecyclingUnknownRecipes [Synced with Server]
+
+* If on, you can reclaim items whose recipe you have not learned yet. Off by default, because it skips progression.
+    * Default Value: Off
+
+ShowRecycleYieldInTooltip [Not Synced with Server]
+
+* If on, an item's tooltip lists what reclaiming it would return.
+    * Default Value: false
+
+UndoRecycleKeybind [Not Synced with Server]
+
+* Undoes the last reclaim from the Reclaim tab, within the grace period.
+    * Default Value: Z + LeftControl
+
+UndoRecycleGracePeriodSeconds [Synced with Server]
+
+* Seconds after a reclaim during which it can be undone. 0 turns undo off.
+    * Default Value: 20
+
+`ReclaimUI`
+
+ReclaimTabEnabled [Synced with Server]
+
+* If on, crafting stations get a Reclaim tab next to Craft and Upgrade.
+    * Default Value: On
+
+ContainerRecyclingEnabled [Synced with Server]
+
+* If on, an open container shows a Reclaim All button. Click it twice to reclaim everything in the container.
+    * Default Value: On
+
+ContainerButtonPosition [Not Synced with Server]
+
+* Where the Reclaim All button sits. Hold Left Ctrl and drag the button with the right mouse button to move it; the new position is saved here.
+    * Default Value: {"x":496.0,"y":-374.0,"z":-1.0}
+
+NotifyOnSalvagingImpediments [Synced with Server]
+
+* If on, Reclaim All shows a message in the middle of the screen for every item it could not reclaim, and why: not enough free slots, an unknown recipe, or a resource that would return 0.
+    * Default Value: On
+
+HideRecipesForEquippedItems [Synced with Server]
+
+* If on, items you have equipped are left out of the Reclaim tab.
+    * Default Value: On
+
+IgnoreItemsOnHotbar [Synced with Server]
+
+* If on, items on your hotbar are left out of the Reclaim tab.
+    * Default Value: On
+
+RecipeListScrollSpeedMultiplier [Not Synced with Server]
+
+* Multiplies how far the mouse wheel scrolls the crafting and Reclaim recipe lists. Newer Unity reports much smaller wheel steps, which made the vanilla speed crawl. 1 is vanilla speed. Raise it toward 20 if it still crawls, as it can on Linux and Proton.
+    * Default Value: 10
+
+StationFilterEnabled [Synced with Server]
+
+* If on, items made at the stations in StationFilterList are left out of the Reclaim tab. It keeps food out of the list.
+    * Default Value: On
+
+StationFilterList [Synced with Server]
+
+* Comma separated prefab names of the crafting stations whose items the Reclaim tab leaves out. The vanilla stations are forge, blackforge, piece_workbench, piece_cauldron, piece_stonecutter, piece_artisanstation and piece_magetable.
+    * Default Value: piece_cauldron
+
+`Discard`
+
+Enabled [Synced with Server]
+
+* If on, pressing DiscardHotkey while dragging an item in your inventory destroys it and returns its resources.
+    * Default Value: On
+
+LockToAdmin [Synced with Server]
+
+* If on, only admins can discard from the inventory or bulk trash marked slots.
+    * Default Value: On
+
+DiscardHotkey [Not Synced with Server]
+
+* Press while dragging an item to discard it.
+    * Default Value: Delete
+
+ReturnUnknownResources [Synced with Server]
+
+* If on, discarding returns resources even when you do not know the item's recipe.
+    * Default Value: Off
+
+ReturnEnchantedResources [Synced with Server]
+
+* If on and Epic Loot or Jewelcrafting is installed, discarding also returns the enchanting materials or socketed gems.
+    * Default Value: On
+
+ReturnResources [Synced with Server]
+
+* The share of an item's resources that discarding returns, from 0 to 1. 0 destroys the item and returns nothing.
+    * Default Value: 1
+
+`Trash`
+
+TrashingModifierKeybind [Not Synced with Server]
+
+* While holding this, left clicking an inventory slot marks or unmarks it as trash. Letting go clears every mark.
+    * Default Value: X
+
+TrashingKeybind [Not Synced with Server]
+
+* Pressed while holding TrashingModifierKeybind, discards every marked slot. The default is the middle mouse button.
+    * Default Value: Mouse2
+
+BorderColorTrashedSlot [Not Synced with Server]
+
+* Color of the border on a slot marked as trash.
+    * Default Value: FF0000FF
+
+DisplayTooltipHint [Not Synced with Server]
+
+* If on, a marked slot's tooltip says it is marked as trash.
+    * Default Value: true
+
+TrashedSlotTooltip [Not Synced with Server]
+
+* The tooltip line on a slot marked as trash.
+    * Default Value: Slot is marked as trash and will be discarded
+
+`ReclaimDebug`
+
+DebugAlwaysDumpAnalysisContext [Synced with Server]
+
+* If on, every reclaim writes a full report to the log. Slow; turn it on only to chase a problem.
+    * Default Value: Off
+
+DebugAllowSpammyLogs [Synced with Server]
+
+* If on, every yield calculation is written to the log. Very noisy and slow.
+    * Default Value: Off
 
 `CraftFromChests`
 
@@ -601,3 +806,8 @@ renders on the Changelog tab of the Thunderstore package page.
 ## Credits
 
 OttoStash is maintained by **Paul Otto**.
+
+Reclaiming, discard and trash marking come from Azumatt's
+[Recycle_N_Reclaim](https://thunderstore.io/c/valheim/p/Azumatt/Recycle_N_Reclaim/), MIT licensed,
+which grew out of OdinsInventoryDiscard and took contributions from MidnightsFX, Vapok,
+shudnal and Goldenrevolver.
