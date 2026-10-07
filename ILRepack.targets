@@ -7,9 +7,9 @@
             <InputAssemblies Include="$(OutputPath)ServerSync.dll" />
             <InputAssemblies Include="$(OutputPath)AzuExtendedPlayerInventoryAPI.dll" />
             <InputAssemblies Include="$(OutputPath)BackpacksAPI.dll" />
+            <InputAssemblies Include="$(OutputPath)YamlDotNet.dll" />
             <InputAssemblies Include="$(OutputPath)EpicLootAPI.dll" />
             <InputAssemblies Include="$(OutputPath)JewelcraftingAPI.dll" />
-            <InputAssemblies Include="$(OutputPath)YamlDotNet.dll" />
             <!-- ILRepack resolves the game and BepInEx assemblies from these folders. -->
             <ILRepackLibraryPath Include="$(OutputPath)" />
             <ILRepackLibraryPath Include="$(BepInExPath)/core" />
