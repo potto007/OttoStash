@@ -130,18 +130,18 @@ public class OttoStashPlugin : BaseUnityPlugin
 
         ArmorStandPanel = config("4 - Armor Stands", "Armor Stand Panel", Toggle.On, new ConfigDescription("If on, Use on an armor stand opens your inventory beside the slots of the stand. Drag gear onto a slot or back out, or hold Ctrl and click to move it in one go. The hotbar keys still attach the vanilla way. If off, Use takes the item and throws it on the ground, as in vanilla."));
 
-        PullEnabled = config(PullSection, "Pull From Chests", Toggle.On, new ConfigDescription("If on, crafting and building take the materials you lack from containers within Pull Range, and the crafting and build menus count them. Add a pull block to a container or crafting station in the yml file to keep items from being pulled."));
-        PullRange = config(PullSection, "Pull Range", 20f, new ConfigDescription("The maximum distance from the player to a container that crafting and building may take materials from."));
-        LeaveOneItem = config(PullSection, "Leave One Item", Toggle.Off, new ConfigDescription("If on, pulling leaves one of each item in every container, so the container still has it and keeps storing it."));
-        TogglePullingShortcut = config(PullSection, "Toggle Pulling Shortcut", new KeyboardShortcut(KeyCode.O, KeyCode.LeftAlt), new ConfigDescription("Keyboard shortcut/Hotkey that switches pulling off and on for you alone. While it is off, crafting and building use only what you carry.", new AcceptableShortcuts()), false);
-        PullToggleMessage = config(PullSection, "Toggle Pulling Message", Toggle.On, new ConfigDescription("If on, a message above your head says whether pulling is on after you press the Toggle Pulling Shortcut."), false);
-        PullToggleMessageFormat = config(PullSection, "Toggle Pulling Message Format", "<size=30><color=#ffffff>{0}</color></size>\n<size=25>{1}</size>", new ConfigDescription("Format of the toggle message. {0} is replaced by the message and {1} by On or Off."), false);
-        PullOffStatusEffect = config(PullSection, "Pulling Off Status Effect", Toggle.On, new ConfigDescription("If on, a status effect icon shows while you have pulling switched off."), false);
-        RequirementFormat = config(PullSection, "Requirement Format", "{0}/{1}", new ConfigDescription("How the crafting and build menus show each requirement while pulling is on. {0} is replaced by how many you have, carried and nearby, and {1} by how many are needed. Leave it empty to keep the vanilla amount."), false);
-        FlashColor = config(PullSection, "Flash Color", Color.yellow, new ConfigDescription("A requirement amount flashes to this color when the nearby containers make up what you do not carry."), false);
-        UnflashColor = config(PullSection, "Unflash Color", Color.white, new ConfigDescription("A requirement amount flashes from this color when the nearby containers make up what you do not carry. Set both colors the same for no flashing."), false);
-        CanBuildColor = config(PullSection, "Can Build Color", Color.green, new ConfigDescription("Color of the build menu's count of how many of a piece you can build."), false);
-        CannotBuildColor = config(PullSection, "Cannot Build Color", Color.red, new ConfigDescription("Color of the build menu's count when you cannot build a piece."), false);
+        PullEnabled = config(PullSection, "PullFromChests", Toggle.On, new ConfigDescription("If on, crafting and building take the materials you lack from containers within PullRange, and the crafting and build menus count them. Add a pull block to a container or crafting station in the yml file to keep items from being pulled."));
+        PullRange = config(PullSection, "PullRange", 20f, new ConfigDescription("The maximum distance from the player to a container that crafting and building may take materials from."));
+        LeaveOneItem = config(PullSection, "LeaveOneItem", Toggle.Off, new ConfigDescription("If on, pulling leaves one of each item in every container, so the container still has it and keeps storing it."));
+        TogglePullingShortcut = config(PullSection, "TogglePullingShortcut", new KeyboardShortcut(KeyCode.O, KeyCode.LeftAlt), new ConfigDescription("Keyboard shortcut/Hotkey that switches pulling off and on for you alone. While it is off, crafting and building use only what you carry.", new AcceptableShortcuts()), false);
+        PullToggleMessage = config(PullSection, "TogglePullingMessage", Toggle.On, new ConfigDescription("If on, a message above your head says whether pulling is on after you press TogglePullingShortcut."), false);
+        PullToggleMessageFormat = config(PullSection, "TogglePullingMessageFormat", "<size=30><color=#ffffff>{0}</color></size>\n<size=25>{1}</size>", new ConfigDescription("Format of the toggle message. {0} is replaced by the message and {1} by On or Off."), false);
+        PullOffStatusEffect = config(PullSection, "PullingOffStatusEffect", Toggle.On, new ConfigDescription("If on, a status effect icon shows while you have pulling switched off."), false);
+        RequirementFormat = config(PullSection, "RequirementFormat", "{0}/{1}", new ConfigDescription("How the crafting and build menus show each requirement while pulling is on. {0} is replaced by how many you have, carried and nearby, and {1} by how many are needed. Leave it empty to keep the vanilla amount."), false);
+        FlashColor = config(PullSection, "FlashColor", Color.yellow, new ConfigDescription("A requirement amount flashes to this color when the nearby containers make up what you do not carry."), false);
+        UnflashColor = config(PullSection, "UnflashColor", Color.white, new ConfigDescription("A requirement amount flashes from this color when the nearby containers make up what you do not carry. Set both colors the same for no flashing."), false);
+        CanBuildColor = config(PullSection, "CanBuildColor", Color.green, new ConfigDescription("Color of the build menu's count of how many of a piece you can build."), false);
+        CannotBuildColor = config(PullSection, "CannotBuildColor", Color.red, new ConfigDescription("Color of the build menu's count when you cannot build a piece."), false);
 
         if (carryOverCraftyConfig)
         {
@@ -461,7 +461,7 @@ public class OttoStashPlugin : BaseUnityPlugin
 
     // Crafting from chests
 
-    private const string PullSection = "5 - Crafting From Chests";
+    private const string PullSection = "CraftFromChests";
     internal static ConfigEntry<Toggle> PullEnabled = null!;
     internal static ConfigEntry<float> PullRange = null!;
     internal static ConfigEntry<Toggle> LeaveOneItem = null!;

@@ -10,7 +10,7 @@ internal static class PullStatusEffect
         StatusEffect effect = ScriptableObject.CreateInstance<StatusEffect>();
         effect.name = "OttoStash_PullingOff";
         effect.m_name = "Not pulling from chests";
-        effect.m_tooltip = "Crafting and building use only what you carry. Press the Toggle Pulling Shortcut to pull from nearby chests again.";
+        effect.m_tooltip = "Crafting and building use only what you carry. Press TogglePullingShortcut to pull from nearby chests again.";
         effect.m_icon = LoadSprite("pullingicon.png");
         effect.m_startMessageType = MessageHud.MessageType.TopLeft;
         effect.m_startMessage = "";
