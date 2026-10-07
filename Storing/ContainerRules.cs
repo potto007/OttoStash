@@ -10,6 +10,7 @@ internal static class ContainerRules
     private const string ExcludeKey = "exclude";
     private const string IncludeOverrideKey = "includeOverride";
     private const string RangeKey = "range";
+    private const string PullKey = "pull";
 
     /// The parsed YAML: one entry per container prefab plus the "groups" entry.
     internal static Dictionary<string, object>? Rules;
@@ -86,18 +87,60 @@ internal static class ContainerRules
             return false;
         }
 
-        List<object>? excludeList = containerData.TryGetValue(ExcludeKey, out object? exclude) ? exclude as List<object> : new List<object>();
-        List<object>? includeOverrideList = containerData.TryGetValue(IncludeOverrideKey, out object? includeOverride) ? includeOverride as List<object> : new List<object>();
+        return Passes(containerData, prefab, $"container '{container}'");
+    }
+
+    /// Whether crafting or building may take a prefab out of a source (a chest,
+    /// drawer or bag) while the player works at a station. Both the station's
+    /// and the source's "pull" block must allow it. A name with no pull block
+    /// allows everything.
+    internal static bool CanPull(string source, string prefab, string station)
+    {
+        if (Rules == null)
+        {
+            StashLog.Error("The container rules are not loaded.");
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(station) && !PullBlockAllows(station, prefab))
+            return false;
+
+        return PullBlockAllows(source, prefab);
+    }
+
+    private static bool PullBlockAllows(string name, string prefab)
+    {
+        if (!Rules!.TryGetValue(name, out object entry) || entry is not Dictionary<object, object> table)
+            return true;
+
+        if (!table.TryGetValue(PullKey, out object pull) || pull == null)
+            return true;
+
+        if (pull is not Dictionary<object, object> pullData)
+        {
+            StashLog.Error($"The pull entry for '{name}' is not a table.");
+            return false;
+        }
+
+        return Passes(pullData, prefab, $"the pull rules of '{name}'");
+    }
+
+    /// The exclude list and the include overrides that beat it, read from one
+    /// table of the rules. A malformed table refuses everything.
+    private static bool Passes(Dictionary<object, object> table, string prefab, string context)
+    {
+        List<object>? excludeList = table.TryGetValue(ExcludeKey, out object? exclude) ? exclude as List<object> : new List<object>();
+        List<object>? includeOverrideList = table.TryGetValue(IncludeOverrideKey, out object? includeOverride) ? includeOverride as List<object> : new List<object>();
 
         if (excludeList == null)
         {
-            StashLog.Error($"The exclude entry for container '{container}' is not a list.");
+            StashLog.Error($"The exclude entry for {context} is not a list.");
             return false;
         }
 
         if (includeOverrideList == null)
         {
-            StashLog.Error($"The includeOverride entry for container '{container}' is not a list.");
+            StashLog.Error($"The includeOverride entry for {context} is not a list.");
             return false;
         }
 

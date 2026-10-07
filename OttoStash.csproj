@@ -59,6 +59,7 @@
     <EmbeddedResource Include="ReclaimExample.yml" />
     <EmbeddedResource Include="assets/trashingborder.png" />
     <EmbeddedResource Include="translations/*.yml" />
+    <EmbeddedResource Include="assets/pullingicon.png" />
   </ItemGroup>
 
   <ItemGroup>
