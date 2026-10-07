@@ -3,6 +3,39 @@
 Versions 3.0.11 and below are the AzuAutoStore release history, kept below
 unchanged.
 
+## 3.6.0
+
+Recycle_N_Reclaim's features, brought into OttoStash.
+
+- A Reclaim tab at every crafting station turns items back into their resources, at
+  `RecyclingRate`. Blocked items say why. `Ctrl+Z` undoes the last reclaim within 20 seconds.
+- Reclaim All on an open container, inventory discard with `Delete` while dragging, and
+  trash marking: hold `X`, click slots, then middle-click to discard them all. Discard and
+  bulk trash are admin-only by default.
+- Optional reclaim yield in item tooltips (`ShowRecycleYieldInTooltip`).
+- Epic Loot enchanting materials and Jewelcrafting gems come back too.
+- `potto007.OttoStash.Reclaim.yml` holds the reclaim rules, in the Recycle_N_Reclaim
+  exclude-list format.
+- Coming from Recycle_N_Reclaim: on the first run, its settings are copied into the new
+  `Reclaim`, `ReclaimUI`, `Discard`, `Trash` and `ReclaimDebug` sections of
+  `potto007.OttoStash.cfg`, and its exclude lists to `potto007.OttoStash.Reclaim.yml`. While
+  Recycle_N_Reclaim is still installed, OttoStash leaves reclaiming and trash marking to it.
+- Differences from Recycle_N_Reclaim 1.4.5:
+  - Bulk trashing obeys `Discard.LockToAdmin` and `Discard.Enabled`. It used to return
+    resources even where inventory discard was locked to admins.
+  - Two identical Jewelcrafting gems on one item come back as two gems instead of failing.
+  - Discarded resources that do not fit and drop to the ground are separate items, not
+    one item shared between the drops.
+  - `ReclaimTabEnabled` (was `EnableExperimentalCraftingTabUI`) also hides the tab on its
+    first appearance.
+  - Trash marks live only while the modifier is held, as they effectively did, and are
+    no longer written to a per-player file.
+  - Middle-click with the trash modifier held no longer also stores the hovered item.
+  - No Auga support, and no extra version handshake: a client without OttoStash can still
+    join a server that has it.
+- The text of the reclaim features is translated into Chinese, French, German, Japanese,
+  Korean, Russian and Spanish.
+
 ## 3.5.1
 
 - Rebuilt against Valheim 1.0.17. Every Harmony patch target still resolves in this build, and nothing else changed.

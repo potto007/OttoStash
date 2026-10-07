@@ -147,6 +147,7 @@ internal sealed class ReclaimTab : MonoBehaviour
         quality.text = analysis.Item.m_quality.ToString();
 
         element.GetComponent<Button>().onClick.AddListener(() => igui.OnSelectedRecipe(element));
+        // check_enums: verified - written against Valheim 1.0.17 source, as vanilla InventoryGui.AddRecipeToList reads it.
         bool noCraftCost = ZoneSystem.instance.GetGlobalKey(GlobalKeys.NoCraftCost);
         CraftingStation? station = Player.m_localPlayer.GetCurrentCraftingStation();
         bool atUpgrader = station != null && station.m_upgrader;
