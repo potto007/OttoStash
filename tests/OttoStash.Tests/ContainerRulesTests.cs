@@ -3,6 +3,7 @@ using OttoStash.Storing;
 namespace OttoStash.Tests;
 
 /// The per-chest YAML rules, parsed by the mod's own reader.
+[Collection(RulesCollection.Name)]
 public class ContainerRulesTests
 {
     private const string Rules = """
