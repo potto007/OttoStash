@@ -20,6 +20,10 @@ Two names changed with the rename:
 - The console command is now `ottostashsearch`, not `azuautostoresearch`.
 - The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
 
+**Setting names are PascalCase.** Every section and setting uses one spelling, so
+`1 - General` is now `General` and `Player Range` is now `PlayerRange`. On the first run
+OttoStash renames them in `potto007.OttoStash.cfg`, and your values stay as they were.
+
 **Coming from Recycle_N_Reclaim?** OttoStash now does everything it did: the Reclaim tab,
 Reclaim All on containers, inventory discard, trash marking and undo. Remove
 Recycle_N_Reclaim; while it is installed, OttoStash leaves reclaiming and trash marking
@@ -86,13 +90,13 @@ ignored (`if turned on in the configuration!`).
 - Automatically store dropped resources into nearby containers within a configurable range
 - Restrict specific items from being stored into containers by defining rules in the configuration file in
   the `BepInEx/config` folder called `potto007.OttoStash.yml`
-- Toggle the storing of items via a keyboard shortcut for a configurable amount of seconds
-- Store a *single* hovered item into nearby containers with a dedicated hotkey (Default: Mouse2 / Middle Click)
-- Find where your items ended up: hold the Search key (Default: Y) and click an item, or use the `ottostashsearch`
+- Pause the storing of items with `PauseShortcut` for `SecondsToWaitBeforeStoring` seconds
+- Store a *single* hovered item into nearby containers with `StoreSingleItemShortcut` (Default: Mouse2 / Middle Click)
+- Find where your items ended up: hold `SearchModifierKeybind` (Default: Y) and click an item, or use the `ottostashsearch`
   command to ping the nearest container holding it and see how many exist. You can use `/ottostashsearch` in the chat
-  window. Auto complete for the command is possible so you can type `/azuauto` and press tab to complete if you don't
+  window. Auto complete for the command is possible so you can type `/ottostash` and press tab to complete if you don't
   want to type it all out :D
-- `Favoriting from GoldenRevolver` By holding the Favoriting Key (default: Alt) or by using a new button, you can left
+- `Favoriting from GoldenRevolver` By holding `FavoritingModifierKeybind1` (default: Z) or by using a new button, you can left
   click on an item to favorite it,
   or
   right click to favorite the slot it is in. This prevents the quick storing from player inventory from having the mod
@@ -116,8 +120,8 @@ ignored (`if turned on in the configuration!`).
   into your bag, or hold Ctrl and click to move it in one go. Take All empties the
   stand into your inventory. Nothing lands on the ground. The hotbar keys still attach
   the vanilla way, and the panel waits for the stand to be yours to change before it
-  moves anything, so two players cannot pull the same item. Turn it off to get the
-  vanilla take-and-drop back.
+  moves anything, so two players cannot pull the same item. Turn `ArmorStandPanel` off to
+  get the vanilla take-and-drop back.
 
 - **Reclaiming, from Recycle_N_Reclaim.** A Reclaim tab sits next to Craft and Upgrade at every
   crafting station. It lists what you carry that the station could have made, and the craft button
@@ -154,71 +158,71 @@ many containers.
 
 
 
-`1 - General`
+`General`
 
-Lock Configuration [Synced with Server]
+LockConfiguration [Synced with Server]
 
 * If on, the configuration is locked and can be changed by server admins only.
     * Default Value: On
 
-Dont Store to Backpacks [Synced with Server]
+DontStoreToBackpacks [Synced with Server]
 
 * If on, items will not be stored in backpacks.
     * Default Value: Off
 
-Chests Pickup From Ground [Synced with Server]
+ChestsPickupFromGround [Synced with Server]
 
 * If on, chests will pick up items from the ground if they are in range. If off, chests will not begin their periodic
   checks for items nearby. Reloading zone or logging out might be required.
     * Default Value: On
 
-Must Have Existing Item To Pull [Synced with Server]
+MustHaveExistingItemToPull [Synced with Server]
 
 * If on, the chest must already have the item in its inventory to pull it from the world or player into the chest.
     * Default Value: On
 
-Player Range [Synced with Server]
+PlayerRange [Synced with Server]
 
-* The maximum distance from the player to store items in chests when the Store Shortcut is pressed. Follows storage
+* The maximum distance from the player to store items in chests when StoreShortcut is pressed. Follows storage
   rules for allowed items.
     * Default Value: 5
 
-Fallback Range [Synced with Server]
+FallbackRange [Synced with Server]
 
 * The range to use if the container has no range set in the yml file. This will be the fallback range for all
   containers.
     * Default Value: 10
 
-Player Ignore Hotbar [Not Synced with Server]
+PlayerIgnoreHotbar [Not Synced with Server]
 
-* If on, the player's hotbar will not be stored when the Store Shortcut is pressed.
+* If on, the player's hotbar will not be stored when StoreShortcut is pressed.
     * Default Value: On
 
-Player Ignore Quick Slots [Not Synced with Server]
+PlayerIgnoreQuickSlots [Not Synced with Server]
 
-* If on, the player's quick slots will not be stored when the Store Shortcut is pressed. (Requires Quick Slots mod, turn
+* If on, the player's quick slots will not be stored when StoreShortcut is pressed. (Requires Quick Slots mod, turn
   on only if you need it!)
     * Default Value: Off
 
-Ping VFX [Synced with Server]
+PingVFX [Synced with Server]
 
 * The VFX to play when a chest is pinged. Leave blank to disable and only highlight the chest. (Full prefab
   list: https://valheim-modding.github.io/Jotunn/data/prefabs/prefab-list.html)
     * Default Value: vfx_Potion_health_medium
 
-Highlight Containers [Not Synced with Server]
+HighlightContainers [Not Synced with Server]
 
 * If on, the containers will be highlighted when something is stored in them. If off, the containers will not be
   highlighted if something is stored in them.
     * Default Value: On
 
-Ping Containers [Not Synced with Server]
+PingContainers [Not Synced with Server]
 
-* If on, the containers will be pinged with the Ping VFX when something is stored in them. If off, the containers will
+* If on, the containers will be pinged with PingVFX when something is stored in them. If off, the containers will
   not be pinged if something is stored in them.
     * Default Value: On
 
-Seconds To Wait Before Storing [Synced with Server]
+SecondsToWaitBeforeStoring [Synced with Server]
 
 * The number of seconds to wait before storing items into chests nearby automatically after you have pressed your hotkey
   to pause.
@@ -230,27 +234,27 @@ IntervalSeconds [Synced with Server]
   this will decrease performance!
     * Default Value: 10
 
-`1.5 - Fish`
+`Fish`
 
-Fish Suction [Synced with Server]
+FishSuction [Synced with Server]
 
 * Allow auto-storing fish that are still in water, as in boat netting. Off requires fish to be out of the water. On
   skips that check.
     * Default Value: Off
 
-`2 - Shortcuts`
+`Shortcuts`
 
-Store Single Item Shortcut [Not Synced with Server]
+StoreSingleItemShortcut [Not Synced with Server]
 
 * Keyboard shortcut/Hotkey to store a single item that you click from your inventory into nearby containers.
     * Default Value: Mouse2
 
-Store Shortcut [Not Synced with Server]
+StoreShortcut [Not Synced with Server]
 
 * Keyboard shortcut/Hotkey to store your inventory into nearby containers.
     * Default Value: Period
 
-Pause Shortcut [Not Synced with Server]
+PauseShortcut [Not Synced with Server]
 
 * Keyboard shortcut/Hotkey to temporarily stop storing items into chests nearby automatically. Does not override the
   player hotkey store.
@@ -261,7 +265,7 @@ SearchModifierKeybind [Not Synced with Server]
 * While holding this, you can search nearby chests for the prefab you clicked in your inventory.
     * Default Value: Y
 
-`3 - Favoriting`
+`Favoriting`
 
 BorderColorFavoritedItem [Not Synced with Server]
 
@@ -310,9 +314,9 @@ ItemOnFavoritedSlotTooltip [Not Synced with Server]
 *
     * Default Value: Item & Slot are favorited and will not be stored
 
-`4 - Armor Stands`
+`ArmorStands`
 
-Armor Stand Panel [Synced with Server]
+ArmorStandPanel [Synced with Server]
 
 * If on, Use on an armor stand opens your inventory beside the slots of the stand. Drag gear onto a slot or back out, or hold Ctrl and click to move it in one go. The hotbar keys still attach the vanilla way. If off, Use takes the item and throws it on the ground, as in vanilla.
     * Default Value: On

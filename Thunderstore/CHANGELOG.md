@@ -8,6 +8,20 @@ unchanged.
 Recycle_N_Reclaim's reclaiming and AzuCraftyBoxes' crafting from chests, brought into
 OttoStash.
 
+### Setting names
+
+- Every section and setting now uses the PascalCase spelling the new sections use. The
+  numbered sections lose their numbers, so `1 - General` is now `General`, `1.5 - Fish`
+  is `Fish`, `2 - Shortcuts` is `Shortcuts`, `3 - Favoriting` is `Favoriting` and
+  `4 - Armor Stands` is `ArmorStands`. Keys lose their spaces, so `Player Range` is now
+  `PlayerRange`.
+- Your values carry over. On the first run OttoStash renames the names in
+  `potto007.OttoStash.cfg` before it reads them, and a config carried over from
+  AzuAutoStore goes through the same rename. The file is backed up during the rename and
+  put back if it fails.
+- If you ran 3.2.0, your config may hold a setting under both spellings. The spaced one,
+  written by 3.2.1 through 3.5.1, is kept.
+
 ### Reclaiming, from Recycle_N_Reclaim
 
 - A Reclaim tab at every crafting station turns items back into their resources, at
