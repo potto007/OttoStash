@@ -216,3 +216,25 @@ rk_crate2:
   exclude:
     - Armor
     - Swords
+
+# Crafting from chests
+# Crafting and building take the materials you lack from containers in range. Every container gives anything
+# unless its entry has a "pull" block. A pull block takes the same exclude and includeOverride lists as above,
+# and it is separate from the store rules: a container can refuse to store an item and still give it.
+# A crafting station can have a pull block too. Its rules apply to every container while you work at it.
+# Bags you carry use their prefab name, such as BackpackFlint or JC_Gem_Bag.
+#
+# piece_chest_private:
+#   range: 10
+#   exclude:
+#     - All
+#   pull:
+#     exclude:
+#       - Metals # Never spend metal bars kept in a private chest
+#     includeOverride:
+#       - Bronze # but bronze is fine
+#
+# piece_workbench:
+#   pull:
+#     exclude:
+#       - Trophy # Do not spend trophies at the workbench
