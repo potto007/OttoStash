@@ -10,148 +10,59 @@
 
 --------------------
 
-**Coming from AzuAutoStore?** Your settings carry over. On first run OttoStash looks
-for `Azumatt.AzuAutoStore.cfg` and `Azumatt.AzuAutoStore.yml` and copies them into its
-own `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`. It never touches an
-OttoStash file that already exists.
-
-Two names changed with the rename:
-
-- The console command is now `ottostashsearch`, not `azuautostoresearch`.
-- The config files are now `potto007.OttoStash.cfg` and `potto007.OttoStash.yml`.
-
-**Setting names are PascalCase.** Every section and setting uses one spelling, so
-`1 - General` is now `General` and `Player Range` is now `PlayerRange`. On the first run
-OttoStash renames them in `potto007.OttoStash.cfg`, and your values stay as they were.
-
-**Coming from Recycle_N_Reclaim?** OttoStash now does everything it did: the Reclaim tab,
-Reclaim All on containers, inventory discard, trash marking and undo. Remove
-Recycle_N_Reclaim; while it is installed, OttoStash leaves reclaiming and trash marking
-to it and only stores. On the first run with these features, and on every start while
-Recycle_N_Reclaim is still installed, OttoStash copies the
-settings in `Azumatt.Recycle_N_Reclaim.cfg` into new sections of `potto007.OttoStash.cfg`,
-and `Azumatt.Recycle_N_Reclaim_ExcludeLists.yml` to `potto007.OttoStash.Reclaim.yml`.
-Neither old file is changed. The settings now have PascalCase names under `Reclaim`,
-`ReclaimUI`, `Discard`, `Trash` and `ReclaimDebug`; for example
-`EnableExperimentalCraftingTabUI` is now `ReclaimUI.ReclaimTabEnabled`.
-
-**Coming from AzuCraftyBoxes?** OttoStash now crafts and builds from nearby chests. On
-first run it copies the settings in `Azumatt.AzuCraftyBoxes.cfg` into the `CraftFromChests`
-section, and merges the container rules in `Azumatt.AzuCraftyBoxes.yml` into
-`potto007.OttoStash.yml` as `pull:` blocks. Remove AzuCraftyBoxes afterwards: while it is
-installed, OttoStash leaves crafting from chests to it. AzuCraftyBoxes' Use-to-fill on
-smelters, kilns, fires and other stations is not part of OttoStash; OttoFuel fuels them.
-
---------------------
-
 # Description
 
-This mod pulls nearby items from the ground into containers. Optionally, use a hotkey to store items in your inventory
-into containers. WardIsLove compatible, HotBar items can be ignored (on by default), Quickslots can be
-ignored (`if turned on in the configuration!`).
+OttoStash puts your things away so you can get back to playing. Chests pick up whatever lands on the ground near them, one key empties your inventory into the containers around you, and when you craft or build, the materials you are short on come out of those same chests. It also turns gear back into its resources at a crafting station and lets you mark inventory slots as trash.
 
-## 1. Need to know
+## Need to know
 
-`ServerSync checks the version. A client running a different OttoStash version cannot join the server. A client without OttoStash can still join.`
+OttoStash uses ServerSync. When it is installed on the server and on every client, the server's configuration syncs to all of them, and a client running a different OttoStash version cannot join. A client without OttoStash can still join.
 
-`This mod uses ServerSync, if installed on the server and all clients, it will sync all configs to client`
+The server also watches its config file, so if you edit the file directly on the server instead of through the BepInEx Configuration Manager, the change goes out to every client as soon as you save.
 
-`This mod uses a file watcher. If the configuration file is not changed with BepInEx Configuration manager, but changed in the file directly on the server, upon file save, it will sync the changes to all clients.`
+## Quick start
 
-## TL;DR
-
-1. Drop this mod in, start a world.
-2. Nearby dropped items are pulled into containers according to the YAML rules.
-3. Press `.` to dump your inventory into nearby containers (respecting favorites and YAML rules).
-4. Middle-click an item to store just that one.
-5. Hold `Y` and click an item (or use `ottostashsearch`) to find where you put something.
-6. Edit `potto007.OttoStash.yml` to define per-container ranges and allowed/excluded items.
-7. At a crafting station, open the Reclaim tab to turn an item back into most of its resources.
-8. Click Reclaim All twice on an open container to reclaim everything in it.
-9. Hold `X` and click inventory slots to mark them as trash, then middle-click to discard them all.
-10. Edit `potto007.OttoStash.Reclaim.yml` to keep items out of reclaiming and discarding.
-11. Craft and build with what is in nearby chests. `Alt+O` switches that off and on for you.
-12. All configuration files are found in the `BepInEx/config` folder. Examples are found in the yml files. 
+1. Install it and start a world. Chests pull in items dropped near them, following the rules in `potto007.OttoStash.yml`.
+2. Press `.` to put your inventory into nearby containers. Favorited items and the YAML rules are respected.
+3. Middle-click an item to store just that one.
+4. Hold `Y` and click an item, or run `ottostashsearch`, to find where you put something.
+5. Edit `potto007.OttoStash.yml` to set each container's range and what it will and will not take.
+6. At a crafting station, open the Reclaim tab to turn an item back into most of its resources.
+7. Click Reclaim All twice on an open container to reclaim everything in it.
+8. Hold `X` and click inventory slots to mark them as trash, then middle-click to discard them all.
+9. Edit `potto007.OttoStash.Reclaim.yml` to keep items out of reclaiming and discarding.
+10. Craft and build from what is in nearby chests. `Alt+O` switches that off and on for you alone.
+11. Every configuration file lives in `BepInEx/config`, and the yml files carry their own examples.
 
 ## Compatibility
 
-- **WardIsLove** – fully compatible; wards can protect containers as usual.
-- **Quick Stack / sorting mods** (e.g. QuickStackStore) – UI integration is ordered to avoid grabbing each other’s
-  elements and double buttons.
-- **Backpack mods** (Smoothbrain’s Backpacks, AdventureBackpack, etc.) – supports storing *into* backpacks and has
-  options to globally disable storing to any backpack containers.
-- **ItemDrawers** – supports both KG’s fork and the original Makail version for storing and searching.
-- **Epic Loot and Jewelcrafting** – reclaiming and discarding also return enchanting materials and socketed gems.
-- **Recycle_N_Reclaim** – OttoStash replaces it. If both are installed, OttoStash turns its own reclaiming and
-  trash marking off and leaves them to Recycle_N_Reclaim.
+- **Quick Stack and sorting mods** (QuickStackStore, for example) - the UI integration is ordered so the two mods do not grab each other's elements or double up buttons.
+- **Backpack mods** (Smoothbrain's Backpacks, AdventureBackpack and others) - OttoStash can store into backpacks, and `DontStoreToBackpacks` turns that off everywhere.
+- **ItemDrawers** - both KG's fork and Makail's original work for storing and searching.
+- **Epic Loot and Jewelcrafting** - reclaiming and discarding also return enchanting materials and socketed gems.
+- **Recycle_N_Reclaim** - OttoStash replaces it, and while both are installed, it turns its own reclaiming and trash marking off and leaves them to Recycle_N_Reclaim.
+- **AzuCraftyBoxes, CraftFromContainers and CFCMod** - while any of them is loaded, OttoStash leaves crafting from chests to that mod and logs a warning.
 
 ## Features
 
-- Automatically store dropped resources into nearby containers within a configurable range
-- Restrict specific items from being stored into containers by defining rules in the configuration file in
-  the `BepInEx/config` folder called `potto007.OttoStash.yml`
-- Pause the storing of items with `PauseShortcut` for `SecondsToWaitBeforeStoring` seconds
-- Store a *single* hovered item into nearby containers with `StoreSingleItemShortcut` (Default: Mouse2 / Middle Click)
-- Find where your items ended up: hold `SearchModifierKeybind` (Default: Y) and click an item, or use the `ottostashsearch`
-  command to ping the nearest container holding it and see how many exist. You can use `/ottostashsearch` in the chat
-  window. Auto complete for the command is possible so you can type `/ottostash` and press tab to complete if you don't
-  want to type it all out :D
-- `Favoriting from GoldenRevolver` By holding `FavoritingModifierKeybind1` (default: Z) or by using a new button, you can left
-  click on an item to favorite it,
-  or
-  right click to favorite the slot it is in. This prevents the quick storing from player inventory from having the mod
-  affect that item. No accidental
-  storing something you didn't want. The favoriting state is shown with a custom colored border around the slot. If
-  GoldenRevolver's mod is present, it will read his favoriting file and use that instead.
+- **Storing from the ground.** Containers pick up dropped resources within a range you set, per container or through `FallbackRange`. Press `PauseShortcut` to hold off for `SecondsToWaitBeforeStoring` seconds when you want to pick something up yourself.
+- **Storing from your inventory.** `StoreShortcut` (default `.`) moves your inventory into containers within `PlayerRange`, and `StoreSingleItemShortcut` (default middle-click) stores only the item you click. Rules in `potto007.OttoStash.yml` decide which items each container will take.
+- **Search.** Hold `SearchModifierKeybind` (default `Y`) and click an item, or run `ottostashsearch`, and OttoStash pings the nearest container holding it and tells you how many exist. `/ottostashsearch` works in chat too, and it tab-completes, so `/ottostash` plus Tab is enough.
+- **Favoriting, from GoldenRevolver.** Hold `FavoritingModifierKeybind1` (default `Z`), or use the button, then left-click an item to favorite it or right-click a slot to favorite the slot. Storing from your inventory leaves favorites where they are, so nothing you meant to keep ends up in a chest. A colored border marks each favorite, and if GoldenRevolver's mod is installed, OttoStash reads its favoriting file instead of keeping its own.
+- **Craft and build from nearby chests.** Crafting and building take whatever you lack from containers within `PullRange` (20 m), plus kg drawers and the backpacks and gem bags you carry. The requirement lists show `have/need`, the amount flashes when chests cover the difference, and the build menu shows how many of a piece you can build. Private chests you cannot open, carts on the move, and chests another player has open are skipped. A `pull:` block on a container or crafting station in the yml file keeps items from being pulled, and the end of the example file shows one. `LeaveOneItem` keeps the last of each item in every chest, and `Alt+O` switches pulling off for you alone, with a status icon while it is off. Epic Loot's enchanting table can use the chests too.
+- **Armor stand panel.** Press Use on an armor stand and your inventory opens with the stand's slots beside it, laid out like a figure - head on top, hands either side of the chest, cape, legs and utility item along the bottom. Drag gear onto a slot or back into your bag, or hold Ctrl and click to move it in one go, and Take All empties the stand into your inventory without dropping anything on the ground. The hotbar keys still attach the vanilla way. The panel waits until the stand is yours to change before it moves anything, so two players cannot pull the same item. Turn `ArmorStandPanel` off to get the vanilla take-and-drop back.
+- **Reclaiming, from Recycle_N_Reclaim.** A Reclaim tab sits next to Craft and Upgrade at every crafting station. It lists what you carry that the station could have made, and the craft button turns the selected item back into its resources at `RecyclingRate` - half by default, rounded down, with higher quality items returning more. An item that needs a better station, or whose recipe you do not know, shows why it is blocked. Press `Ctrl+Z` within 20 seconds to undo the last reclaim, and turn on `ShowRecycleYieldInTooltip` to see the yield in every item tooltip.
+- **Reclaim All.** An open container gets a Reclaim All button. Click it twice to reclaim everything in the container, and anything that cannot be reclaimed is listed with the reason. To move the button, hold Left Ctrl and drag it with the right mouse button.
+- **Discard and trash marking.** Drag an item and press `Delete` to destroy it and get its resources back. Hold `X` and click slots to mark them as trash (red border), then middle-click while still holding `X` to discard them all. Both are admin-only by default (`Discard.LockToAdmin`).
+- **Reclaim rules.** `potto007.OttoStash.Reclaim.yml` keeps items or groups out of reclaiming, out of discarding, or out of Reclaim All for one kind of container, and sets recycle rates per item or per group.
 
-- **Craft and build from nearby chests.** Crafting and building take whatever you lack
-  from containers within `PullRange` (20 m), plus kg drawers, the backpacks and gem bags
-  you carry. The requirement lists show `have/need`, the amount flashes when chests make
-  up the difference, and the build menu shows how many of a piece you can build. Private
-  chests you cannot open, carts on the move and chests another player has open are
-  skipped. A `pull:` block on a container or crafting station in the yml file keeps items
-  from being pulled; see the end of the example file. `LeaveOneItem` keeps the last of
-  each item in every chest. `Alt+O` switches pulling off for you alone, with a status
-  icon while it is off. Epic Loot's enchanting table can use the chests too.
-
-- **Armor stand panel.** Press Use on an armor stand and your inventory opens with the
-  stand's slots beside it, laid out as a figure: head on top, hands either side of the
-  chest, cape, legs and utility item along the bottom. Drag gear onto a slot or back
-  into your bag, or hold Ctrl and click to move it in one go. Take All empties the
-  stand into your inventory. Nothing lands on the ground. The hotbar keys still attach
-  the vanilla way, and the panel waits for the stand to be yours to change before it
-  moves anything, so two players cannot pull the same item. Turn `ArmorStandPanel` off to
-  get the vanilla take-and-drop back.
-
-- **Reclaiming, from Recycle_N_Reclaim.** A Reclaim tab sits next to Craft and Upgrade at every
-  crafting station. It lists what you carry that the station could have made, and the craft button
-  turns the selected item back into its resources, at `RecyclingRate` (half by default, rounded
-  down; higher quality returns more). An item you need a better station for, or whose recipe you
-  do not know, shows why it is blocked. Press `Ctrl+Z` within 20 seconds to undo the last reclaim.
-  Turn on `ShowRecycleYieldInTooltip` to see the yield in every item tooltip.
-- **Reclaim All.** An open container gets a Reclaim All button. Click it twice to reclaim
-  everything in the container; anything that cannot be reclaimed is listed with the reason. Hold
-  Left Ctrl and drag the button with the right mouse button to move it.
-- **Discard and trash marking.** Drag an item and press `Delete` to destroy it and get its
-  resources back. Hold `X` and click slots to mark them as trash (red border), then middle-click
-  while still holding `X` to discard them all. Both are admin-only by default
-  (`Discard.LockToAdmin`).
-- **Reclaim rules.** `potto007.OttoStash.Reclaim.yml` keeps items or groups out of reclaiming, out
-  of discarding, or out of Reclaim All for one kind of container, and sets per-item or per-group
-  recycle rates.
-
-Designed to be server-friendly: runs on configurable intervals, chunks bulk transfers, and throttles ownership requests
-to avoid lag and race conditions.
-
-Includes multiple protections against item loss and duplication, especially when teleporting, dying, or interacting with
-many containers.
+OttoStash is built to be easy on a server. It works on intervals you can configure, moves bulk transfers in chunks, and throttles ownership requests to keep lag and race conditions down. It also has several protections against losing or duplicating items, especially around teleporting, dying, and working with a lot of containers at once.
 
 ## FAQ
 
-- Frequently asked questions will be added to the wiki tab of this mod as they are asked. Wiki tab is located at the top
-  of this page.
+Answers go on the wiki tab at the top of this page as questions come in.
 
-## 2. Configuration (Collapsed due to length. Click to expand)
+## Configuration
 
 <details> <summary><b>Available Configuration Options</b></summary>
 
@@ -532,38 +443,37 @@ FlashColor, UnflashColor, CanBuildColor, CannotBuildColor [Not Synced with Serve
 <details>
 <summary><b>Installation Instructions</b></summary>
 
-### Manual Installation
+### Manual installation
 
-`Note: (Manual installation is likely how you have to do this on a server, make sure BepInEx is installed on the server correctly)`
+On a server you will most likely install by hand, so make sure BepInEx is installed there correctly first.
 
-1. **Download the latest release of BepInEx.**
-2. **Extract the contents of the zip file to your game's root folder.**
-3. **Download the latest release of OttoStash from Thunderstore.io.**
-4. **Extract the contents of the zip file to the `BepInEx/plugins` folder.**
-5. **Launch the game.**
+1. Download the latest release of BepInEx.
+2. Extract the zip into the game's root folder.
+3. Download the latest release of OttoStash from Thunderstore.io.
+4. Extract the zip into the `BepInEx/plugins` folder.
+5. Launch the game.
 
-### Installation through r2modman or Thunderstore Mod Manager
+### Installing with r2modman or Thunderstore Mod Manager
 
-1. **Install [r2modman](https://valheim.thunderstore.io/package/ebkr/r2modman/)
-   or [Thunderstore Mod Manager](https://www.overwolf.com/app/Thunderstore-Thunderstore_Mod_Manager).**
+1. Install [r2modman](https://valheim.thunderstore.io/package/ebkr/r2modman/)
+   or [Thunderstore Mod Manager](https://www.overwolf.com/app/Thunderstore-Thunderstore_Mod_Manager).
 
-   > For r2modman, you can also install it through the Thunderstore site.
+   > r2modman also installs from the Thunderstore site.
    ![](https://i.imgur.com/s4X4rEs.png "r2modman Download")
 
-   > For Thunderstore Mod Manager, you can also install it through the Overwolf app store
+   > Thunderstore Mod Manager also installs from the Overwolf app store.
    ![](https://i.imgur.com/HQLZFp4.png "Thunderstore Mod Manager Download")
-2. **Open the Mod Manager and search for "OttoStash" under the Online
-   tab.**
-   The image below shows VikingShip as an example, but it was easier to reuse the image. Type OttoStash.
+2. Open the mod manager and search for "OttoStash" on the Online tab. The screenshot below
+   shows a search for VikingShip; type OttoStash instead.
 
 ![](https://i.imgur.com/5CR5XKu.png)
 
-3. **Click the Download button to install the mod.**
-4. **Launch the game.**
+3. Click Download to install the mod.
+4. Launch the game.
 
 </details>
 
-Example: make a chest that only ever pulls Food & Potions:
+This entry makes a chest that only picks up and stores food and potions:
 
 ```yaml
 piece_chest:
@@ -802,16 +712,47 @@ rk_crate2:
 
 --------------------
 
-## Version Information
+## Version information
 
-The full release history lives in [CHANGELOG.md](Thunderstore/CHANGELOG.md), and it
-renders on the Changelog tab of the Thunderstore package page.
+The full release history is in [CHANGELOG.md](Thunderstore/CHANGELOG.md), which also
+shows on the Changelog tab of the Thunderstore package page.
+
+--------------------
+
+## Moving over from Azumatt's mods
+
+**AzuAutoStore.** Your settings carry over. On the first run OttoStash looks for
+`Azumatt.AzuAutoStore.cfg` and `Azumatt.AzuAutoStore.yml` and copies them to
+`potto007.OttoStash.cfg` and `potto007.OttoStash.yml`, and it never overwrites an
+OttoStash file that already exists.
+
+**Recycle_N_Reclaim.** OttoStash does everything Recycle_N_Reclaim did - the Reclaim tab,
+Reclaim All on containers, inventory discard, trash marking and undo - so remove it once
+you have switched. While it stays installed, OttoStash leaves reclaiming and trash marking
+to it and only stores, and it copies `Azumatt.Recycle_N_Reclaim.cfg` into the `Reclaim`,
+`ReclaimUI`, `Discard`, `Trash` and `ReclaimDebug` sections of `potto007.OttoStash.cfg`,
+and `Azumatt.Recycle_N_Reclaim_ExcludeLists.yml` into `potto007.OttoStash.Reclaim.yml`, on
+every start. That means a reclaim setting you change in OttoStash gets overwritten with the
+Recycle_N_Reclaim value on the next start until you remove it. Neither old file is ever
+changed. The settings have PascalCase names now, so `EnableExperimentalCraftingTabUI` is
+`ReclaimUI.ReclaimTabEnabled`.
+
+**AzuCraftyBoxes.** OttoStash crafts and builds from nearby chests now. On the first run it
+copies the settings in `Azumatt.AzuCraftyBoxes.cfg` into the `CraftFromChests` section and
+merges the container rules in `Azumatt.AzuCraftyBoxes.yml` into `potto007.OttoStash.yml` as
+`pull:` blocks. Remove AzuCraftyBoxes afterwards, because while it is installed OttoStash
+leaves crafting from chests to it. Its Use-to-fill on smelters, kilns, fires and other
+stations is not part of OttoStash; OttoFuel fuels those.
+
+--------------------
 
 ## Credits
 
-OttoStash is maintained by **Paul Otto**.
+OttoStash is maintained by Paul Otto.
 
+Auto store behavior comes from earlier versions of Azumatt's AzuAutoStore, MIT licensed.
 Reclaiming, discard and trash marking come from Azumatt's
 [Recycle_N_Reclaim](https://thunderstore.io/c/valheim/p/Azumatt/Recycle_N_Reclaim/), MIT licensed,
 which grew out of OdinsInventoryDiscard and took contributions from MidnightsFX, Vapok,
-shudnal and Goldenrevolver.
+shudnal and Goldenrevolver. Crafting from chests comes from Azumatt's AzuCraftyBoxes, also
+MIT licensed, and favoriting comes from GoldenRevolver.
