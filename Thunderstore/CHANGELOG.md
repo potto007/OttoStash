@@ -3,6 +3,10 @@
 Versions 3.0.11 and below are AzuAutoStore's release history, kept below exactly as
 Azumatt wrote it.
 
+## 3.6.2
+
+- Rebuilt against Valheim 1.0.20. Every Harmony patch target still resolves in this build, and nothing else changed.
+
 ## 3.6.1
 
 - Rewrote the README and this changelog. The code is unchanged from 3.6.0, but a server
